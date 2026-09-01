@@ -1,0 +1,6 @@
+{
+  "name": "We.SignForge",
+  "description": "Enterprise eSignature platform for offer letters & candidate onboarding with candidate & HR dual-signature workflow, cryptographic audit trails, and automated executive routing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

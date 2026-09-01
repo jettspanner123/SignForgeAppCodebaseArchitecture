@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Light mode Canadian Slate */
+  --color-canvas: #ffffff;
+  --color-surface-card: #f8fafc;
+  --color-surface-elevated: #f1f5f9;
+  --color-surface-deep: #f8fafc;
+
+  --color-ink: #09090b;
+  --color-body: #334155;
+  --color-charcoal: #475569;
+  --color-mute: #64748b;
+  --color-ash: #94a3b8;
+  --color-stone: #cbd5e1;
+
+  --color-hairline: rgba(15, 23, 42, 0.08);
+  --color-hairline-strong: rgba(15, 23, 42, 0.14);
+
+  --color-brand-sapphire: #0C2086;
+  --color-brand-sapphire-hover: #081765;
+}
+
+html.dark {
+  /* Dark mode Obsidian Space */
+  --color-canvas: #000000;
+  --color-surface-card: #0a0a0c;
+  --color-surface-elevated: #101012;
+  --color-surface-deep: #06060a;
+
+  --color-ink: #fcfdff;
+  --color-body: rgba(252, 253, 255, 0.86);
+  --color-charcoal: rgba(252, 253, 255, 0.70);
+  --color-mute: #a1a4a5;
+  --color-ash: #888e90;
+  --color-stone: #464a4d;
+
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-strong: rgba(255, 255, 255, 0.14);
+}
+
+html {
+  color-scheme: light;
+  font-family: var(--font-sans);
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--color-canvas);
+  color: var(--color-body);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif-headline {
+  font-family: var(--font-serif);
+}
+
+.font-mono-code {
+  font-family: var(--font-mono);
+}
+
+.hairline-border {
+  border: 1px solid var(--color-hairline);
+}
+
+.hairline-border-strong {
+  border: 1px solid var(--color-hairline-strong);
+}
+
+.hairline-border-b {
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.hairline-border-t {
+  border-top: 1px solid var(--color-hairline);
+}
+
