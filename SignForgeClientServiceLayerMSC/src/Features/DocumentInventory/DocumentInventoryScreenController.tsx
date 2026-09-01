@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Search, 
   FileText, 
@@ -15,17 +15,23 @@ import {
   Building2,
   MapPin,
   FileSignature,
-  Layers
+  Layers,
+  Grid,
+  List,
+  Maximize2,
+  WrapText,
+  Send
 } from 'lucide-react';
 import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
 import { OfferDocument } from '../../Types';
 import ApplicationRouteCON from '../../Constants/ApplicationRouteCON';
 import ButtonSharedComponent from '../../Shared/Components/ButtonSharedComponent';
 import BadgeSharedComponent from '../../Shared/Components/BadgeSharedComponent';
-import InputSharedComponent from '../../Shared/Components/InputSharedComponent';
 import EmptyStateSharedComponent from '../../Shared/Components/EmptyStateSharedComponent';
+import CustomSelectSharedComponent, { SelectOption } from '../../Shared/Components/CustomSelectSharedComponent';
+import ConfirmationModalSharedComponent from '../../Shared/Components/ConfirmationModalSharedComponent';
 import { downloadExecutedPDF } from '../../utils/pdfGenerator';
-import { encodeOfferToUrl } from '../../utils/urlEncoder';
+import { formatTimestamp } from '../../utils/crypto';
 
 export interface DocumentInventoryScreenControllerProps {
   onOpenAuditModalForDoc: (doc: OfferDocument) => void;
@@ -35,7 +41,7 @@ export interface DocumentInventoryScreenControllerProps {
 export default function DocumentInventoryScreenController({
   onOpenAuditModalForDoc,
   onOpenSendEmailModal,
-}: DocumentInventoryScreenControllerProps) {
+}: DocumentInventoryScreenControllerProps): React.JSX.Element {
   const {
     documents,
     searchQuery,
@@ -46,6 +52,30 @@ export default function DocumentInventoryScreenController({
     setCurrentView,
     deleteDocument,
   } = useOfferDocumentStore();
+
+  const {
+    inventoryViewMode: viewMode,
+    setInventoryViewMode: setViewMode,
+    inventoryGridColumns: gridColumns,
+    setInventoryGridColumns: setGridColumns,
+    inventorySingleLineMode: isSingleLineMode,
+    setInventorySingleLineMode: setIsSingleLineMode,
+  } = useOfferDocumentStore();
+
+  const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
+  const [docToDelete, setDocToDelete] = useState<OfferDocument | null>(null);
+  const [copiedDocId, setCopiedDocId] = useState<string | null>(null);
+
+  // Status Filter Options for CustomSelectSharedComponent 1:1 AssetSphere
+  const statusOptions: SelectOption[] = [
+    { value: 'ALL', label: `All Documents (${documents.length})` },
+    { value: 'DRAFT', label: `Drafts (${documents.filter((d) => d.status === 'DRAFT').length})` },
+    { value: 'SENT', label: `Pending Candidate (${documents.filter((d) => d.status === 'SENT' || d.status === 'OUT_FOR_CANDIDATE_SIGN').length})` },
+    { value: 'CANDIDATE_SIGNED', label: `Pending Countersign (${documents.filter((d) => d.status === 'CANDIDATE_SIGNED').length})` },
+    { value: 'HR_COUNTERSIGNED', label: `Fully Executed (${documents.filter((d) => d.status === 'HR_COUNTERSIGNED' || d.status === 'FULLY_EXECUTED').length})` },
+    { value: 'EXPIRED', label: `Expired (${documents.filter((d) => d.status === 'EXPIRED').length})` },
+    { value: 'VOID', label: `Void (${documents.filter((d) => d.status === 'VOID').length})` },
+  ];
 
   // KPI Metrics Calculations
   const metrics = useMemo(() => {
@@ -99,36 +129,51 @@ export default function DocumentInventoryScreenController({
     setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN);
   };
 
+  const handleDownloadPdf = async (doc: OfferDocument) => {
+    setDownloadingDocId(doc.id);
+    const result = await downloadExecutedPDF(doc);
+    setDownloadingDocId(null);
+
+    if (result.success && result.blobUrl && result.fileName) {
+      const link = document.createElement('a');
+      link.href = result.blobUrl;
+      link.download = result.fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (result.error) {
+      alert(`Could not generate PDF: ${result.error}`);
+    }
+  };
+
   const handleCopySigningLink = (doc: OfferDocument) => {
-    const encodedPayload = encodeOfferToUrl(doc);
-    const origin = window.location.origin;
-    const shareUrl = `${origin}?view=sign&payload=${encodedPayload}`;
-    navigator.clipboard.writeText(shareUrl);
-    alert(`Candidate signing link copied to clipboard!\n\n${shareUrl}`);
+    const url = `${window.location.origin}${window.location.pathname}#/candidate/${doc.id}`;
+    navigator.clipboard.writeText(url);
+    setCopiedDocId(doc.id);
+    setTimeout(() => setCopiedDocId(null), 2500);
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    if (currency === 'INR') {
-      if (amount >= 100000) {
-        return `₹${(amount / 100000).toFixed(2)} LPA`;
-      }
-      return `₹${amount.toLocaleString('en-IN')}`;
-    }
-    return `${currency} ${amount.toLocaleString('en-US')}`;
-  };
-
-  const formatDate = (isoString: string) => {
-    if (!isoString) return '—';
-    try {
-      const d = new Date(isoString);
-      return d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch {
-      return isoString;
-    }
+  const handleExportCSV = () => {
+    if (filteredDocuments.length === 0) return;
+    const headers = ['Document Number', 'Candidate Name', 'Email', 'Job Title', 'Department', 'Annual CTC', 'Status', 'Created At'];
+    const rows = filteredDocuments.map((doc) => [
+      doc.documentNumber,
+      `"${doc.offerDetails?.candidateName || 'N/A'}"`,
+      doc.offerDetails?.candidateEmail || 'N/A',
+      `"${doc.offerDetails?.jobTitle || doc.offerDetails?.roleTitle || 'N/A'}"`,
+      `"${doc.offerDetails?.department || 'N/A'}"`,
+      `"${doc.offerDetails?.annualSalary || 'N/A'}"`,
+      doc.status,
+      formatTimestamp(doc.createdAt),
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `signforge_documents_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -237,55 +282,149 @@ export default function DocumentInventoryScreenController({
         </div>
       </div>
 
-      {/* 3. Filter & Search Controls */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-white dark:bg-zinc-900/90 p-3.5 rounded-xl border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
-        {/* Search Input */}
-        <div className="w-full lg:w-96">
-          <InputSharedComponent
-            placeholder="Search by candidate, role, doc #..."
-            leftIcon={<Search className="w-4 h-4" />}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      {/* 3. Control Toolbar Card 1:1 AssetSphere */}
+      <div className="p-4 rounded-xl bg-white dark:bg-[#0a0a0c] hairline-border shadow-2xs space-y-4">
+        {/* Row 1: Search Input & Primary Actions */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search Box */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by candidate, role, doc #, or email..."
+              className="w-full h-9 pl-9 pr-3 text-xs rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-200/80 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <ButtonSharedComponent
+              variant="outline"
+              size="sm"
+              onClick={handleExportCSV}
+              icon={<Download className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />}
+            >
+              Export CSV
+            </ButtonSharedComponent>
+          </div>
         </div>
 
-        {/* Status Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
-          {[
-            { id: 'ALL', label: 'All', count: metrics.total },
-            { id: 'SENT', label: 'Candidate Pending', count: metrics.pendingCandidate },
-            { id: 'CANDIDATE_SIGNED', label: 'Countersign Pending', count: metrics.pendingCountersign },
-            { id: 'HR_COUNTERSIGNED', label: 'Executed', count: metrics.fullyExecuted },
-            { id: 'DRAFT', label: 'Drafts', count: metrics.drafts },
-          ].map((tab) => {
-            const isSelected = activeStatusFilter === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveStatusFilter(tab.id)}
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer border ${
-                  isSelected
-                    ? '!bg-[#0C2086] !text-white border-[#0C2086] font-semibold shadow-xs'
-                    : 'bg-slate-50 dark:bg-zinc-800/60 text-slate-600 dark:text-zinc-300 border-slate-200/80 dark:border-zinc-700/80 hover:bg-slate-100 dark:hover:bg-zinc-800'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span
-                  className={`px-1.5 py-0.2 rounded-full font-mono text-[10px] ${
-                    isSelected
-                      ? 'bg-white/20 text-white'
-                      : 'bg-slate-200/80 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300'
+        {/* Row 2: Secondary Dropdown Filters & Uniform View Switchers 1:1 AssetSphere */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/60 dark:border-zinc-800/60 text-xs">
+          {/* Left: Secondary Dropdown Filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500 dark:text-zinc-400 font-medium">Status:</span>
+              <CustomSelectSharedComponent
+                value={activeStatusFilter}
+                options={statusOptions}
+                onChange={(val) => setActiveStatusFilter(val)}
+                size="sm"
+                className="w-52 sm:w-60"
+              />
+            </div>
+          </div>
+
+          {/* Right: Uniform Switchers */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Grid Density Switcher (2 Col vs 3 Col) */}
+            {viewMode === 'grid' && (
+              <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9">
+                <button
+                  type="button"
+                  onClick={() => setGridColumns(2)}
+                  className={`px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    gridColumns === 2
+                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
+                  title="Show 2 Items Per Row"
                 >
-                  {tab.count}
-                </span>
+                  2 Per Row
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGridColumns(3)}
+                  className={`px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    gridColumns === 3
+                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Show 3 Items Per Row"
+                >
+                  3 Per Row
+                </button>
+              </div>
+            )}
+
+            {/* Table Single-Line Segmented Control */}
+            {viewMode === 'table' && (
+              <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9">
+                <button
+                  type="button"
+                  onClick={() => setIsSingleLineMode(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    isSingleLineMode
+                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Single-Line Table Mode"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>Single-Line</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSingleLineMode(false)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    !isSingleLineMode
+                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Wrap Text Table Mode"
+                >
+                  <WrapText className="w-3.5 h-3.5" />
+                  <span>Wrap Text</span>
+                </button>
+              </div>
+            )}
+
+            {/* View Mode Segmented Control (Table, Grid) */}
+            <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9">
+              <button
+                type="button"
+                onClick={() => setViewMode('table')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                  viewMode === 'table'
+                    ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title="Table View"
+              >
+                <List className="w-3.5 h-3.5" />
+                <span>Table</span>
               </button>
-            );
-          })}
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                  viewMode === 'grid'
+                    ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title="Grid View"
+              >
+                <Grid className="w-3.5 h-3.5" />
+                <span>Grid</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* 4. Enterprise Document Inventory Table */}
+      {/* 4. Document Presentation (Table View vs Grid Cards) */}
       {filteredDocuments.length === 0 ? (
         <EmptyStateSharedComponent
           icon={<Layers className="w-6 h-6" />}
@@ -296,7 +435,8 @@ export default function DocumentInventoryScreenController({
               : 'No documents match the selected status filter.'
           }
         />
-      ) : (
+      ) : viewMode === 'table' ? (
+        /* TABLE VIEW */
         <div className="rounded-xl border border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -320,94 +460,72 @@ export default function DocumentInventoryScreenController({
                   return (
                     <tr
                       key={doc.id}
-                      className="hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition-colors"
+                      className="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition-colors group"
                     >
-                      {/* 1. Document ID & Type */}
-                      <td className="py-3.5 px-4 align-middle">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-[#0C2086] dark:text-blue-400 shrink-0">
-                            <FileText className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="font-mono font-semibold text-slate-900 dark:text-zinc-100 block">
-                              {(doc.documentNumber || doc.docNumber || 'DOC-000')}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500 uppercase">
-                              {doc.documentType.replace('_', ' ')} • {doc.signatureCount} Signatures
-                            </span>
-                          </div>
+                      {/* Document Details */}
+                      <td className="py-3 px-4">
+                        <div className="font-semibold text-slate-900 dark:text-zinc-100 truncate font-mono">
+                          {doc.documentNumber}
+                        </div>
+                        <div className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5">
+                          {doc.title}
                         </div>
                       </td>
 
-                      {/* 2. Candidate & Contact */}
-                      <td className="py-3.5 px-4 align-middle">
-                        <div className="font-medium text-slate-900 dark:text-zinc-100">
-                          {doc.offerDetails.candidateName}
+                      {/* Candidate & Contact */}
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-slate-800 dark:text-zinc-200">
+                          {doc.offerDetails?.candidateName || 'N/A'}
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-zinc-400">
-                          {doc.offerDetails.candidateEmail}
-                        </div>
-                        {doc.offerDetails.candidatePhone && (
-                          <div className="text-[10px] font-mono text-slate-400 dark:text-zinc-500">
-                            {doc.offerDetails.candidatePhone}
+                        {!isSingleLineMode && (
+                          <div className="text-[11px] text-slate-400 dark:text-zinc-500 flex items-center gap-1 mt-0.5 font-mono">
+                            <Mail className="w-3 h-3 text-slate-400" />
+                            <span className="truncate">{doc.offerDetails?.candidateEmail || 'N/A'}</span>
                           </div>
                         )}
                       </td>
 
-                      {/* 3. Role & Department */}
-                      <td className="py-3.5 px-4 align-middle">
-                        <div className="font-medium text-slate-900 dark:text-zinc-100">
-                          {(doc.offerDetails.roleTitle || doc.offerDetails.jobTitle || 'Position')}
+                      {/* Role & Department */}
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-slate-800 dark:text-zinc-200 truncate">
+                          {doc.offerDetails?.jobTitle || doc.offerDetails?.roleTitle || 'N/A'}
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
-                          <Building2 className="w-3 h-3 shrink-0 text-slate-400" />
-                          <span>{doc.offerDetails.department}</span>
-                        </div>
-                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 shrink-0 text-slate-400" />
-                          <span>{(doc.offerDetails.location || doc.offerDetails.workLocation || 'Pune')}</span>
-                        </div>
+                        {!isSingleLineMode && (
+                          <div className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5">
+                            {doc.offerDetails?.department || 'Operations'} • {doc.offerDetails?.location || doc.offerDetails?.workLocation || 'Bengaluru'}
+                          </div>
+                        )}
                       </td>
 
-                      {/* 4. Compensation */}
-                      <td className="py-3.5 px-4 align-middle font-mono">
-                        <div className="font-semibold text-slate-900 dark:text-zinc-100">
-                          {formatCurrency(doc.offerDetails.ctc, doc.offerDetails.currency)}
-                        </div>
-                        <div className="text-[10px] text-slate-400 dark:text-zinc-500">
-                          Fixed: {formatCurrency(doc.offerDetails.fixedSalary, doc.offerDetails.currency)}
-                        </div>
+                      {/* Compensation */}
+                      <td className="py-3 px-4 font-mono font-semibold text-slate-900 dark:text-zinc-100">
+                        {doc.offerDetails?.annualSalary || 'Confidential'}
                       </td>
 
-                      {/* 5. Status Badge */}
-                      <td className="py-3.5 px-4 align-middle">
-                        <BadgeSharedComponent status={doc.status} />
+                      {/* Status */}
+                      <td className="py-3 px-4">
+                        <BadgeSharedComponent status={doc.status} size="sm" />
                       </td>
 
-                      {/* 6. Timestamps */}
-                      <td className="py-3.5 px-4 align-middle font-mono text-[11px] text-slate-500 dark:text-zinc-400">
-                        <div>Created: {formatDate(doc.createdAt)}</div>
-                        <div className="text-[10px] text-slate-400 dark:text-zinc-500">
-                          Expires: {formatDate(doc.offerDetails.expiryDate)}
-                        </div>
+                      {/* Timestamps */}
+                      <td className="py-3 px-4 text-[11px] font-mono text-slate-400 dark:text-zinc-500 whitespace-nowrap">
+                        <div>{formatTimestamp(doc.createdAt)}</div>
                       </td>
 
-                      {/* 7. Action Menu Cluster */}
-                      <td className="py-3.5 px-4 align-middle text-right">
+                      {/* Actions */}
+                      <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {/* Ready for Countersign CTA */}
                           {isReadyForCountersign && (
                             <ButtonSharedComponent
                               variant="primary"
                               size="sm"
-                              leftIcon={<FileSignature className="w-3.5 h-3.5" />}
+                              leftIcon={<FileSignature className="w-3.5 h-3.5 !text-white" />}
                               onClick={() => handleOpenCountersignPortal(doc)}
                             >
                               Countersign
                             </ButtonSharedComponent>
                           )}
 
-                          {/* Candidate Sign Link CTA */}
                           {isPendingCandidate && (
                             <ButtonSharedComponent
                               variant="secondary"
@@ -419,10 +537,10 @@ export default function DocumentInventoryScreenController({
                             </ButtonSharedComponent>
                           )}
 
-                          {/* Download Executed PDF */}
                           {isFullyExecuted && (
                             <button
-                              onClick={() => downloadExecutedPDF(doc)}
+                              type="button"
+                              onClick={() => handleDownloadPdf(doc)}
                               title="Download Certified PDF"
                               className="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 border border-emerald-200/60 dark:border-emerald-900/40 cursor-pointer transition-colors"
                             >
@@ -430,8 +548,8 @@ export default function DocumentInventoryScreenController({
                             </button>
                           )}
 
-                          {/* Send Email Modal */}
                           <button
+                            type="button"
                             onClick={() => onOpenSendEmailModal(doc)}
                             title="Dispatch Email to Candidate"
                             className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer transition-colors"
@@ -439,8 +557,8 @@ export default function DocumentInventoryScreenController({
                             <Mail className="w-4 h-4" />
                           </button>
 
-                          {/* Audit Trail Modal */}
                           <button
+                            type="button"
                             onClick={() => onOpenAuditModalForDoc(doc)}
                             title="View Cryptographic Audit Trail"
                             className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer transition-colors"
@@ -448,13 +566,9 @@ export default function DocumentInventoryScreenController({
                             <ShieldCheck className="w-4 h-4" />
                           </button>
 
-                          {/* Delete Document */}
                           <button
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to remove document ${(doc.documentNumber || doc.docNumber || 'DOC-000')}?`)) {
-                                deleteDocument(doc.id);
-                              }
-                            }}
+                            type="button"
+                            onClick={() => setDocToDelete(doc)}
                             title="Delete Document"
                             className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-200/60 cursor-pointer transition-colors"
                           >
@@ -480,6 +594,136 @@ export default function DocumentInventoryScreenController({
             </span>
           </div>
         </div>
+      ) : (
+        /* GRID CARD VIEW 1:1 AssetSphere */
+        <div className={`grid gap-4 ${gridColumns === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+          {filteredDocuments.map((doc) => {
+            const isReadyForCountersign = doc.status === 'CANDIDATE_SIGNED';
+            const isPendingCandidate = doc.status === 'SENT';
+
+            return (
+              <div
+                key={doc.id}
+                className="p-5 rounded-2xl bg-white dark:bg-[#0a0a0c] hairline-border shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+              >
+                {/* Top: Document # & Status */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="font-mono text-xs font-bold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-slate-200/80 dark:border-zinc-700/80">
+                      {doc.documentNumber}
+                    </span>
+                    <h3 className="font-serif-headline font-bold text-base text-slate-900 dark:text-zinc-100 mt-2 truncate">
+                      {doc.offerDetails?.candidateName || 'N/A'}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium truncate mt-0.5">
+                      {doc.offerDetails?.jobTitle || doc.offerDetails?.roleTitle || 'N/A'}
+                    </p>
+                  </div>
+                  <BadgeSharedComponent status={doc.status} size="sm" />
+                </div>
+
+                {/* Middle: Details Grid */}
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-100 dark:border-zinc-800/80 space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
+                    <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Compensation</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-zinc-100">{doc.offerDetails?.annualSalary || 'Confidential'}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
+                    <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Department</span>
+                    <span>{doc.offerDetails?.department || 'Operations'}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
+                    <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Created</span>
+                    <span className="font-mono text-[11px]">{formatTimestamp(doc.createdAt)}</span>
+                  </div>
+                </div>
+
+                {/* Bottom Actions Cluster */}
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800/80">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onOpenAuditModalForDoc(doc)}
+                      title="Audit Trail Logs"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    >
+                      <ShieldCheck className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={downloadingDocId === doc.id}
+                      onClick={() => handleDownloadPdf(doc)}
+                      title="Download PDF"
+                      className="p-1.5 rounded-lg text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenSendEmailModal(doc)}
+                      title="Dispatch Email"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    >
+                      <Mail className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDocToDelete(doc)}
+                      title="Delete Document"
+                      className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div>
+                    {isReadyForCountersign && (
+                      <ButtonSharedComponent
+                        variant="primary"
+                        size="sm"
+                        leftIcon={<FileSignature className="w-3.5 h-3.5 !text-white" />}
+                        onClick={() => handleOpenCountersignPortal(doc)}
+                      >
+                        Countersign
+                      </ButtonSharedComponent>
+                    )}
+
+                    {isPendingCandidate && (
+                      <ButtonSharedComponent
+                        variant="secondary"
+                        size="sm"
+                        leftIcon={<ExternalLink className="w-3.5 h-3.5" />}
+                        onClick={() => handleOpenCandidatePortal(doc)}
+                      >
+                        Sign Portal
+                      </ButtonSharedComponent>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 5. Delete Confirmation Modal */}
+      {docToDelete && (
+        <ConfirmationModalSharedComponent
+          isOpen={Boolean(docToDelete)}
+          onClose={() => setDocToDelete(null)}
+          onConfirm={() => {
+            if (docToDelete) {
+              deleteDocument(docToDelete.id);
+              setDocToDelete(null);
+            }
+          }}
+          title="Delete Offer Document?"
+          subtitle="Permanent document deletion"
+          description={`Are you sure you want to delete ${docToDelete.documentNumber} for ${docToDelete.offerDetails?.candidateName || 'this candidate'}? This document will be permanently removed.`}
+          confirmText="Delete Document"
+          cancelText="Cancel"
+          variant="danger"
+        />
       )}
     </div>
   );

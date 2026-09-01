@@ -44,31 +44,30 @@ export default function HeaderStaticComponent({
           </div>
         </div>
 
-        {/* Center: Segmented Capsule Navigation Tabs (Desktop) */}
-        <nav className="hidden md:flex items-center gap-1 p-1 bg-slate-100/80 dark:bg-zinc-900/90 rounded-xl border border-slate-200/60 dark:border-zinc-800/60">
-          {NavigationCON.PRIMARY_NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentView === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => onSelectView(item.id)}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer select-none ${
-                  isActive
-                    ? 'bg-white dark:bg-zinc-800 text-[#0C2086] dark:text-zinc-100 shadow-xs font-semibold'
-                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Right Actions Cluster */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        {/* Right Clustered: Navigation Tabs + Profile Button */}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Segmented Capsule Navigation Tabs (Desktop) */}
+          <nav className="hidden md:flex items-center gap-1 p-1 bg-slate-100/80 dark:bg-zinc-900/90 rounded-xl border border-slate-200/60 dark:border-zinc-800/60">
+            {NavigationCON.PRIMARY_NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => onSelectView(item.id)}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer select-none ${
+                    isActive
+                      ? 'bg-white dark:bg-zinc-800 text-[#0C2086] dark:text-zinc-100 shadow-xs font-semibold'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
           {/* 1:1 AssetSphere Profile Button */}
           <div className="relative">
             <button

@@ -1,106 +1,133 @@
-import ApplicationThemeUtility from '../Utilities/ApplicationThemeUtility';
 import { create } from 'zustand';
 import { OfferDocument } from '../Types';
-import OfferDocumentsService from '../Services/OfferDocumentsService';
-import ApplicationThemeCON from '../Constants/ApplicationThemeCON';
+import { SAMPLE_DOCUMENTS } from '../Constants/SampleDocumentsCON';
 import ApplicationRouteCON from '../Constants/ApplicationRouteCON';
-import MockDataSeederService from '../Services/MockDataSeederService';
+import ApplicationThemeUtility from '../Utilities/ApplicationThemeUtility';
+import UserPreferencesUtility from '../Utilities/UserPreferencesUtility';
 
-export interface OfferDocumentState {
+const STORAGE_KEY = 'signcorp_documents';
+
+const loadDocuments = (): OfferDocument[] => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Failed to load documents from local storage', e);
+  }
+  return SAMPLE_DOCUMENTS;
+};
+
+const saveDocuments = (docs: OfferDocument[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(docs));
+  } catch (e) {
+    console.error('Failed to save documents to local storage', e);
+  }
+};
+
+interface OfferDocumentState {
   documents: OfferDocument[];
-  selectedDocId: string | null;
-  activeStatusFilter: string;
-  searchQuery: string;
   currentView: string;
-  theme: 'light' | 'dark';
-  
+  selectedDocId: string | null;
+  searchQuery: string;
+  activeStatusFilter: string;
+  theme: string;
+  inventoryViewMode: 'table' | 'grid';
+  inventoryGridColumns: 2 | 3;
+  inventorySingleLineMode: boolean;
+
   // Actions
-  setDocuments: (docs: OfferDocument[]) => void;
+  setCurrentView: (view: string, docId?: string) => void;
+  setSelectedDocId: (id: string | null) => void;
+  setSearchQuery: (query: string) => void;
+  setActiveStatusFilter: (status: string) => void;
+  setInventoryViewMode: (mode: 'table' | 'grid') => void;
+  setInventoryGridColumns: (cols: 2 | 3) => void;
+  setInventorySingleLineMode: (val: boolean) => void;
   addDocument: (doc: OfferDocument) => void;
   updateDocument: (doc: OfferDocument) => void;
   deleteDocument: (id: string) => void;
-  setSelectedDocId: (id: string | null) => void;
-  setActiveStatusFilter: (status: string) => void;
-  setSearchQuery: (query: string) => void;
-  setCurrentView: (view: string, docId?: string) => void;
-  setTheme: (theme: 'light' | 'dark') => void;
-  toggleTheme: () => void;
   resetToSampleData: () => void;
+  toggleTheme: () => void;
+  getSelectedDocument: () => OfferDocument | undefined;
 }
 
-export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => {
-  // Initialize theme
-  const initialTheme = ApplicationThemeUtility.current.getSavedTheme() as 'light' | 'dark';
-  ApplicationThemeUtility.current.applyTheme(initialTheme);
+export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
+  documents: loadDocuments(),
+  currentView: ApplicationRouteCON.fromHash(window.location.hash).view,
+  selectedDocId: ApplicationRouteCON.fromHash(window.location.hash).docId || null,
+  searchQuery: '',
+  activeStatusFilter: UserPreferencesUtility.current.getActiveStatusFilter('ALL'),
+  theme: ApplicationThemeUtility.current.getSavedTheme(),
+  inventoryViewMode: UserPreferencesUtility.current.getInventoryViewMode('grid'),
+  inventoryGridColumns: UserPreferencesUtility.current.getInventoryGridColumns(2),
+  inventorySingleLineMode: UserPreferencesUtility.current.getInventorySingleLine(false),
 
-  const initialDocuments = OfferDocumentsService.current.getDocuments();
-
-  return {
-    documents: initialDocuments,
-    selectedDocId: initialDocuments[0]?.id || null,
-    activeStatusFilter: 'ALL',
-    searchQuery: '',
-    currentView: ApplicationRouteCON.DOCUMENTS,
-    theme: initialTheme,
-
-    setDocuments: (docs) => {
-      OfferDocumentsService.current.saveDocuments(docs);
-      set({ documents: docs });
-    },
-
-    addDocument: (doc) => {
-      const updated = OfferDocumentsService.current.addDocument(doc);
-      set({ documents: updated, selectedDocId: doc.id });
-    },
-
-    updateDocument: (doc) => {
-      const updated = OfferDocumentsService.current.updateDocument(doc);
-      set({ documents: updated });
-    },
-
-    deleteDocument: (id) => {
-      const updated = OfferDocumentsService.current.deleteDocument(id);
-      const currentSelected = get().selectedDocId;
-      set({ 
-        documents: updated, 
-        selectedDocId: currentSelected === id ? (updated[0]?.id || null) : currentSelected 
-      });
-    },
-
-    setSelectedDocId: (id) => set({ selectedDocId: id }),
-    setActiveStatusFilter: (status) => set({ activeStatusFilter: status }),
-    setSearchQuery: (query) => set({ searchQuery: query }),
-      setCurrentView: (view: string, docId?: string) => {
-    if (docId) {
-      set({ selectedDocId: docId });
+  setCurrentView: (view, docId) => {
+    const hash = ApplicationRouteCON.toHash(view, docId);
+    if (window.location.hash !== hash) {
+      window.location.hash = hash;
     }
-    if (typeof window !== 'undefined') {
-      try {
-        if (view === 'documents') window.location.hash = '#/documents';
-        else if (view === 'create_offer') window.location.hash = '#/create-offer';
-        else if (view === 'upload_pdf') window.location.hash = '#/upload-pdf';
-        else if (view === 'audit_trail') window.location.hash = '#/audit-trail';
-        else if (view === 'candidate_view') window.location.hash = docId ? `#/candidate/${docId}` : '#/candidate';
-        else if (view === 'hr_countersign') window.location.hash = docId ? `#/countersign/${docId}` : '#/countersign';
-      } catch (e) {}
-    }
-    set({ currentView: view });
+    UserPreferencesUtility.current.setActiveTab(view);
+    set({ currentView: view, selectedDocId: docId || null });
   },
 
-    setTheme: (theme) => {
-      ApplicationThemeUtility.current.applyTheme(theme);
-      set({ theme });
-    },
+  setSelectedDocId: (id) => set({ selectedDocId: id }),
+  setSearchQuery: (query) => set({ searchQuery: query }),
+  
+  setActiveStatusFilter: (status) => {
+    UserPreferencesUtility.current.setActiveStatusFilter(status);
+    set({ activeStatusFilter: status });
+  },
 
-    toggleTheme: () => {
-      const next = ApplicationThemeUtility.current.toggleTheme(get().theme) as 'light' | 'dark';
-      set({ theme: next });
-    },
+  setInventoryViewMode: (mode) => {
+    UserPreferencesUtility.current.setInventoryViewMode(mode);
+    set({ inventoryViewMode: mode });
+  },
 
-    resetToSampleData: () => {
-      const initial = MockDataSeederService.current.getInitialOfferDocuments();
-      OfferDocumentsService.current.saveDocuments(initial);
-      set({ documents: initial, selectedDocId: initial[0]?.id || null });
-    }
-  };
-});
+  setInventoryGridColumns: (cols) => {
+    UserPreferencesUtility.current.setInventoryGridColumns(cols);
+    set({ inventoryGridColumns: cols });
+  },
+
+  setInventorySingleLineMode: (val) => {
+    UserPreferencesUtility.current.setInventorySingleLine(val);
+    set({ inventorySingleLineMode: val });
+  },
+
+  addDocument: (doc) => {
+    const updated = [doc, ...get().documents];
+    saveDocuments(updated);
+    set({ documents: updated });
+  },
+
+  updateDocument: (doc) => {
+    const updated = get().documents.map((d) => (d.id === doc.id ? doc : d));
+    saveDocuments(updated);
+    set({ documents: updated });
+  },
+
+  deleteDocument: (id) => {
+    const updated = get().documents.filter((d) => d.id !== id);
+    saveDocuments(updated);
+    set({ documents: updated });
+  },
+
+  resetToSampleData: () => {
+    saveDocuments(SAMPLE_DOCUMENTS);
+    set({ documents: SAMPLE_DOCUMENTS });
+  },
+
+  toggleTheme: () => {
+    const currentTheme = get().theme;
+    const next = ApplicationThemeUtility.current.toggleTheme(currentTheme);
+    set({ theme: next });
+  },
+
+  getSelectedDocument: () => {
+    const { documents, selectedDocId } = get();
+    return documents.find((d) => d.id === selectedDocId);
+  },
+}));

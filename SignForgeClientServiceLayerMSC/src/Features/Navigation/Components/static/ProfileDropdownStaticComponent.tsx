@@ -1,3 +1,4 @@
+import UserPreferencesUtility from '../../../../Utilities/UserPreferencesUtility';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -61,6 +62,7 @@ export default function ProfileDropdownStaticComponent({
   const handleClearAll = () => {
     try {
       localStorage.removeItem('signcorp_documents');
+      UserPreferencesUtility.current.clearAllPreferences();
       window.location.reload();
     } catch (e) {
       console.error(e);
