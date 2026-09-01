@@ -113,37 +113,32 @@ export function decodeOfferFromUrl(encodedStr: string): OfferDocument | null {
  * Generates a direct candidate eSign URL containing embedded compact offer data payload.
  */
 export function getCandidateShareLink(doc: OfferDocument): string {
-  let baseUrl = '';
+  let origin = '';
 
   if (typeof window !== 'undefined') {
-    const origin = window.location.origin;
-    const href = window.location.href;
-
-    // Check if origin is valid (not null / empty / about:)
-    if (origin && origin !== 'null' && !origin.startsWith('null')) {
-      baseUrl = `${origin}${window.location.pathname}`;
-    } else if (href && !href.startsWith('about:') && !href.startsWith('data:')) {
-      baseUrl = href.split('?')[0].split('#')[0];
-    }
-  }
-
-  // Fallback check if baseUrl is still empty or 'null'
-  if (!baseUrl || baseUrl === 'null' || baseUrl.startsWith('null')) {
-    if (typeof window !== 'undefined' && window.location.href) {
+    const winOrigin = window.location.origin;
+    if (winOrigin && winOrigin !== 'null' && !winOrigin.startsWith('null')) {
+      origin = winOrigin;
+    } else if (window.location.href && !window.location.href.startsWith('about:') && !window.location.href.startsWith('data:')) {
       const cleanHref = window.location.href.split('?')[0].split('#')[0];
-      if (cleanHref && cleanHref !== 'null' && !cleanHref.startsWith('null')) {
-        baseUrl = cleanHref;
+      try {
+        const parsed = new URL(cleanHref);
+        origin = parsed.origin;
+      } catch {
+        origin = cleanHref;
       }
     }
   }
 
-  // Ultimate fallback to app dev domain if environment is fully sandboxed
-  if (!baseUrl || baseUrl === 'null' || baseUrl.startsWith('null')) {
-    baseUrl = 'https://ais-dev-lgi2oq4yhc7maffrxhcngg-40107702716.asia-east1.run.app/';
+  if (!origin || origin === 'null' || origin.startsWith('null')) {
+    origin = 'https://sign-forge-app-codebase-architectur.vercel.app';
   }
 
+  // Strip trailing slash
+  origin = origin.replace(/\/+$/, '');
+
   const payload = encodeOfferToUrl(doc);
-  return `${baseUrl}?view=sign&docId=${doc.id}&data=${payload}`;
+  return `${origin}/candidate/${doc.id}?data=${payload}`;
 }
 
 
