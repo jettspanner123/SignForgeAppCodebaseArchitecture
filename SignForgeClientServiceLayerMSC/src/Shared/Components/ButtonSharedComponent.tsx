@@ -1,57 +1,92 @@
 import React from 'react';
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { motion } from 'motion/react';
 import { Loader2 } from 'lucide-react';
 
-export interface ButtonSharedComponentProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  isLoading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+export interface ButtonSharedComponentProps {
   children: React.ReactNode;
+  onClick?: () => void;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger';
+  leftIcon?: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg';
+  icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  fullWidth?: boolean;
+  disabled?: boolean;
+  isLoading?: boolean;
+  loadingText?: React.ReactNode;
+  type?: 'button' | 'submit' | 'reset';
+  className?: string;
+  title?: string;
 }
 
 export default function ButtonSharedComponent({
+  children,
+  onClick,
   variant = 'primary',
   size = 'md',
-  isLoading = false,
+  icon,
   leftIcon,
   rightIcon,
-  className,
-  disabled,
-  children,
-  ...props
-}: ButtonSharedComponentProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer select-none';
+  fullWidth = false,
+  disabled = false,
+  isLoading = false,
+  loadingText,
+  type = 'button',
+  className = '',
+  title,
+}: ButtonSharedComponentProps): React.JSX.Element {
+  let baseStyles =
+    'inline-flex items-center justify-center font-medium rounded-md cursor-pointer select-none transition-colors duration-200 focus:outline-none whitespace-nowrap';
 
-  const sizeStyles = {
-    sm: 'px-3 py-1.5 text-xs gap-1.5',
-    md: 'px-4 py-2 text-sm gap-2',
-    lg: 'px-5 py-2.5 text-base gap-2.5',
-  }[size];
+  let sizeStyles = '';
+  if (size === 'sm') {
+    sizeStyles = 'px-3 py-1.5 text-xs h-8 gap-1.5';
+  } else if (size === 'lg') {
+    sizeStyles = 'px-5 py-2.5 text-sm h-11 gap-2.5';
+  } else {
+    sizeStyles = 'px-4 py-2 text-sm h-9 gap-2';
+  }
 
-  const variantStyles = {
-    primary: '!bg-[#0C2086] hover:!bg-[#081765] !text-white border border-transparent shadow-sm hover:shadow font-semibold',
-    secondary: 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-100 border border-slate-200/80 dark:border-zinc-700/80',
-    outline: 'bg-transparent hover:bg-slate-50 dark:hover:bg-zinc-900 text-slate-700 dark:text-zinc-200 border border-slate-300 dark:border-zinc-700',
-    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-zinc-800/80 text-slate-700 dark:text-zinc-300 border border-transparent',
-    danger: 'bg-rose-600 hover:bg-rose-700 text-white border border-transparent shadow-sm',
-  }[variant];
+  let variantStyles = '';
+  if (variant === 'primary') {
+    variantStyles =
+      'bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white shadow-sm';
+  } else if (variant === 'secondary') {
+    variantStyles = 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 hairline-border';
+  } else if (variant === 'ghost') {
+    variantStyles =
+      'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 hairline-border';
+  } else if (variant === 'outline') {
+    variantStyles =
+      'bg-transparent text-slate-700 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60 hairline-border-strong';
+  } else if (variant === 'danger') {
+    variantStyles = 'bg-red-600 text-white hover:bg-red-700 shadow-sm';
+  }
+
+  const widthStyle = fullWidth ? 'w-full' : '';
+  const isButtonDisabled = disabled || isLoading;
+  const disabledStyle = isButtonDisabled ? 'opacity-70 cursor-not-allowed pointer-events-none' : '';
 
   return (
-    <button
-      className={twMerge(clsx(baseStyles, sizeStyles, variantStyles, className))}
-      disabled={disabled || isLoading}
-      {...props}
+    <motion.button
+      type={type}
+      onClick={onClick}
+      disabled={isButtonDisabled}
+      title={title}
+      whileHover={isButtonDisabled ? {} : { scale: 1.01 }}
+      whileTap={isButtonDisabled ? {} : { scale: 0.98 }}
+      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      className={`${baseStyles} ${sizeStyles} ${variantStyles} ${widthStyle} ${disabledStyle} ${className}`}
     >
       {isLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin text-current" />
+        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-current" />
       ) : (
-        leftIcon && <span className="inline-flex shrink-0">{leftIcon}</span>
+        icon && <span className="inline-flex items-center shrink-0">{leftIcon || icon}</span>
       )}
-      <span>{children}</span>
-      {!isLoading && rightIcon && <span className="inline-flex shrink-0">{rightIcon}</span>}
-    </button>
+      <span className="inline-flex items-center whitespace-nowrap">{isLoading && loadingText ? loadingText : children}</span>
+      {!isLoading && rightIcon && (
+        <span className="inline-flex items-center shrink-0">{rightIcon}</span>
+      )}
+    </motion.button>
   );
 }

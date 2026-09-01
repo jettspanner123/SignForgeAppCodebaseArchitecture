@@ -2,15 +2,15 @@ import React from 'react';
 import { FileText, Plus, Upload, Shield, RotateCcw } from 'lucide-react';
 import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
 import ApplicationRouteCON from '../../Constants/ApplicationRouteCON';
-import ThemeToggleSharedComponent from './ThemeToggleSharedComponent';
-import ButtonSharedComponent from './ButtonSharedComponent';
+import AnimatedThemeToggleSharedComponent from './AnimatedThemeToggleSharedComponent';
+import PrimaryActionButtonSharedComponent from './PrimaryActionButtonSharedComponent';
 
 export interface HeaderSharedComponentProps {
   onOpenAuditModal?: () => void;
 }
 
-export default function HeaderSharedComponent({ onOpenAuditModal }: HeaderSharedComponentProps) {
-  const { currentView, setCurrentView, resetToSampleData } = useOfferDocumentStore();
+export default function HeaderSharedComponent({ onOpenAuditModal }: HeaderSharedComponentProps): React.JSX.Element {
+  const { currentView, setCurrentView, resetToSampleData, theme, toggleTheme } = useOfferDocumentStore();
 
   const navItems = [
     {
@@ -65,6 +65,7 @@ export default function HeaderSharedComponent({ onOpenAuditModal }: HeaderShared
             return (
               <button
                 key={item.id}
+                type="button"
                 onClick={() => setCurrentView(item.id)}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                   isActive
@@ -83,6 +84,7 @@ export default function HeaderSharedComponent({ onOpenAuditModal }: HeaderShared
         <div className="flex items-center gap-2.5 shrink-0">
           {onOpenAuditModal && (
             <button
+              type="button"
               onClick={onOpenAuditModal}
               title="Audit Logs"
               className="p-2 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer transition-colors"
@@ -92,6 +94,7 @@ export default function HeaderSharedComponent({ onOpenAuditModal }: HeaderShared
           )}
 
           <button
+            type="button"
             onClick={resetToSampleData}
             title="Reset to Sample Offer Documents"
             className="p-2 rounded-lg text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer transition-colors"
@@ -99,16 +102,13 @@ export default function HeaderSharedComponent({ onOpenAuditModal }: HeaderShared
             <RotateCcw className="w-4 h-4" />
           </button>
 
-          <ThemeToggleSharedComponent />
+          <AnimatedThemeToggleSharedComponent currentTheme={theme} onToggleTheme={toggleTheme} variant="circle" />
 
-          <ButtonSharedComponent
-            variant="primary"
-            size="sm"
-            leftIcon={<Plus className="w-3.5 h-3.5" />}
+          <PrimaryActionButtonSharedComponent
+            label="Create Offer"
+            
             onClick={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
-          >
-            Create Offer
-          </ButtonSharedComponent>
+          />
         </div>
       </div>
     </header>

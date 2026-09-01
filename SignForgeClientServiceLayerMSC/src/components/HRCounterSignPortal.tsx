@@ -1,3 +1,4 @@
+import EmptyStateSharedComponent from '../Shared/Components/EmptyStateSharedComponent';
 import React, { useState } from 'react';
 import { 
   ShieldCheck, 
@@ -13,7 +14,7 @@ import {
   X,
   ExternalLink
 } from 'lucide-react';
-import { OfferDocument, SignatureData } from '../types';
+import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
 import { generateSHA256, getSimulatedIP } from '../utils/crypto';
 import { ExecutiveDispatchModal } from './ExecutiveDispatchModal';
@@ -36,14 +37,12 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
 
   if (!document) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center space-y-4">
-        <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700">
-          <ShieldCheck className="h-8 w-8" />
-        </div>
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Offer Selected for Counter-Signing</h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-          There are currently no documents pending HR counter-signature. Please select or create an offer letter in the main dashboard.
-        </p>
+      <div className="max-w-4xl mx-auto px-4 py-20">
+        <EmptyStateSharedComponent
+          icon={<ShieldCheck className="w-6 h-6" />}
+          title="No Offer Selected for Counter-Signing"
+          description="There are currently no documents pending HR counter-signature. Please select or create an offer letter in the main dashboard."
+        />
       </div>
     );
   }

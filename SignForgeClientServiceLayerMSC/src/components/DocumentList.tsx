@@ -1,3 +1,5 @@
+import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
+import EmptyStateSharedComponent from '../Shared/Components/EmptyStateSharedComponent';
 import React, { useState } from 'react';
 import { 
   FileText, 
@@ -21,7 +23,7 @@ import {
   Mail,
   Link as LinkIcon
 } from 'lucide-react';
-import { OfferDocument, DocumentStatus } from '../types';
+import { OfferDocument, DocumentStatus } from '../Types';
 import { downloadExecutedPDF } from '../utils/pdfGenerator';
 import { formatTimestamp } from '../utils/crypto';
 
@@ -99,6 +101,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         );
       case 'HR_COUNTERSIGNED':
       case 'FULLY_EXECUTED':
+      case 'HR_COUNTERSIGNED':
         return (
           <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
             <CheckCircle2 className="h-3 w-3" />
@@ -106,6 +109,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
           </span>
         );
       case 'REJECTED':
+      case 'VOID':
         return (
           <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
             <XCircle className="h-3 w-3" />
@@ -227,20 +231,15 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
       {/* Document Grid Cards */}
       {filteredDocs.length === 0 ? (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center space-y-4 shadow-sm">
-          <Layers className="h-12 w-12 text-slate-400 mx-auto" />
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">No Offer Letters Found</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-            {searchQuery ? `No documents match "${searchQuery}"` : 'Create your first candidate employment offer to initiate the dual-eSignature workflow.'}
-          </p>
-          <button
-            onClick={onCreateNewOffer}
-            className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 inline-flex items-center space-x-2 shadow-sm"
-          >
-            <PlusCircle className="h-4 w-4" />
-            <span>Create Offer Now</span>
-          </button>
-        </div>
+        <EmptyStateSharedComponent
+          icon={<Layers className="w-6 h-6" />}
+          title="No Offer Letters Found"
+          description={
+            searchQuery
+              ? `No documents match "${searchQuery}".`
+              : 'Create your first candidate employment offer to initiate the dual-eSignature workflow.'
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDocs.map((doc) => (

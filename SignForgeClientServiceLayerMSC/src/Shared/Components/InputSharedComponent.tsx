@@ -1,68 +1,74 @@
 import React from 'react';
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 
-export interface InputSharedComponentProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputSharedComponentProps {
   label?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
   error?: string;
-  helperText?: string;
+  icon?: React.ReactNode;
+  leftIcon?: React.ReactNode;
+  fullWidth?: boolean;
+  className?: string;
+  placeholder?: string;
+  value?: string | number;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  min?: string | number;
+  max?: string | number;
+  step?: string | number;
+  required?: boolean;
+  disabled?: boolean;
+  name?: string;
 }
 
 export default function InputSharedComponent({
   label,
-  leftIcon,
-  rightIcon,
   error,
-  helperText,
-  className,
-  id,
-  ...props
-}: InputSharedComponentProps) {
-  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+  icon,
+  leftIcon,
+  fullWidth = true,
+  className = '',
+  placeholder = '',
+  value = '',
+  onChange,
+  type = 'text',
+  min,
+  max,
+  step,
+  required = false,
+  disabled = false,
+  name,
+}: InputSharedComponentProps): React.JSX.Element {
+  const widthStyle = fullWidth ? 'w-full' : '';
 
   return (
-    <div className="w-full space-y-1.5">
+    <div className={`flex flex-col gap-1.5 ${widthStyle}`}>
       {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-xs font-medium text-slate-700 dark:text-zinc-300"
-        >
+        <label className="text-xs font-medium text-slate-600 dark:text-zinc-400">
           {label}
         </label>
       )}
       <div className="relative flex items-center">
-        {leftIcon && (
-          <div className="absolute left-3 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
-            {leftIcon}
+        {(leftIcon || icon) && (
+          <div className="absolute left-3 text-slate-400 dark:text-zinc-500 pointer-events-none flex items-center">
+            {leftIcon || icon}
           </div>
         )}
         <input
-          id={inputId}
-          className={twMerge(
-            clsx(
-              'w-full rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 text-sm px-3.5 py-2 transition-all duration-150',
-              'focus:outline-none focus:ring-2 focus:ring-[#0C2086]/20 focus:border-[#0C2086] dark:focus:ring-blue-500/20 dark:focus:border-blue-500',
-              leftIcon && 'pl-9',
-              rightIcon && 'pr-9',
-              error && 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20',
-              className
-            )
-          )}
-          {...props}
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          min={min}
+          max={max}
+          step={step}
+          required={required}
+          disabled={disabled}
+          className={`h-10 text-sm px-3 py-2 rounded-md bg-white dark:bg-[#0a0a0c] text-slate-900 dark:text-zinc-100 hairline-border-strong focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors duration-200 ${
+            (leftIcon || icon) ? 'pl-9' : ''
+          } ${error ? 'border-red-500 dark:border-red-500' : ''} ${className} ${widthStyle}`}
         />
-        {rightIcon && (
-          <div className="absolute right-3 flex items-center text-slate-400 dark:text-zinc-500">
-            {rightIcon}
-          </div>
-        )}
       </div>
-      {error ? (
-        <p className="text-xs text-rose-500 font-medium">{error}</p>
-      ) : helperText ? (
-        <p className="text-xs text-slate-500 dark:text-zinc-400">{helperText}</p>
-      ) : null}
+      {error && <span className="text-xs text-rose-500 mt-0.5">{error}</span>}
     </div>
   );
 }

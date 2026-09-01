@@ -16,7 +16,7 @@ import {
   Layers,
   Info
 } from 'lucide-react';
-import { OfferDocument, OfferDetails } from '../types';
+import { OfferDocument, OfferDetails } from '../Types';
 import { generateUUID, generateDocNumber, getSimulatedIP, generateSHA256 } from '../utils/crypto';
 
 interface UploadPdfEditorProps {

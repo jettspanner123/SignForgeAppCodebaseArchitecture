@@ -1,5 +1,5 @@
 import React from 'react';
-import { OfferDocument } from '../types';
+import { OfferDocument } from '../Types';
 import { PenTool, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { WePlmLogo } from './WePlmLogo';
 

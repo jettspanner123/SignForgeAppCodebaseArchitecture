@@ -14,7 +14,8 @@ import {
   Plus, 
   Building2,
   MapPin,
-  FileSignature
+  FileSignature,
+  Layers
 } from 'lucide-react';
 import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
 import { OfferDocument } from '../../Types';
@@ -24,7 +25,7 @@ import BadgeSharedComponent from '../../Shared/Components/BadgeSharedComponent';
 import InputSharedComponent from '../../Shared/Components/InputSharedComponent';
 import EmptyStateSharedComponent from '../../Shared/Components/EmptyStateSharedComponent';
 import { downloadExecutedPDF } from '../../utils/pdfGenerator';
-import { encodeOfferForUrl } from '../../utils/urlEncoder';
+import { encodeOfferToUrl } from '../../utils/urlEncoder';
 
 export interface DocumentInventoryScreenControllerProps {
   onOpenAuditModalForDoc: (doc: OfferDocument) => void;
@@ -71,9 +72,9 @@ export default function DocumentInventoryScreenController({
         const query = searchQuery.toLowerCase().trim();
         const candidateName = doc.offerDetails.candidateName.toLowerCase();
         const candidateEmail = doc.offerDetails.candidateEmail.toLowerCase();
-        const role = doc.offerDetails.roleTitle.toLowerCase();
+        const role = (doc.offerDetails.roleTitle || doc.offerDetails.jobTitle || 'Position').toLowerCase();
         const department = doc.offerDetails.department.toLowerCase();
-        const docNum = doc.docNumber.toLowerCase();
+        const docNum = (doc.documentNumber || doc.docNumber || 'DOC-000').toLowerCase();
 
         return (
           candidateName.includes(query) ||
@@ -99,7 +100,7 @@ export default function DocumentInventoryScreenController({
   };
 
   const handleCopySigningLink = (doc: OfferDocument) => {
-    const encodedPayload = encodeOfferForUrl(doc);
+    const encodedPayload = encodeOfferToUrl(doc);
     const origin = window.location.origin;
     const shareUrl = `${origin}?view=sign&payload=${encodedPayload}`;
     navigator.clipboard.writeText(shareUrl);
@@ -135,15 +136,6 @@ export default function DocumentInventoryScreenController({
       {/* 1. Editorial Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#0C2086] dark:text-blue-400">
-              Enterprise Document Management
-            </span>
-            <span className="text-slate-300 dark:text-zinc-700">•</span>
-            <span className="font-mono text-xs text-slate-500 dark:text-zinc-400">
-              Canonical Repository
-            </span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-bold font-serif-headline tracking-tight text-slate-900 dark:text-zinc-100">
             Document Inventory & Pipeline
           </h1>
@@ -296,17 +288,13 @@ export default function DocumentInventoryScreenController({
       {/* 4. Enterprise Document Inventory Table */}
       {filteredDocuments.length === 0 ? (
         <EmptyStateSharedComponent
+          icon={<Layers className="w-6 h-6" />}
           title="No Documents Found"
           description={
             searchQuery
               ? `No offer documents match your search query "${searchQuery}".`
               : 'No documents match the selected status filter.'
           }
-          actionLabel="Clear Filters"
-          onAction={() => {
-            setSearchQuery('');
-            setActiveStatusFilter('ALL');
-          }}
         />
       ) : (
         <div className="rounded-xl border border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 shadow-xs overflow-hidden">
@@ -342,7 +330,7 @@ export default function DocumentInventoryScreenController({
                           </div>
                           <div>
                             <span className="font-mono font-semibold text-slate-900 dark:text-zinc-100 block">
-                              {doc.docNumber}
+                              {(doc.documentNumber || doc.docNumber || 'DOC-000')}
                             </span>
                             <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500 uppercase">
                               {doc.documentType.replace('_', ' ')} • {doc.signatureCount} Signatures
@@ -369,7 +357,7 @@ export default function DocumentInventoryScreenController({
                       {/* 3. Role & Department */}
                       <td className="py-3.5 px-4 align-middle">
                         <div className="font-medium text-slate-900 dark:text-zinc-100">
-                          {doc.offerDetails.roleTitle}
+                          {(doc.offerDetails.roleTitle || doc.offerDetails.jobTitle || 'Position')}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
                           <Building2 className="w-3 h-3 shrink-0 text-slate-400" />
@@ -377,7 +365,7 @@ export default function DocumentInventoryScreenController({
                         </div>
                         <div className="text-[10px] text-slate-400 dark:text-zinc-500 flex items-center gap-1 mt-0.5">
                           <MapPin className="w-3 h-3 shrink-0 text-slate-400" />
-                          <span>{doc.offerDetails.location}</span>
+                          <span>{(doc.offerDetails.location || doc.offerDetails.workLocation || 'Pune')}</span>
                         </div>
                       </td>
 
@@ -463,7 +451,7 @@ export default function DocumentInventoryScreenController({
                           {/* Delete Document */}
                           <button
                             onClick={() => {
-                              if (confirm(`Are you sure you want to remove document ${doc.docNumber}?`)) {
+                              if (confirm(`Are you sure you want to remove document ${(doc.documentNumber || doc.docNumber || 'DOC-000')}?`)) {
                                 deleteDocument(doc.id);
                               }
                             }}

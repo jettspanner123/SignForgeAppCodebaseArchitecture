@@ -10,7 +10,7 @@ import {
   Lock,
   Sparkles
 } from 'lucide-react';
-import { SignatureType, SignatureData } from '../types';
+import { SignatureType, SignatureData } from '../Types';
 import { generateSHA256, getSimulatedIP } from '../utils/crypto';
 
 interface SignatureCanvasProps {

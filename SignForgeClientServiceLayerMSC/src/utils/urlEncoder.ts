@@ -1,4 +1,4 @@
-import { OfferDocument } from '../types';
+import { OfferDocument } from '../Types';
 
 /**
  * Encodes essential fields of an OfferDocument into a compact base64 URL parameter.

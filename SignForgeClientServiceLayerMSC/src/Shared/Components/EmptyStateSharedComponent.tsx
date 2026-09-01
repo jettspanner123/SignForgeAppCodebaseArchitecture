@@ -1,38 +1,45 @@
 import React from 'react';
-import { FileText } from 'lucide-react';
-import ButtonSharedComponent from './ButtonSharedComponent';
+import { motion } from 'motion/react';
 
 export interface EmptyStateSharedComponentProps {
+  icon: React.ReactNode;
   title: string;
   description: string;
-  icon?: React.ReactNode;
-  actionLabel?: string;
-  onAction?: () => void;
+  actionButton?: React.ReactNode;
+  className?: string;
 }
 
 export default function EmptyStateSharedComponent({
+  icon,
   title,
   description,
-  icon,
-  actionLabel,
-  onAction,
-}: EmptyStateSharedComponentProps) {
+  actionButton,
+  className = '',
+}: EmptyStateSharedComponentProps): React.JSX.Element {
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-dashed border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 max-w-lg mx-auto my-8">
-      <div className="w-14 h-14 rounded-2xl bg-white dark:bg-zinc-800 shadow-sm border border-slate-200/80 dark:border-zinc-700/80 flex items-center justify-center text-[#0C2086] dark:text-blue-400 mb-4">
-        {icon || <FileText className="w-7 h-7" />}
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className={`py-12 px-6 rounded-xl bg-white dark:bg-[#0d0d10] border border-slate-300/90 dark:border-zinc-800 shadow-sm dark:shadow-2xs text-center flex flex-col items-center justify-center select-none ${className}`}
+    >
+      {/* Muted Large Icon Container */}
+      <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/80 dark:border-zinc-700/60 shadow-2xs flex items-center justify-center mb-3 text-slate-400 dark:text-zinc-500 shrink-0">
+        {icon}
       </div>
-      <h3 className="text-lg font-semibold font-serif-headline text-slate-900 dark:text-zinc-100 mb-1.5">
+
+      {/* Muted Heading */}
+      <h3 className="text-lg font-semibold text-slate-700 dark:text-zinc-300 font-serif-headline tracking-tight">
         {title}
       </h3>
-      <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 max-w-sm mb-6">
+
+      {/* Muted Description */}
+      <p className="text-xs text-slate-400 dark:text-zinc-500 max-w-sm mx-auto leading-relaxed mt-1.5 font-sans">
         {description}
       </p>
-      {actionLabel && onAction && (
-        <ButtonSharedComponent variant="primary" size="sm" onClick={onAction}>
-          {actionLabel}
-        </ButtonSharedComponent>
-      )}
-    </div>
+
+      {/* Optional Action Button */}
+      {actionButton && <div className="mt-4">{actionButton}</div>}
+    </motion.div>
   );
 }

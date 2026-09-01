@@ -1,3 +1,4 @@
+import ApplicationThemeUtility from '../Utilities/ApplicationThemeUtility';
 import { create } from 'zustand';
 import { OfferDocument } from '../Types';
 import OfferDocumentsService from '../Services/OfferDocumentsService';
@@ -21,7 +22,7 @@ export interface OfferDocumentState {
   setSelectedDocId: (id: string | null) => void;
   setActiveStatusFilter: (status: string) => void;
   setSearchQuery: (query: string) => void;
-  setCurrentView: (view: string) => void;
+  setCurrentView: (view: string, docId?: string) => void;
   setTheme: (theme: 'light' | 'dark') => void;
   toggleTheme: () => void;
   resetToSampleData: () => void;
@@ -29,17 +30,9 @@ export interface OfferDocumentState {
 
 export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => {
   // Initialize theme
-  let initialTheme: 'light' | 'dark' = 'light';
-  try {
-    const savedTheme = localStorage.getItem(ApplicationThemeCON.STORAGE_KEY_THEME);
-    if (savedTheme === 'dark' || savedTheme === 'light') {
-      initialTheme = savedTheme;
-    }
-  } catch (e) {
-    console.error(e);
-  }
+  const initialTheme = ApplicationThemeUtility.current.getSavedTheme() as 'light' | 'dark';
+  ApplicationThemeUtility.current.applyTheme(initialTheme);
 
-  // Load documents via service
   const initialDocuments = OfferDocumentsService.current.getDocuments();
 
   return {
@@ -77,25 +70,31 @@ export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => {
     setSelectedDocId: (id) => set({ selectedDocId: id }),
     setActiveStatusFilter: (status) => set({ activeStatusFilter: status }),
     setSearchQuery: (query) => set({ searchQuery: query }),
-    setCurrentView: (view) => set({ currentView: view }),
+      setCurrentView: (view: string, docId?: string) => {
+    if (docId) {
+      set({ selectedDocId: docId });
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        if (view === 'documents') window.location.hash = '#/documents';
+        else if (view === 'create_offer') window.location.hash = '#/create-offer';
+        else if (view === 'upload_pdf') window.location.hash = '#/upload-pdf';
+        else if (view === 'audit_trail') window.location.hash = '#/audit-trail';
+        else if (view === 'candidate_view') window.location.hash = docId ? `#/candidate/${docId}` : '#/candidate';
+        else if (view === 'hr_countersign') window.location.hash = docId ? `#/countersign/${docId}` : '#/countersign';
+      } catch (e) {}
+    }
+    set({ currentView: view });
+  },
 
     setTheme: (theme) => {
-      try {
-        localStorage.setItem(ApplicationThemeCON.STORAGE_KEY_THEME, theme);
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      } catch (e) {
-        console.error(e);
-      }
+      ApplicationThemeUtility.current.applyTheme(theme);
       set({ theme });
     },
 
     toggleTheme: () => {
-      const next = get().theme === 'dark' ? 'light' : 'dark';
-      get().setTheme(next);
+      const next = ApplicationThemeUtility.current.toggleTheme(get().theme) as 'light' | 'dark';
+      set({ theme: next });
     },
 
     resetToSampleData: () => {

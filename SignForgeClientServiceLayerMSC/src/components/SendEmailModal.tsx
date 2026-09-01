@@ -12,7 +12,7 @@ import {
   Inbox, 
   Link as LinkIcon
 } from 'lucide-react';
-import { OfferDocument } from '../types';
+import { OfferDocument } from '../Types';
 import { getCandidateShareLink } from '../utils/urlEncoder';
 
 interface SendEmailModalProps {

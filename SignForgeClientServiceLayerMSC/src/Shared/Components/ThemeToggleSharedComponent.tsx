@@ -1,21 +1,33 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Sun, Moon } from 'lucide-react';
-import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
+import ApplicationThemeCON from '../../Constants/ApplicationThemeCON';
 
-export default function ThemeToggleSharedComponent() {
-  const { theme, toggleTheme } = useOfferDocumentStore();
+export interface ThemeToggleSharedComponentProps {
+  currentTheme: string;
+  onToggle: () => void;
+}
+
+export default function ThemeToggleSharedComponent({
+  currentTheme,
+  onToggle,
+}: ThemeToggleSharedComponentProps): React.JSX.Element {
+  const isDark = currentTheme === ApplicationThemeCON.DARK;
 
   return (
-    <button
-      onClick={toggleTheme}
-      aria-label="Toggle visual theme"
-      className="p-2 rounded-lg text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all border border-slate-200/80 dark:border-zinc-800/80 cursor-pointer"
+    <motion.button
+      onClick={onToggle}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800/80 text-slate-700 dark:text-zinc-300 hairline-border hover:bg-slate-200 dark:hover:bg-zinc-700/80 transition-colors cursor-pointer"
     >
-      {theme === 'dark' ? (
+      {isDark ? (
         <Sun className="w-4 h-4 text-amber-400" />
       ) : (
-        <Moon className="w-4 h-4 text-slate-700" />
+        <Moon className="w-4 h-4 text-slate-600" />
       )}
-    </button>
+    </motion.button>
   );
 }

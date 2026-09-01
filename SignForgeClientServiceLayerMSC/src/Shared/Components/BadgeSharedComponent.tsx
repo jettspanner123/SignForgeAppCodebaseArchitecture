@@ -1,53 +1,61 @@
 import React from 'react';
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import { DocumentStatus } from '../../Types';
-import ApplicationThemeCON from '../../Constants/ApplicationThemeCON';
 
 export interface BadgeSharedComponentProps {
-  status: DocumentStatus | string;
+  children?: React.ReactNode;
+  variant?: 'success' | 'warning' | 'danger' | 'info' | 'neutral';
   size?: 'sm' | 'md';
-  className?: string;
   showDot?: boolean;
+  className?: string;
+  status?: string;
   customLabel?: string;
 }
 
 export default function BadgeSharedComponent({
-  status,
+  children,
+  variant = 'neutral',
   size = 'md',
-  className,
-  showDot = true,
-  customLabel
-}: BadgeSharedComponentProps) {
-  const config = ApplicationThemeCON.STATUS_CONFIGS[status] || {
-    label: status,
-    bgLight: 'bg-slate-100',
-    bgDark: 'dark:bg-zinc-800',
-    textLight: 'text-slate-700',
-    textDark: 'dark:text-zinc-300',
-    dot: 'bg-slate-400',
-  };
+  showDot = false,
+  className = '',
+  status,
+  customLabel,
+}: BadgeSharedComponentProps): React.JSX.Element {
+  let baseStyles = 'inline-flex items-center font-mono font-medium rounded-full';
+  
+  let sizeStyles = size === 'sm' ? 'text-[10px] px-2 py-0.5 gap-1' : 'text-xs px-2.5 py-1 gap-1.5';
 
-  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs';
+  let variantStyles = '';
+  let dotStyles = '';
+
+  switch (variant) {
+    case 'success':
+      variantStyles = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
+      dotStyles = 'bg-emerald-500';
+      break;
+    case 'warning':
+      variantStyles = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20';
+      dotStyles = 'bg-amber-500';
+      break;
+    case 'danger':
+      variantStyles = 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20';
+      dotStyles = 'bg-rose-500';
+      break;
+    case 'info':
+      variantStyles = 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20';
+      dotStyles = 'bg-sky-500';
+      break;
+    case 'neutral':
+    default:
+      variantStyles = 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700';
+      dotStyles = 'bg-slate-400 dark:bg-zinc-500';
+      break;
+  }
 
   return (
-    <span
-      className={twMerge(
-        clsx(
-          'inline-flex items-center gap-1.5 font-mono font-medium rounded-md border border-black/5 dark:border-white/10 uppercase tracking-wide shrink-0',
-          sizeClasses,
-          config.bgLight,
-          config.bgDark,
-          config.textLight,
-          config.textDark,
-          className
-        )
-      )}
-    >
+    <span className={`${baseStyles} ${sizeStyles} ${variantStyles} ${className}`}>
       {showDot && (
-        <span className={clsx('w-1.5 h-1.5 rounded-full shrink-0', config.dot)} />
+        <span className={`w-1.5 h-1.5 rounded-full ${dotStyles} animate-pulse shrink-0`} />
       )}
-      <span>{customLabel || config.label}</span>
+      {customLabel || children || status}
     </span>
   );
 }

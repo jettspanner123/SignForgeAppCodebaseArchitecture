@@ -1,3 +1,4 @@
+import EmptyStateSharedComponent from '../Shared/Components/EmptyStateSharedComponent';
 import React, { useState } from 'react';
 import { 
   ShieldCheck, 
@@ -12,7 +13,7 @@ import {
   CheckCircle2,
   ExternalLink
 } from 'lucide-react';
-import { OfferDocument } from '../types';
+import { OfferDocument } from '../Types';
 import { downloadExecutedPDF } from '../utils/pdfGenerator';
 import { formatTimestamp } from '../utils/crypto';
 
@@ -119,7 +120,14 @@ export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({ document, onCl
               <span>Chronological Legal Event Log</span>
             </h4>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto">
+            {(!document.auditTrail || document.auditTrail.length === 0) ? (
+              <EmptyStateSharedComponent
+                icon={<Clock className="w-6 h-6" />}
+                title="No Audit Events Recorded"
+                description="No legal event logs have been recorded for this document yet."
+              />
+            ) : (
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
                 <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                   <tr>
@@ -153,6 +161,7 @@ export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({ document, onCl
                 </tbody>
               </table>
             </div>
+            )}
           </div>
 
         </div>

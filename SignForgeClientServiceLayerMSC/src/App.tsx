@@ -4,8 +4,8 @@ import { OfferDocument } from './Types';
 import ApplicationRouteCON from './Constants/ApplicationRouteCON';
 import { decodeOfferFromUrl } from './utils/urlEncoder';
 
-// Shared Components
-import HeaderSharedComponent from './Shared/Components/HeaderSharedComponent';
+// Navigation Feature Controller Shell
+import NavigationController from './Features/Navigation/NavigationController';
 
 // Feature Controllers
 import DocumentInventoryScreenController from './Features/DocumentInventory/DocumentInventoryScreenController';
@@ -28,12 +28,10 @@ export default function App() {
     selectedDocId,
     currentView,
     theme,
-    setDocuments,
     addDocument,
     updateDocument,
     setSelectedDocId,
     setCurrentView,
-    setTheme
   } = useOfferDocumentStore();
 
   const [editingDoc, setEditingDoc] = useState<OfferDocument | null>(null);
@@ -41,20 +39,46 @@ export default function App() {
   const [showDispatchModal, setShowDispatchModal] = useState<boolean>(false);
   const [showEmailModalDoc, setShowEmailModalDoc] = useState<OfferDocument | null>(null);
 
-  // Sync theme class with HTML element
+  // Hash-based URL Router Sync (Bidirectional & Deep-linking)
   useEffect(() => {
-    try {
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
+    const handleHashSync = () => {
+      try {
+        const hash = window.location.hash;
+        if (!hash || hash === '#/' || hash === '#/documents') {
+          setCurrentView(ApplicationRouteCON.DOCUMENTS);
+        } else if (hash === '#/create-offer') {
+          setCurrentView(ApplicationRouteCON.CREATE_OFFER);
+        } else if (hash === '#/upload-pdf') {
+          setCurrentView(ApplicationRouteCON.UPLOAD_PDF);
+        } else if (hash === '#/audit-trail') {
+          setShowAuditModal(true);
+        } else if (hash.startsWith('#/candidate')) {
+          const parts = hash.split('/');
+          if (parts[2]) {
+            setSelectedDocId(parts[2]);
+          }
+          setCurrentView(ApplicationRouteCON.CANDIDATE_VIEW);
+        } else if (hash.startsWith('#/countersign')) {
+          const parts = hash.split('/');
+          if (parts[2]) {
+            setSelectedDocId(parts[2]);
+          }
+          setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN);
+        }
+      } catch (err) {
+        console.error('Hash routing error:', err);
       }
-    } catch (e) {
-      console.error(e);
-    }
-  }, [theme]);
+    };
 
-  // Handle direct candidate eSign links (?view=sign&payload=... or ?docId=...)
+    // Initial sync
+    handleHashSync();
+
+    // Listen to browser Back / Forward buttons
+    window.addEventListener('hashchange', handleHashSync);
+    return () => window.removeEventListener('hashchange', handleHashSync);
+  }, [setCurrentView, setSelectedDocId]);
+
+  // Handle direct query parameters (?view=sign&payload=... or ?docId=...)
   useEffect(() => {
     try {
       const searchParams = new URLSearchParams(window.location.search);
@@ -62,27 +86,25 @@ export default function App() {
       const dataParam = searchParams.get('data') || searchParams.get('payload');
       const viewParam = searchParams.get('view');
 
-      // 1. If embedded offer data payload is present in URL
       if (dataParam) {
         const decodedDoc = decodeOfferFromUrl(dataParam);
         if (decodedDoc) {
           addDocument(decodedDoc);
           setSelectedDocId(decodedDoc.id);
           if (viewParam === 'sign' || viewParam === 'candidate' || !viewParam) {
-            setCurrentView(ApplicationRouteCON.CANDIDATE_VIEW);
+            setCurrentView(ApplicationRouteCON.CANDIDATE_VIEW, decodedDoc.id);
           }
           return;
         }
       }
 
-      // 2. If docId parameter is present in URL
       if (urlDocId) {
         const found = documents.find((d) => d.id === urlDocId);
         if (found) {
           setSelectedDocId(found.id);
         }
         if (viewParam === 'sign' || viewParam === 'candidate') {
-          setCurrentView(ApplicationRouteCON.CANDIDATE_VIEW);
+          setCurrentView(ApplicationRouteCON.CANDIDATE_VIEW, urlDocId);
         }
       }
     } catch (err) {
@@ -104,17 +126,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-body)] flex flex-col font-sans transition-colors duration-150">
-      {/* 1. AssetSphere Top Enterprise Navigation Bar */}
-      <HeaderSharedComponent
-        onOpenAuditModal={() => {
-          if (activeDoc) setShowAuditModal(true);
-        }}
-      />
-
-      {/* 2. Main Canvas View Router */}
-      <main className="flex-1 pb-16">
-        {/* Document Inventory (Dashboard) */}
+    <NavigationController
+      onOpenAuditLogs={() => {
+        if (activeDoc) setShowAuditModal(true);
+      }}
+    >
+      {/* 1. Main View Content */}
+      <div className="pb-16 min-h-[calc(100vh-140px)]">
+        {/* Document Inventory Dashboard */}
         {currentView === ApplicationRouteCON.DOCUMENTS && (
           <DocumentInventoryScreenController
             onOpenAuditModalForDoc={handleOpenAuditModalForDoc}
@@ -148,13 +167,21 @@ export default function App() {
           </div>
         )}
 
+        {/* Audit Trail Vault Screen (When navigated via Top Nav Tab) */}
+        {currentView === ApplicationRouteCON.AUDIT_TRAILS && (
+          <DocumentInventoryScreenController
+            onOpenAuditModalForDoc={handleOpenAuditModalForDoc}
+            onOpenSendEmailModal={(doc) => setShowEmailModalDoc(doc)}
+          />
+        )}
+
         {/* Candidate Signing Portal */}
         {currentView === ApplicationRouteCON.CANDIDATE_VIEW && activeDoc && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <CandidatePortal
               document={activeDoc}
               onUpdateDocument={(updated) => updateDocument(updated)}
-              onSwitchToHRView={() => setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN)}
+              onSwitchToHRView={() => setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN, activeDoc.id)}
             />
           </div>
         )}
@@ -175,13 +202,18 @@ export default function App() {
             <VercelHostingGuide />
           </div>
         )}
-      </main>
+      </div>
 
-      {/* 3. Global Dialog Modals */}
+      {/* 2. Global Dialog Modals */}
       {showAuditModal && activeDoc && (
         <AuditTrailModal
           document={activeDoc}
-          onClose={() => setShowAuditModal(false)}
+          onClose={() => {
+            setShowAuditModal(false);
+            if (window.location.hash === '#/audit-trail') {
+              window.location.hash = '#/documents';
+            }
+          }}
         />
       )}
 
@@ -199,7 +231,7 @@ export default function App() {
         />
       )}
 
-      {/* 4. AssetSphere Enterprise Footer */}
+      {/* 3. AssetSphere Enterprise Footer */}
       <footer className="border-t border-slate-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-black/80 backdrop-blur-sm py-6 text-xs text-slate-500 dark:text-zinc-400 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -214,6 +246,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-    </div>
+    </NavigationController>
   );
 }

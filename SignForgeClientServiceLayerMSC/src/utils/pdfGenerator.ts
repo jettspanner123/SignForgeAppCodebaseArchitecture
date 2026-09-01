@@ -1,5 +1,5 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { OfferDocument } from '../types';
+import { OfferDocument } from '../Types';
 import { formatTimestamp } from './crypto';
 import { getWePlmLogoPngDataUrl } from './logoRenderer';
 
@@ -320,7 +320,7 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
     });
 
     page1.drawText('KEY ENGAGEMENT TERMS', { x: margin + 15, y: currentY - 20, size: 9.5, font: helveticaBold, color: logoNavy });
-    page1.drawText(cleanStr(doc.offerDetails.annualSalary), { x: width - margin - 120, y: currentY - 20, size: 10, font: helveticaBold, color: rgb(0.05, 0.5, 0.2) });
+    page1.drawText(cleanStr(String(doc.offerDetails.annualSalary || '')), { x: width - margin - 120, y: currentY - 20, size: 10, font: helveticaBold, color: rgb(0.05, 0.5, 0.2) });
 
     page1.drawLine({
       start: { x: margin + 15, y: currentY - 28 },

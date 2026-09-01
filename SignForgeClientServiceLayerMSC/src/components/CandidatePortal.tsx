@@ -1,3 +1,5 @@
+import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
+import EmptyStateSharedComponent from '../Shared/Components/EmptyStateSharedComponent';
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { 
@@ -18,7 +20,7 @@ import {
   X,
   ExternalLink
 } from 'lucide-react';
-import { OfferDocument, SignatureData } from '../types';
+import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
 import { downloadExecutedPDF } from '../utils/pdfGenerator';
 import { generateSHA256, getSimulatedIP } from '../utils/crypto';
@@ -43,24 +45,12 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
 
   if (!document) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center space-y-5">
-        <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700">
-          <FileText className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-        </div>
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Offer Letter Loaded</h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-          This offer link may have expired or was removed from storage. You can create a new offer or switch to the main dashboard.
-        </p>
-        <div className="flex items-center justify-center space-x-3 pt-2">
-          {onSwitchToHRView && (
-            <button
-              onClick={onSwitchToHRView}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md"
-            >
-              Go to HR Dashboard
-            </button>
-          )}
-        </div>
+      <div className="max-w-4xl mx-auto px-4 py-20">
+        <EmptyStateSharedComponent
+          icon={<FileText className="w-6 h-6" />}
+          title="No Offer Letter Loaded"
+          description="This offer link may have expired or was removed from storage. You can create a new offer or switch to the main dashboard."
+        />
       </div>
     );
   }

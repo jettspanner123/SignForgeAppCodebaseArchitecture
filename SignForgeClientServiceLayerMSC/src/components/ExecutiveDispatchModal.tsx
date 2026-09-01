@@ -12,7 +12,7 @@ import {
   Sparkles,
   ExternalLink
 } from 'lucide-react';
-import { OfferDocument } from '../types';
+import { OfferDocument } from '../Types';
 import { downloadExecutedPDF } from '../utils/pdfGenerator';
 import { formatTimestamp } from '../utils/crypto';
 
