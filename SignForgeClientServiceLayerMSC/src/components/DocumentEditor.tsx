@@ -18,6 +18,9 @@ import { OfferDocument, OfferDetails } from '../Types';
 import { generateUUID, generateDocNumber, getSimulatedIP, generateSHA256 } from '../utils/crypto';
 import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
+import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
+import InputSharedComponent from '../Shared/Components/InputSharedComponent';
+import { motion } from 'motion/react';
 
 interface DocumentEditorProps {
   initialDocument?: OfferDocument | null;
@@ -42,91 +45,84 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   );
 
   const [companyName, setCompanyName] = useState(
-    initialDocument?.companyName || 'We.PLM Global Technologies (P) Ltd.'
+    initialDocument?.companyName || ''
   );
   const [companyAddress, setCompanyAddress] = useState(
-    initialDocument?.companyAddress || 'G22 Deepmala Pimple Saudagar Pune 411027 | Tel: +91 8806060538'
+    initialDocument?.companyAddress || ''
   );
   const [candidateName, setCandidateName] = useState(
-    initialDocument?.offerDetails.candidateName || 'Aarav Deshmukh'
+    initialDocument?.offerDetails.candidateName || ''
   );
   const [candidateEmail, setCandidateEmail] = useState(
-    initialDocument?.offerDetails.candidateEmail || 'aarav.deshmukh@example.in'
+    initialDocument?.offerDetails.candidateEmail || ''
   );
   const [candidatePhone, setCandidatePhone] = useState(
-    initialDocument?.offerDetails.candidatePhone || '+91 98230 11223'
+    initialDocument?.offerDetails.candidatePhone || ''
   );
   const [candidateDob, setCandidateDob] = useState(
-    initialDocument?.offerDetails.candidateDob || '16/09/2003'
+    initialDocument?.offerDetails.candidateDob || ''
   );
   const [candidateAddress, setCandidateAddress] = useState(
-    initialDocument?.offerDetails.candidateAddress || 'C-49 Dadhichi Nagar, Near Krishna Dental Hospital, Murlipura, Jaipur, Rajasthan - 302039'
+    initialDocument?.offerDetails.candidateAddress || ''
   );
   
   const [jobTitle, setJobTitle] = useState(
-    initialDocument?.offerDetails.jobTitle || 'Senior Enterprise Infrastructure Consultant'
+    initialDocument?.offerDetails.jobTitle || ''
   );
   const [department, setDepartment] = useState(
-    initialDocument?.offerDetails.department || 'Enterprise PLM & Cloud Integration'
+    initialDocument?.offerDetails.department || ''
   );
   const [annualSalary, setAnnualSalary] = useState(
-    initialDocument?.offerDetails.annualSalary || '₹18,50,000 INR (€95,000 EUR)'
+    initialDocument?.offerDetails.annualSalary || ''
   );
   const [joiningDate, setJoiningDate] = useState(
-    initialDocument?.offerDetails.joiningDate || '20th August 2026'
+    initialDocument?.offerDetails.joiningDate || ''
   );
   const [workLocation, setWorkLocation] = useState(
-    initialDocument?.offerDetails.workLocation || 'Pune Innovation Hub / Amsterdam Deputation'
+    initialDocument?.offerDetails.workLocation || ''
   );
   const [reportingManager, setReportingManager] = useState(
-    initialDocument?.offerDetails.reportingManager || 'Shantanu Jagtap (Director)'
+    initialDocument?.offerDetails.reportingManager || ''
   );
   const [probationMonths, setProbationMonths] = useState(
     initialDocument?.offerDetails.probationMonths || 3
   );
   const [equityUnits, setEquityUnits] = useState(
-    initialDocument?.offerDetails.equityUnits || '12,000 RSUs'
+    initialDocument?.offerDetails.equityUnits || ''
   );
   const [signOnBonus, setSignOnBonus] = useState(
-    initialDocument?.offerDetails.signOnBonus || '₹2,50,000 INR'
+    initialDocument?.offerDetails.signOnBonus || ''
   );
 
   // Director / Company Signer details for 3 signatures
   const [directorName, setDirectorName] = useState(
-    initialDocument?.offerDetails.directorName || 'Shantanu Jagtap'
+    initialDocument?.offerDetails.directorName || ''
   );
   const [directorTitle, setDirectorTitle] = useState(
-    initialDocument?.offerDetails.directorTitle || 'Director'
+    initialDocument?.offerDetails.directorTitle || ''
   );
   const [directorEmail, setDirectorEmail] = useState(
-    initialDocument?.offerDetails.directorEmail || 'shantanu.jagtap@theweplm.com'
+    initialDocument?.offerDetails.directorEmail || ''
   );
 
   // Executive Contacts for automatic notification once all sign
   const [hrHeadName, setHrHeadName] = useState(
-    initialDocument?.executives?.hrHead?.name || 'Ananya Sharma'
+    initialDocument?.executives?.hrHead?.name || ''
   );
   const [hrHeadEmail, setHrHeadEmail] = useState(
-    initialDocument?.executives?.hrHead?.email || 'ananya.sharma@theweplm.com'
+    initialDocument?.executives?.hrHead?.email || ''
   );
   const [ctoName, setCtoName] = useState(
-    initialDocument?.executives?.cto?.name || 'Jean-Luc Dubois'
+    initialDocument?.executives?.cto?.name || ''
   );
   const [ctoEmail, setCtoEmail] = useState(
-    initialDocument?.executives?.cto?.email || 'jeanluc.dubois@theweplm.eu'
+    initialDocument?.executives?.cto?.email || ''
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // When changing document type to Joining Letter, default signatureCount to 3
   const handleDocTypeChange = (type: 'OFFER_LETTER' | 'JOINING_LETTER') => {
     setDocumentType(type);
-    if (type === 'JOINING_LETTER') {
-      setSignatureCount(3);
-      if (jobTitle === 'Staff Software Engineer — Distributed Systems') {
-        setJobTitle('Junior Infrastructure Consultant');
-      }
-    }
   };
 
   const handleIssueOffer = async (e: React.FormEvent) => {
@@ -368,420 +364,401 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
         <div className="flex items-center gap-2.5 shrink-0">
           {!isEditing && onSwitchToUpload && (
-            <ButtonSharedComponent
-              variant="outline"
-              size="sm"
-              leftIcon={<Upload className="w-3.5 h-3.5" />}
+            <PrimaryActionButtonSharedComponent
+              label="Upload PDF Instead"
               onClick={onSwitchToUpload}
-            >
-              Upload PDF Instead
-            </ButtonSharedComponent>
+              icon={<Upload className="w-3.5 h-3.5 !text-white" />}
+            />
           )}
-
-          <ButtonSharedComponent
-            variant="outline"
-            size="sm"
-            onClick={onCancel}
-          >
-            Cancel
-          </ButtonSharedComponent>
         </div>
       </div>
 
-      <form onSubmit={handleIssueOffer} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <form onSubmit={handleIssueOffer} className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
-        {/* Left Column: Form Fields */}
-        <div className="lg:col-span-7 space-y-6">
-          
-          {/* Section 0: Document Type & eSignature Configuration */}
-          <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-6 space-y-4 shadow-md">
-            <div className="flex items-center space-x-2 pb-2 border-b border-blue-700/50">
-              <FileText className="h-5 w-5 text-blue-300" />
-              <h2 className="text-sm font-bold uppercase tracking-wider text-blue-100">Document Type & eSignature Setup</h2>
-            </div>
+        {/* Left Column: Form Fields (Single Unified Card Container 1:1 AssetSphere) */}
+        <div className="w-full">
+          <div className="rounded-xl bg-white dark:bg-[#0a0a0c] border border-slate-200/80 dark:border-zinc-800/80 shadow-xs p-6 space-y-8">
+            
+            {/* Section 0: Document Type & eSignature Setup */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center gap-1.5 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
+                <FileText className="w-3.5 h-3.5 text-[#0C2086] dark:text-blue-400" />
+                <span>Document Type & eSignature Workflow</span>
+              </h4>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Document Type */}
-              <div>
-                <label className="block text-xs font-semibold text-blue-200 mb-2">Document Type *</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleDocTypeChange('OFFER_LETTER')}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                      documentType === 'OFFER_LETTER'
-                        ? 'bg-blue-500 text-white border-blue-400 shadow'
-                        : 'bg-blue-950/60 text-blue-200 border-blue-700/50 hover:bg-blue-900'
-                    }`}
-                  >
-                    Offer Letter
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDocTypeChange('JOINING_LETTER')}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                      documentType === 'JOINING_LETTER'
-                        ? 'bg-blue-500 text-white border-blue-400 shadow'
-                        : 'bg-blue-950/60 text-blue-200 border-blue-700/50 hover:bg-blue-900'
-                    }`}
-                  >
-                    Joining Letter
-                  </button>
+              <div className="space-y-4">
+                {/* Line 1: Document Type */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+                    Document Type
+                  </label>
+                  <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9 w-full">
+                    <button
+                      type="button"
+                      onClick={() => handleDocTypeChange('OFFER_LETTER')}
+                      className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                    >
+                      {documentType === 'OFFER_LETTER' && (
+                        <motion.div
+                          layoutId="activeDocType"
+                          className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                        />
+                      )}
+                      <span className={`relative z-10 flex items-center gap-1.5 ${
+                        documentType === 'OFFER_LETTER'
+                          ? 'text-[#0C2086] dark:text-white font-bold'
+                          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}>
+                        <FileText className="w-3.5 h-3.5" />
+                        <span className="truncate">Offer Letter Package (Full Terms)</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDocTypeChange('JOINING_LETTER')}
+                      className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                    >
+                      {documentType === 'JOINING_LETTER' && (
+                        <motion.div
+                          layoutId="activeDocType"
+                          className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                        />
+                      )}
+                      <span className={`relative z-10 flex items-center gap-1.5 ${
+                        documentType === 'JOINING_LETTER'
+                          ? 'text-[#0C2086] dark:text-white font-bold'
+                          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}>
+                        <FileText className="w-3.5 h-3.5" />
+                        <span className="truncate">Joining Letter & Appointment</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Line 2: Required eSignature Workflow */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+                    Required eSignature Workflow
+                  </label>
+                  <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9 w-full">
+                    <button
+                      type="button"
+                      onClick={() => setSignatureCount(2)}
+                      className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                    >
+                      {signatureCount === 2 && (
+                        <motion.div
+                          layoutId="activeSigWorkflow"
+                          className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                        />
+                      )}
+                      <span className={`relative z-10 flex items-center gap-1.5 ${
+                        signatureCount === 2
+                          ? 'text-[#0C2086] dark:text-white font-bold'
+                          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}>
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span className="truncate">2 Signatures (Candidate + HR)</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSignatureCount(3)}
+                      className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                    >
+                      {signatureCount === 3 && (
+                        <motion.div
+                          layoutId="activeSigWorkflow"
+                          className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                        />
+                      )}
+                      <span className={`relative z-10 flex items-center gap-1.5 ${
+                        signatureCount === 3
+                          ? 'text-[#0C2086] dark:text-white font-bold'
+                          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}>
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span className="truncate">3 Signatures (Director + Candidate + HR)</span>
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              {/* Signature Count */}
-              <div>
-                <label className="block text-xs font-semibold text-blue-200 mb-2">Required eSignature Workflow *</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSignatureCount(2)}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                      signatureCount === 2
-                        ? 'bg-indigo-500 text-white border-indigo-400 shadow'
-                        : 'bg-blue-950/60 text-blue-200 border-blue-700/50 hover:bg-blue-900'
-                    }`}
-                  >
-                    2 Signatures (Candidate + HR)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSignatureCount(3)}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                      signatureCount === 3
-                        ? 'bg-indigo-500 text-white border-indigo-400 shadow'
-                        : 'bg-blue-950/60 text-blue-200 border-blue-700/50 hover:bg-blue-900'
-                    }`}
-                  >
-                    3 Signatures (Director + Candidate + HR)
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 1: Candidate Information */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-            <div className="flex items-center space-x-2 text-blue-600 pb-2 border-b border-slate-200">
-              <User className="h-5 w-5 text-blue-600" />
-              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">1. Candidate Information</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Candidate Full Name *</label>
-                <input
-                  type="text"
+            {/* Section 1: Candidate & Entity Information */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center gap-1.5 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
+                <User className="w-3.5 h-3.5 text-[#0C2086] dark:text-blue-400" />
+                <span>1. Candidate & Entity Information</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <InputSharedComponent
+                  label="Candidate Full Name *"
                   required
                   value={candidateName}
                   onChange={(e) => setCandidateName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. Uddeshya Singh"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Candidate Email *</label>
-                <input
+                <InputSharedComponent
+                  label="Candidate Email *"
                   type="email"
                   required
                   value={candidateEmail}
                   onChange={(e) => setCandidateEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. candidate@example.com"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Date of Birth (DOB)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. 16/09/2003"
+                <InputSharedComponent
+                  label="Date of Birth (DOB)"
                   value={candidateDob}
                   onChange={(e) => setCandidateDob(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. 16/09/2003"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Phone Number</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Phone Number"
                   value={candidatePhone}
                   onChange={(e) => setCandidatePhone(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. +91 98765 43210"
                 />
-              </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-slate-700 mb-1">Candidate Full Address</label>
-                <input
-                  type="text"
-                  placeholder="Street, City, State, Pincode"
-                  value={candidateAddress}
-                  onChange={(e) => setCandidateAddress(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
-                />
-              </div>
+                <div className="sm:col-span-2">
+                  <InputSharedComponent
+                    label="Candidate Full Address"
+                    value={candidateAddress}
+                    onChange={(e) => setCandidateAddress(e.target.value)}
+                    placeholder="Street, City, State, Pincode"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Issuing Company Name</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Issuing Company Name"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. We.PLM India (P) Ltd."
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Registered Office Address / Tel</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Registered Office Address / Tel"
                   value={companyAddress}
                   onChange={(e) => setCompanyAddress(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. Pune, Maharashtra / +91-20-4100..."
                 />
               </div>
             </div>
-          </div>
 
-          {/* Director Authorization Section if 3 Signatures */}
-          {signatureCount === 3 && (
-            <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-6 space-y-4 shadow-sm">
-              <div className="flex items-center space-x-2 text-amber-800 pb-2 border-b border-amber-200">
-                <UserCheck className="h-5 w-5 text-amber-600" />
-                <div>
-                  <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Director / Authorized Signer (3rd Signatory)</h2>
-                  <p className="text-[11px] text-amber-800 font-normal">Signs on the Joining / Offer Letter along with Candidate and HR</p>
+            {/* Director Authorization Sub-Section if 3 Signatures */}
+            {signatureCount === 3 && (
+              <div className="p-4 rounded-xl bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/20 space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-amber-500/20">
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                    <UserCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                    <span>Director / Authorized Signer (3rd Signatory)</span>
+                  </h4>
+                  <span className="text-[10px] font-mono font-semibold text-amber-700 dark:text-amber-300">
+                    Signing Authority #3
+                  </span>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Director Full Name *</label>
-                  <input
-                    type="text"
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <InputSharedComponent
+                    label="Director Full Name *"
                     required={signatureCount === 3}
                     value={directorName}
                     onChange={(e) => setDirectorName(e.target.value)}
-                    className="w-full bg-white border border-amber-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    placeholder="e.g. Shantanu Jagtap"
                   />
-                </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Official Designation *</label>
-                  <input
-                    type="text"
+                  <InputSharedComponent
+                    label="Official Designation *"
                     required={signatureCount === 3}
                     value={directorTitle}
                     onChange={(e) => setDirectorTitle(e.target.value)}
-                    className="w-full bg-white border border-amber-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    placeholder="e.g. Director & VP"
                   />
-                </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Director Email *</label>
-                  <input
+                  <InputSharedComponent
+                    label="Director Email *"
                     type="email"
                     required={signatureCount === 3}
                     value={directorEmail}
                     onChange={(e) => setDirectorEmail(e.target.value)}
-                    className="w-full bg-white border border-amber-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    placeholder="e.g. director@weplm.com"
                   />
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Section 2: Position & Compensation */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-            <div className="flex items-center space-x-2 text-indigo-600 pb-2 border-b border-slate-200">
-              <Briefcase className="h-5 w-5 text-indigo-600" />
-              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">2. Position & Compensation Details</h2>
-            </div>
+            {/* Section 2: Position & Compensation Terms */}
+            <div className="space-y-4 mt-4">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center gap-1.5 pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
+                <Briefcase className="w-3.5 h-3.5 text-[#0C2086] dark:text-blue-400" />
+                <span>2. Position & Compensation Details</span>
+              </h4>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Job Designation / Title *</label>
-                <input
-                  type="text"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <InputSharedComponent
+                  label="Job Designation / Title *"
                   required
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. Lead PLM Solutions Architect"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Department</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Department"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. Enterprise PLM Practice"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Annual Compensation (CTC) *</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Annual Compensation (CTC) *"
                   required
                   value={annualSalary}
                   onChange={(e) => setAnnualSalary(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. ₹34,50,000 CTC"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Joining Date *</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Joining Date *"
                   required
                   value={joiningDate}
                   onChange={(e) => setJoiningDate(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. 2026-10-15"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Work Location</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Work Location"
                   value={workLocation}
                   onChange={(e) => setWorkLocation(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. Bengaluru / Hybrid"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Reporting Manager</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Reporting Manager"
                   value={reportingManager}
                   onChange={(e) => setReportingManager(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. Rajesh K. Mehta (VP Tech)"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Equity / RSUs (Optional)</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Equity / RSUs (Optional)"
                   value={equityUnits}
                   onChange={(e) => setEquityUnits(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. 5,000 RSUs"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Sign-On Bonus (Optional)</label>
-                <input
-                  type="text"
+                <InputSharedComponent
+                  label="Sign-On Bonus (Optional)"
                   value={signOnBonus}
                   onChange={(e) => setSignOnBonus(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all"
+                  placeholder="e.g. ₹2,00,000"
                 />
               </div>
             </div>
-          </div>
 
-          {/* Section 3: Executive Notification Routing (HR Head & CTO) */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-            <div className="flex items-center space-x-2 text-emerald-600 pb-2 border-b border-slate-200">
-              <ShieldCheck className="h-5 w-5 text-emerald-600" />
-              <div>
-                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">3. Executive Dispatch Routing</h2>
-                <p className="text-[11px] text-slate-500 font-normal">Automated encrypted PDF dispatch upon final signature completion</p>
+            {/* Section 3: Executive Dispatch Routing */}
+            <div className="space-y-4 mt-4">
+              <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-zinc-800/80">
+                <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#0C2086] dark:text-blue-400" />
+                  <span>3. Executive Dispatch Routing</span>
+                </h4>
+                <span className="text-[11px] text-slate-400 dark:text-zinc-500 font-mono hidden sm:inline">
+                  Auto-Encrypted PDF Dispatch
+                </span>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-emerald-700">
-                  <span>HR Head Email</span>
-                  <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 font-bold">Executive #1</span>
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-600 mb-1">Name</label>
-                  <input
-                    type="text"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 font-mono">
+                      HR Head Routing
+                    </span>
+                    <span className="text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded font-mono font-bold">
+                      Executive #1
+                    </span>
+                  </div>
+
+                  <InputSharedComponent
+                    label="HR Head Name"
                     value={hrHeadName}
                     onChange={(e) => setHrHeadName(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="e.g. Sarah Jenkins"
                   />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-600 mb-1">Email</label>
-                  <input
+
+                  <InputSharedComponent
+                    label="HR Head Email *"
                     type="email"
                     required
                     value={hrHeadEmail}
                     onChange={(e) => setHrHeadEmail(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="e.g. s.jenkins@weplm.com"
                   />
                 </div>
-              </div>
 
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-blue-700">
-                  <span>CTO Email</span>
-                  <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200 font-bold">Executive #2</span>
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-600 mb-1">Name</label>
-                  <input
-                    type="text"
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 font-mono">
+                      CTO Routing
+                    </span>
+                    <span className="text-[10px] bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded font-mono font-bold">
+                      Executive #2
+                    </span>
+                  </div>
+
+                  <InputSharedComponent
+                    label="CTO Name"
                     value={ctoName}
                     onChange={(e) => setCtoName(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="e.g. David Miller"
                   />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-600 mb-1">Email</label>
-                  <input
+
+                  <InputSharedComponent
+                    label="CTO Email *"
                     type="email"
                     required
                     value={ctoEmail}
                     onChange={(e) => setCtoEmail(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="e.g. d.miller@weplm.com"
                   />
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full flex items-center justify-center space-x-2 py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-all"
-            >
-              <Send className="h-4 w-4" />
-              <span>{isEditing ? 'Save & Update Offer Details' : 'Issue Offer & Dispatch to Candidate'}</span>
-            </button>
-          </div>
-
-        </div>
-
-        {/* Right Column: Live Document Preview */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="sticky top-24 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Live Document Sheet Preview</span>
-              <span className="text-[11px] text-emerald-400 flex items-center space-x-1">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Real-time Rendering</span>
-              </span>
+            {/* Bottom Form Actions */}
+            <div className="pt-4 mt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-end">
+              <PrimaryActionButtonSharedComponent
+                type="submit"
+                label={isEditing ? 'Update Offer' : 'Issue Offer'}
+                icon={<Send className="w-3.5 h-3.5 !text-white" />}
+                isLoading={isSubmitting}
+                loadingText={isEditing ? 'Updating...' : 'Dispatching...'}
+              />
             </div>
 
+          </div>
+        </div>
+
+        {/* Right Column: Live Document Preview (50-50) */}
+        <div className="w-full">
+          <div className="sticky top-24">
             {/* Document Paper Mockup using exact We.PLM Joining/Offer Letter format */}
-            <div className="max-h-[750px] overflow-y-auto pr-2 rounded-2xl border border-slate-700 bg-slate-900/50 p-2">
+            <div className="max-h-[780px] overflow-y-auto pr-2 rounded-lg border border-slate-700 dark:border-zinc-800 bg-slate-900/50 p-2">
               <OfferLetterPaper
                 document={{
                   id: 'preview-draft',
                   documentNumber: initialDocument?.documentNumber || 'WE-PLM-2026-001',
-                  companyName: companyName || 'We.PLM India Pvt Ltd',
+                  companyName: companyName || 'We.PLM Global Technologies (P) Ltd.',
                   documentType: documentType,
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
@@ -789,24 +766,24 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                   auditTrail: [],
                   sha256Checksum: 'PREVIEW-DRAFT-CHECKSUM',
                   executives: {
-                    hrHead: { name: hrHeadName, email: hrHeadEmail, title: 'HR Head', status: 'PENDING_TRIGGER' },
-                    cto: { name: ctoName, email: ctoEmail, title: 'CTO', status: 'PENDING_TRIGGER' }
+                    hrHead: { name: hrHeadName || 'HR Head', email: hrHeadEmail || 'hr@theweplm.com', title: 'HR Head', status: 'PENDING_TRIGGER' },
+                    cto: { name: ctoName || 'CTO', email: ctoEmail || 'cto@theweplm.com', title: 'CTO', status: 'PENDING_TRIGGER' }
                   },
                   offerDetails: {
-                    candidateName: candidateName || 'Uddeshya SINGH',
+                    candidateName: candidateName || 'Candidate Full Name',
                     candidateEmail: candidateEmail || 'candidate@example.com',
-                    candidateAddress: candidateAddress || '1/13 Girish Ghosh Road, Belur, Howrah - 711202',
-                    candidateDob: candidateDob || '02-06-2004',
-                    jobTitle: jobTitle || 'Graduate Trainee Engineer',
-                    department: department || 'Engineering',
-                    annualSalary: annualSalary || '₹6,50,000 INR',
-                    joiningDate: joiningDate || '03-08-2026',
-                    workLocation: workLocation || 'Pune, Maharashtra',
-                    reportingManager: reportingManager || 'Rajesh Sharma',
-                    probationMonths: probationMonths || 6,
-                    equityUnits: equityUnits,
-                    signOnBonus: signOnBonus,
-                    directorName: directorName || 'Shantanu Jagtap',
+                    candidateAddress: candidateAddress || 'Candidate Residential Address',
+                    candidateDob: candidateDob || 'DD/MM/YYYY',
+                    jobTitle: jobTitle || 'Designation / Job Title',
+                    department: department || 'Department',
+                    annualSalary: annualSalary || 'Annual Compensation',
+                    joiningDate: joiningDate || 'Joining Date',
+                    workLocation: workLocation || 'Work Location',
+                    reportingManager: reportingManager || 'Reporting Manager',
+                    probationMonths: probationMonths || 3,
+                    equityUnits: equityUnits || '',
+                    signOnBonus: signOnBonus || '',
+                    directorName: directorName || 'Director Full Name',
                     directorTitle: directorTitle || 'Director'
                   }
                 }}

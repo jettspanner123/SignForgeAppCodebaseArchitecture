@@ -6,7 +6,6 @@ import {
   Mail,
   Sun,
   Moon,
-  RotateCcw,
   Trash2,
   LogOut,
   FileText
@@ -28,12 +27,9 @@ export default function ProfileDropdownStaticComponent({
   onClose,
   onOpenAuditLogs,
 }: ProfileDropdownStaticComponentProps): React.JSX.Element {
-  const { theme, toggleTheme, resetToSampleData, documents } = useOfferDocumentStore();
+  const { theme, toggleTheme } = useOfferDocumentStore();
   const isDark = theme === ApplicationThemeCON.DARK;
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-
-  const [deploymentMode, setDeploymentMode] = useState<'Self-Hosted Air-Gapped' | 'Enterprise Cloud Sync'>('Enterprise Cloud Sync');
-  const isSelfHosted = deploymentMode === 'Self-Hosted Air-Gapped';
 
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const user = NavigationCON.DEFAULT_USER;
@@ -163,55 +159,6 @@ export default function ProfileDropdownStaticComponent({
                   </button>
                 </div>
               </div>
-
-              {/* Deployment Environment Control Block */}
-              <div className="space-y-2 p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-100 dark:border-zinc-800/80">
-                <div className="flex items-center gap-2 text-slate-700 dark:text-zinc-200 font-medium">
-                  <Shield className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span>Deployment Environment</span>
-                </div>
-
-                <div className="flex items-center p-1 rounded-lg bg-slate-200/80 dark:bg-zinc-800 border border-slate-300/60 dark:border-zinc-700/60 h-8 w-full">
-                  <button
-                    type="button"
-                    onClick={() => !isSelfHosted && setDeploymentMode('Self-Hosted Air-Gapped')}
-                    className={`flex-1 py-1 h-6 rounded-md text-xs font-medium transition-all cursor-pointer text-center ${
-                      isSelfHosted
-                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                        : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    Air-Gapped
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => isSelfHosted && setDeploymentMode('Enterprise Cloud Sync')}
-                    className={`flex-1 py-1 h-6 rounded-md text-xs font-medium transition-all cursor-pointer text-center ${
-                      !isSelfHosted
-                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                        : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    Cloud Sync
-                  </button>
-                </div>
-              </div>
-
-              {/* Reset Sample Documents */}
-              <button
-                type="button"
-                onClick={() => {
-                  resetToSampleData();
-                  onClose();
-                }}
-                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200/80 dark:border-zinc-700/60 transition-all cursor-pointer font-medium text-xs shadow-2xs"
-              >
-                <div className="flex items-center gap-2">
-                  <RotateCcw className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                  <span>Reset Sample Documents</span>
-                </div>
-                <span className="text-[10px] font-mono font-semibold text-slate-500 dark:text-zinc-400">4 Active</span>
-              </button>
 
               {/* Clear LocalStorage Control Block */}
               <button

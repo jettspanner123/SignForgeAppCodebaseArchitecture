@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
+import { motion } from 'motion/react';
 import NavigationCON from '../../Constants/NavigationCON';
 import ApplicationRouteCON from '../../../../Constants/ApplicationRouteCON';
 import ProfileDropdownStaticComponent from './ProfileDropdownStaticComponent';
@@ -56,14 +57,25 @@ export default function HeaderStaticComponent({
                   key={item.id}
                   type="button"
                   onClick={() => onSelectView(item.id)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer select-none ${
-                    isActive
-                      ? 'bg-white dark:bg-zinc-800 text-[#0C2086] dark:text-zinc-100 shadow-xs font-semibold'
-                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
-                  }`}
+                  className="relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer select-none"
                 >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{item.label}</span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTopNavPill"
+                      className="absolute inset-0 bg-white dark:bg-zinc-800 rounded-lg shadow-xs"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <span
+                    className={`relative z-10 flex items-center gap-2 ${
+                      isActive
+                        ? 'text-[#0C2086] dark:text-zinc-100 font-semibold'
+                        : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{item.label}</span>
+                  </span>
                 </button>
               );
             })}

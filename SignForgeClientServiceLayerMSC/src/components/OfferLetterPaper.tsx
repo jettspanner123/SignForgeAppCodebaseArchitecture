@@ -27,19 +27,23 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
     <div className="space-y-8 max-w-4xl mx-auto font-sans text-slate-900">
       
       {/* PAGE 1: APPOINTMENT & OFFER DETAILS */}
-      <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12 border border-slate-200 relative overflow-hidden space-y-6">
+      <div className="bg-white rounded-lg shadow-xl p-8 sm:p-12 border border-slate-200 relative overflow-hidden space-y-6">
         
         {/* Header: We.PLM Logo & Title */}
         <div className="flex justify-between items-start pb-6 border-b-2 border-slate-900">
           {/* Logo */}
-          <WePlmLogo className="h-14 sm:h-18 w-auto shrink-0" />
+          <WePlmLogo className="h-12 sm:h-14 w-auto shrink-0" />
 
           {/* Centered Title */}
           <div className="flex-1 text-center px-4">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-wider underline underline-offset-8 decoration-2 decoration-slate-900">
+            <h1
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+              className="text-xl sm:text-2xl font-serif-headline font-bold text-slate-900 uppercase tracking-widest"
+            >
               {docTypeTitle}
             </h1>
-            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-2">
+            <div className="w-12 h-0.5 bg-[#0C2086] mx-auto mt-1.5 rounded-full" />
+            <p className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider mt-1.5">
               Ref: {document.documentNumber}
             </p>
           </div>
@@ -125,20 +129,24 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
       </div>
 
       {/* PAGE 2: TERMS AND CONDITIONS */}
-      <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12 border border-slate-200 relative overflow-hidden space-y-6">
+      <div className="bg-white rounded-lg shadow-xl p-8 sm:p-12 border border-slate-200 relative overflow-hidden space-y-6">
         
         {/* Header */}
         <div className="flex justify-between items-start pb-4 border-b-2 border-slate-900">
-          <WePlmLogo className="h-12 w-auto shrink-0" />
+          <WePlmLogo className="h-10 sm:h-12 w-auto shrink-0" />
           <div className="flex-1 text-center px-4">
-            <h2 className="text-lg font-black text-slate-900 uppercase tracking-wider underline underline-offset-4 decoration-2">
-              {docTypeTitle} - TERMS & CONDITIONS
+            <h2
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+              className="text-base sm:text-lg font-serif-headline font-bold text-slate-900 uppercase tracking-wider"
+            >
+              {docTypeTitle} — TERMS & CONDITIONS
             </h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+            <div className="w-10 h-0.5 bg-[#0C2086] mx-auto mt-1 rounded-full" />
+            <p className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-widest mt-1">
               Page 2 of 3 • Ref: {document.documentNumber}
             </p>
           </div>
-          <div className="w-16"></div>
+          <div className="w-12"></div>
         </div>
 
         {/* Candidate Agreement Header */}
@@ -206,20 +214,24 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
       </div>
 
       {/* PAGE 3: TERM, TERMINATION & SIGNATURE EXECUTION */}
-      <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12 border border-slate-200 relative overflow-hidden space-y-6">
+      <div className="bg-white rounded-lg shadow-xl p-8 sm:p-12 border border-slate-200 relative overflow-hidden space-y-6">
         
         {/* Header */}
         <div className="flex justify-between items-start pb-4 border-b-2 border-slate-900">
-          <WePlmLogo className="h-12 w-auto shrink-0" />
+          <WePlmLogo className="h-10 sm:h-12 w-auto shrink-0" />
           <div className="flex-1 text-center px-4">
-            <h2 className="text-lg font-black text-slate-900 uppercase tracking-wider underline underline-offset-4 decoration-2">
-              {docTypeTitle} - EXECUTION & ACCEPTANCE
+            <h2
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+              className="text-base sm:text-lg font-serif-headline font-bold text-slate-900 uppercase tracking-wider"
+            >
+              {docTypeTitle} — EXECUTION & ACCEPTANCE
             </h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+            <div className="w-10 h-0.5 bg-[#0C2086] mx-auto mt-1 rounded-full" />
+            <p className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-widest mt-1">
               Page 3 of 3 • Ref: {document.documentNumber}
             </p>
           </div>
-          <div className="w-16"></div>
+          <div className="w-12"></div>
         </div>
 
         {/* Term and Termination Section */}

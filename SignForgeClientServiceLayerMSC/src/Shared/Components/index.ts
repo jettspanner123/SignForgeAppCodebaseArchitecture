@@ -36,3 +36,6 @@ export * from './AnimatedThemeToggleSharedComponent';
 
 export { default as HeaderSharedComponent } from './HeaderSharedComponent';
 export * from './HeaderSharedComponent';
+
+export { default as CardSharedComponent } from './CardSharedComponent';
+export * from './CardSharedComponent';

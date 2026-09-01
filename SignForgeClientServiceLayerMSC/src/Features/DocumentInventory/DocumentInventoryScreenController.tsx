@@ -26,10 +26,12 @@ import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
 import { OfferDocument } from '../../Types';
 import ApplicationRouteCON from '../../Constants/ApplicationRouteCON';
 import ButtonSharedComponent from '../../Shared/Components/ButtonSharedComponent';
+import PrimaryActionButtonSharedComponent from '../../Shared/Components/PrimaryActionButtonSharedComponent';
 import BadgeSharedComponent from '../../Shared/Components/BadgeSharedComponent';
 import EmptyStateSharedComponent from '../../Shared/Components/EmptyStateSharedComponent';
 import CustomSelectSharedComponent, { SelectOption } from '../../Shared/Components/CustomSelectSharedComponent';
 import ConfirmationModalSharedComponent from '../../Shared/Components/ConfirmationModalSharedComponent';
+import CardSharedComponent from '../../Shared/Components/CardSharedComponent';
 import { downloadExecutedPDF } from '../../utils/pdfGenerator';
 import { formatTimestamp } from '../../utils/crypto';
 
@@ -204,21 +206,18 @@ export default function DocumentInventoryScreenController({
           >
             Upload PDF
           </ButtonSharedComponent>
-          <ButtonSharedComponent
-            variant="primary"
-            size="sm"
-            leftIcon={<Plus className="w-3.5 h-3.5" />}
+          <PrimaryActionButtonSharedComponent
+            label="New Offer Package"
             onClick={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
-          >
-            New Offer Package
-          </ButtonSharedComponent>
+            icon={<Plus className="w-3.5 h-3.5 !text-white" />}
+          />
         </div>
       </div>
 
       {/* 2. Top KPI Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         {/* Total Documents */}
-        <div className="rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800/80 p-4 shadow-xs">
+        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-slate-300/90 dark:border-zinc-800 p-4 shadow-sm dark:shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 mb-2">
             <span className="text-xs font-medium">Total Pipeline</span>
             <FileText className="w-4 h-4 text-slate-400" />
@@ -232,7 +231,7 @@ export default function DocumentInventoryScreenController({
         </div>
 
         {/* Pending Candidate Signature */}
-        <div className="rounded-xl bg-white dark:bg-zinc-900 border border-amber-200/60 dark:border-amber-900/40 p-4 shadow-xs">
+        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-amber-300/90 dark:border-amber-900/60 p-4 shadow-sm dark:shadow-2xs">
           <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
             <span className="text-xs font-medium">Candidate Action</span>
             <Clock className="w-4 h-4" />
@@ -246,7 +245,7 @@ export default function DocumentInventoryScreenController({
         </div>
 
         {/* Pending Countersign */}
-        <div className="rounded-xl bg-white dark:bg-zinc-900 border border-blue-200/60 dark:border-blue-900/40 p-4 shadow-xs">
+        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-blue-300/90 dark:border-blue-900/60 p-4 shadow-sm dark:shadow-2xs">
           <div className="flex items-center justify-between text-[#0C2086] dark:text-blue-400 mb-2">
             <span className="text-xs font-medium">HR Countersign</span>
             <FileSignature className="w-4 h-4" />
@@ -260,7 +259,7 @@ export default function DocumentInventoryScreenController({
         </div>
 
         {/* Fully Executed */}
-        <div className="rounded-xl bg-white dark:bg-zinc-900 border border-emerald-200/60 dark:border-emerald-900/40 p-4 shadow-xs">
+        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-emerald-300/90 dark:border-emerald-900/60 p-4 shadow-sm dark:shadow-2xs">
           <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
             <span className="text-xs font-medium">Fully Executed</span>
             <CheckCircle2 className="w-4 h-4" />
@@ -274,7 +273,7 @@ export default function DocumentInventoryScreenController({
         </div>
 
         {/* Drafts */}
-        <div className="rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800/80 p-4 shadow-xs col-span-2 sm:col-span-1">
+        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-slate-300/90 dark:border-zinc-800 p-4 shadow-sm dark:shadow-2xs col-span-2 sm:col-span-1">
           <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 mb-2">
             <span className="text-xs font-medium">Drafts / In Prep</span>
             <UserCheck className="w-4 h-4 text-slate-400" />
@@ -289,7 +288,7 @@ export default function DocumentInventoryScreenController({
       </div>
 
       {/* 3. Control Toolbar Card 1:1 AssetSphere */}
-      <div className="p-4 rounded-xl bg-white dark:bg-[#0a0a0c] hairline-border shadow-2xs space-y-4">
+      <CardSharedComponent className="p-4 space-y-4">
         {/* Row 1: Search Input & Primary Actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search Box */}
@@ -300,7 +299,7 @@ export default function DocumentInventoryScreenController({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by candidate, role, doc #, or email..."
-              className="w-full h-9 pl-9 pr-3 text-xs rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-200/80 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
+              className="w-full h-9 pl-9 pr-3 text-xs rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-300 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
             />
           </div>
 
@@ -318,7 +317,7 @@ export default function DocumentInventoryScreenController({
         </div>
 
         {/* Row 2: Secondary Dropdown Filters & Uniform View Switchers 1:1 AssetSphere */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/60 dark:border-zinc-800/60 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-zinc-800/80 text-xs">
           {/* Left: Secondary Dropdown Filters */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
@@ -428,7 +427,7 @@ export default function DocumentInventoryScreenController({
             </div>
           </div>
         </div>
-      </div>
+      </CardSharedComponent>
 
       {/* 4. Document Presentation (Table View vs Grid Cards) */}
       {filteredDocuments.length === 0 ? (
@@ -442,12 +441,12 @@ export default function DocumentInventoryScreenController({
           }
         />
       ) : viewMode === 'table' ? (
-        /* TABLE VIEW */
-        <div className="rounded-xl border border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 shadow-xs overflow-hidden">
+        /* TABLE VIEW 1:1 AssetSphere */
+        <CardSharedComponent className="p-0 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/75 dark:bg-zinc-900/90 text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                <tr className="border-b border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#121215] text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                   <th className="py-3 px-4">Document Details</th>
                   <th className="py-3 px-4">Candidate & Contact</th>
                   <th className="py-3 px-4">Role & Department</th>
@@ -457,7 +456,7 @@ export default function DocumentInventoryScreenController({
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-zinc-800/60 text-xs">
+              <tbody className="divide-y divide-slate-200/80 dark:divide-zinc-800/60 text-xs">
                 {filteredDocuments.map((doc) => {
                   const isReadyForCountersign = doc.status === 'CANDIDATE_SIGNED';
                   const isPendingCandidate = doc.status === 'SENT';
@@ -466,7 +465,7 @@ export default function DocumentInventoryScreenController({
                   return (
                     <tr
                       key={doc.id}
-                      className="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition-colors group"
+                      className="hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition-colors group"
                     >
                       {/* Document Details */}
                       <td className="py-3 px-4">
@@ -548,7 +547,7 @@ export default function DocumentInventoryScreenController({
                               type="button"
                               onClick={() => handleDownloadPdf(doc)}
                               title="Download Certified PDF"
-                              className="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 border border-emerald-200/60 dark:border-emerald-900/40 cursor-pointer transition-colors"
+                              className="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-900/60 cursor-pointer transition-colors"
                             >
                               <Download className="w-4 h-4" />
                             </button>
@@ -558,7 +557,7 @@ export default function DocumentInventoryScreenController({
                             type="button"
                             onClick={() => onOpenSendEmailModal(doc)}
                             title="Dispatch Email to Candidate"
-                            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer transition-colors"
+                            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 cursor-pointer transition-colors"
                           >
                             <Mail className="w-4 h-4" />
                           </button>
@@ -567,7 +566,7 @@ export default function DocumentInventoryScreenController({
                             type="button"
                             onClick={() => onOpenAuditModalForDoc(doc)}
                             title="View Cryptographic Audit Trail"
-                            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer transition-colors"
+                            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 cursor-pointer transition-colors"
                           >
                             <ShieldCheck className="w-4 h-4" />
                           </button>
@@ -576,7 +575,7 @@ export default function DocumentInventoryScreenController({
                             type="button"
                             onClick={() => setDocToDelete(doc)}
                             title="Delete Document"
-                            className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-200/60 cursor-pointer transition-colors"
+                            className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-300 cursor-pointer transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -590,16 +589,16 @@ export default function DocumentInventoryScreenController({
           </div>
 
           {/* Table Footer Summary */}
-          <div className="px-4 py-3 bg-slate-50/75 dark:bg-zinc-900/90 border-t border-slate-200/80 dark:border-zinc-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
+          <div className="px-4 py-3 bg-slate-50 dark:bg-[#121215] border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
             <span>
               Showing <strong className="font-mono text-slate-700 dark:text-zinc-200">{filteredDocuments.length}</strong> of{' '}
               <strong className="font-mono text-slate-700 dark:text-zinc-200">{documents.length}</strong> offer documents
             </span>
             <span className="font-mono text-[11px]">
-              AssetSphere Cryptographic Audit Ledger Active
+              SignForge Cryptographic Audit Ledger Active
             </span>
           </div>
-        </div>
+        </CardSharedComponent>
       ) : (
         /* GRID CARD VIEW 1:1 AssetSphere */
         <div className={`grid gap-4 ${gridColumns === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
@@ -608,14 +607,15 @@ export default function DocumentInventoryScreenController({
             const isPendingCandidate = doc.status === 'SENT';
 
             return (
-              <div
+              <CardSharedComponent
                 key={doc.id}
-                className="p-5 rounded-2xl bg-white dark:bg-[#0a0a0c] hairline-border shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+                hoverable
+                className="p-5 flex flex-col justify-between space-y-4 group"
               >
                 {/* Top: Document # & Status */}
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <span className="font-mono text-xs font-bold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-slate-200/80 dark:border-zinc-700/80">
+                    <span className="font-mono text-xs font-bold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-slate-300 dark:border-zinc-700">
                       {doc.documentNumber}
                     </span>
                     <h3 className="font-serif-headline font-bold text-base text-slate-900 dark:text-zinc-100 mt-2 truncate">
@@ -629,7 +629,7 @@ export default function DocumentInventoryScreenController({
                 </div>
 
                 {/* Middle: Details Grid */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-100 dark:border-zinc-800/80 space-y-1.5 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 space-y-1.5 text-xs">
                   <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
                     <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Compensation</span>
                     <span className="font-mono font-bold text-slate-900 dark:text-zinc-100">{doc.offerDetails?.annualSalary || 'Confidential'}</span>
@@ -645,13 +645,13 @@ export default function DocumentInventoryScreenController({
                 </div>
 
                 {/* Bottom Actions Cluster */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800/80">
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-zinc-800/80">
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => onOpenAuditModalForDoc(doc)}
                       title="Audit Trail Logs"
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
                     >
                       <ShieldCheck className="w-4 h-4" />
                     </button>
@@ -660,7 +660,7 @@ export default function DocumentInventoryScreenController({
                       disabled={downloadingDocId === doc.id}
                       onClick={() => handleDownloadPdf(doc)}
                       title="Download PDF"
-                      className="p-1.5 rounded-lg text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer disabled:opacity-50"
+                      className="p-1.5 rounded-lg text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-900/60 transition-colors cursor-pointer disabled:opacity-50"
                     >
                       <Download className="w-4 h-4" />
                     </button>
@@ -668,7 +668,7 @@ export default function DocumentInventoryScreenController({
                       type="button"
                       onClick={() => onOpenSendEmailModal(doc)}
                       title="Dispatch Email"
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
                     >
                       <Mail className="w-4 h-4" />
                     </button>
@@ -676,7 +676,7 @@ export default function DocumentInventoryScreenController({
                       type="button"
                       onClick={() => setDocToDelete(doc)}
                       title="Delete Document"
-                      className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-300 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -706,7 +706,7 @@ export default function DocumentInventoryScreenController({
                     )}
                   </div>
                 </div>
-              </div>
+              </CardSharedComponent>
             );
           })}
         </div>
