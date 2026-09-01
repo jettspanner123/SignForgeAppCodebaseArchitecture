@@ -56,8 +56,8 @@ interface OfferDocumentState {
 
 export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
   documents: loadDocuments(),
-  currentView: ApplicationRouteCON.fromHash(window.location.hash).view,
-  selectedDocId: ApplicationRouteCON.fromHash(window.location.hash).docId || null,
+  currentView: ApplicationRouteCON.fromPathname(window.location.pathname, window.location.hash).view,
+  selectedDocId: ApplicationRouteCON.fromPathname(window.location.pathname, window.location.hash).docId || null,
   searchQuery: '',
   activeStatusFilter: UserPreferencesUtility.current.getActiveStatusFilter('ALL'),
   theme: ApplicationThemeUtility.current.getSavedTheme(),
@@ -66,9 +66,13 @@ export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
   inventorySingleLineMode: UserPreferencesUtility.current.getInventorySingleLine(false),
 
   setCurrentView: (view, docId) => {
-    const hash = ApplicationRouteCON.toHash(view, docId);
-    if (window.location.hash !== hash) {
-      window.location.hash = hash;
+    const targetPath = ApplicationRouteCON.toPath(view, docId);
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState(null, '', targetPath);
+    }
+    // Clear legacy hash if present
+    if (window.location.hash) {
+      window.history.replaceState(null, '', targetPath);
     }
     UserPreferencesUtility.current.setActiveTab(view);
     set({ currentView: view, selectedDocId: docId || null });

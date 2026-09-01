@@ -24,7 +24,7 @@ export default class ApplicationThemeUtility {
         // Ignore storage access errors
       }
     }
-    return ApplicationThemeCON.DARK; // Default to Dark Mode
+    return ApplicationThemeCON.LIGHT; // Default to Light Mode
   }
 
   public applyTheme(theme: string): void {

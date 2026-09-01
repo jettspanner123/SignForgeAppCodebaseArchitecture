@@ -39,44 +39,40 @@ export default function App() {
   const [showDispatchModal, setShowDispatchModal] = useState<boolean>(false);
   const [showEmailModalDoc, setShowEmailModalDoc] = useState<OfferDocument | null>(null);
 
-  // Hash-based URL Router Sync (Bidirectional & Deep-linking)
+  // HTML5 History API URL Router Sync (Bidirectional & Deep-linking)
   useEffect(() => {
-    const handleHashSync = () => {
+    const handlePathSync = () => {
       try {
-        const hash = window.location.hash;
-        if (!hash || hash === '#/' || hash === '#/documents') {
-          setCurrentView(ApplicationRouteCON.DOCUMENTS);
-        } else if (hash === '#/create-offer') {
-          setCurrentView(ApplicationRouteCON.CREATE_OFFER);
-        } else if (hash === '#/upload-pdf') {
-          setCurrentView(ApplicationRouteCON.UPLOAD_PDF);
-        } else if (hash === '#/audit-trail') {
+        const { pathname, hash } = window.location;
+        const resolved = ApplicationRouteCON.fromPathname(pathname, hash);
+
+        // If arrived via legacy hash, clean it up to standard pathname
+        if (hash && hash.startsWith('#/')) {
+          const targetPath = ApplicationRouteCON.toPath(resolved.view, resolved.docId);
+          window.history.replaceState(null, '', targetPath);
+        }
+
+        if (resolved.view === ApplicationRouteCON.AUDIT_TRAILS) {
           setShowAuditModal(true);
-        } else if (hash.startsWith('#/candidate')) {
-          const parts = hash.split('/');
-          if (parts[2]) {
-            setSelectedDocId(parts[2]);
-          }
-          setCurrentView(ApplicationRouteCON.CANDIDATE_VIEW);
-        } else if (hash.startsWith('#/countersign')) {
-          const parts = hash.split('/');
-          if (parts[2]) {
-            setSelectedDocId(parts[2]);
-          }
-          setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN);
+        } else {
+          setCurrentView(resolved.view, resolved.docId);
         }
       } catch (err) {
-        console.error('Hash routing error:', err);
+        console.error('Pathname routing error:', err);
       }
     };
 
     // Initial sync
-    handleHashSync();
+    handlePathSync();
 
     // Listen to browser Back / Forward buttons
-    window.addEventListener('hashchange', handleHashSync);
-    return () => window.removeEventListener('hashchange', handleHashSync);
-  }, [setCurrentView, setSelectedDocId]);
+    window.addEventListener('popstate', handlePathSync);
+    window.addEventListener('hashchange', handlePathSync);
+    return () => {
+      window.removeEventListener('popstate', handlePathSync);
+      window.removeEventListener('hashchange', handlePathSync);
+    };
+  }, [setCurrentView]);
 
   // Handle direct query parameters (?view=sign&payload=... or ?docId=...)
   useEffect(() => {
@@ -143,28 +139,24 @@ export default function App() {
 
         {/* Offer Document Builder */}
         {currentView === ApplicationRouteCON.CREATE_OFFER && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <DocumentEditor
-              initialDocument={editingDoc}
-              onSaveAndSend={handleSaveOffer}
-              onCancel={() => {
-                setEditingDoc(null);
-                setCurrentView(ApplicationRouteCON.DOCUMENTS);
-              }}
-              onSwitchToUpload={() => setCurrentView(ApplicationRouteCON.UPLOAD_PDF)}
-            />
-          </div>
+          <DocumentEditor
+            initialDocument={editingDoc}
+            onSaveAndSend={handleSaveOffer}
+            onCancel={() => {
+              setEditingDoc(null);
+              setCurrentView(ApplicationRouteCON.DOCUMENTS);
+            }}
+            onSwitchToUpload={() => setCurrentView(ApplicationRouteCON.UPLOAD_PDF)}
+          />
         )}
 
         {/* Custom PDF Upload Editor */}
         {currentView === ApplicationRouteCON.UPLOAD_PDF && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <UploadPdfEditor
-              onSaveAndSend={handleSaveOffer}
-              onCancel={() => setCurrentView(ApplicationRouteCON.DOCUMENTS)}
-              onSwitchToTemplate={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
-            />
-          </div>
+          <UploadPdfEditor
+            onSaveAndSend={handleSaveOffer}
+            onCancel={() => setCurrentView(ApplicationRouteCON.DOCUMENTS)}
+            onSwitchToTemplate={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
+          />
         )}
 
         {/* Audit Trail Vault Screen (When navigated via Top Nav Tab) */}
@@ -177,30 +169,24 @@ export default function App() {
 
         {/* Candidate Signing Portal */}
         {currentView === ApplicationRouteCON.CANDIDATE_VIEW && activeDoc && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <CandidatePortal
-              document={activeDoc}
-              onUpdateDocument={(updated) => updateDocument(updated)}
-              onSwitchToHRView={() => setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN, activeDoc.id)}
-            />
-          </div>
+          <CandidatePortal
+            document={activeDoc}
+            onUpdateDocument={(updated) => updateDocument(updated)}
+            onSwitchToHRView={() => setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN, activeDoc.id)}
+          />
         )}
 
         {/* HR Countersigning Portal */}
         {currentView === ApplicationRouteCON.HR_COUNTERSIGN && activeDoc && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <HRCounterSignPortal
-              document={activeDoc}
-              onUpdateDocument={(updated) => updateDocument(updated)}
-            />
-          </div>
+          <HRCounterSignPortal
+            document={activeDoc}
+            onUpdateDocument={(updated) => updateDocument(updated)}
+          />
         )}
 
         {/* Hosting Guide */}
         {currentView === ApplicationRouteCON.VERCEL_GUIDE && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <VercelHostingGuide />
-          </div>
+          <VercelHostingGuide />
         )}
       </div>
 

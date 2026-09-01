@@ -66,6 +66,12 @@ export default function DocumentInventoryScreenController({
   const [docToDelete, setDocToDelete] = useState<OfferDocument | null>(null);
   const [copiedDocId, setCopiedDocId] = useState<string | null>(null);
 
+  const lastDocToDeleteRef = React.useRef<OfferDocument | null>(null);
+  if (docToDelete) {
+    lastDocToDeleteRef.current = docToDelete;
+  }
+  const displayDocForDelete = docToDelete || lastDocToDeleteRef.current;
+
   // Status Filter Options for CustomSelectSharedComponent 1:1 AssetSphere
   const statusOptions: SelectOption[] = [
     { value: 'ALL', label: `All Documents (${documents.length})` },
@@ -706,25 +712,27 @@ export default function DocumentInventoryScreenController({
         </div>
       )}
 
-      {/* 5. Delete Confirmation Modal */}
-      {docToDelete && (
-        <ConfirmationModalSharedComponent
-          isOpen={Boolean(docToDelete)}
-          onClose={() => setDocToDelete(null)}
-          onConfirm={() => {
-            if (docToDelete) {
-              deleteDocument(docToDelete.id);
-              setDocToDelete(null);
-            }
-          }}
-          title="Delete Offer Document?"
-          subtitle="Permanent document deletion"
-          description={`Are you sure you want to delete ${docToDelete.documentNumber} for ${docToDelete.offerDetails?.candidateName || 'this candidate'}? This document will be permanently removed.`}
-          confirmText="Delete Document"
-          cancelText="Cancel"
-          variant="danger"
-        />
-      )}
+      {/* 5. Delete Confirmation Modal (Always mounted for smooth AnimatePresence directional exit animations) */}
+      <ConfirmationModalSharedComponent
+        isOpen={Boolean(docToDelete)}
+        onClose={() => setDocToDelete(null)}
+        onConfirm={() => {
+          if (docToDelete) {
+            deleteDocument(docToDelete.id);
+            setDocToDelete(null);
+          }
+        }}
+        title="Delete Offer Document?"
+        subtitle="Permanent document deletion"
+        description={
+          displayDocForDelete
+            ? `Are you sure you want to delete ${displayDocForDelete.documentNumber} for ${displayDocForDelete.offerDetails?.candidateName || 'this candidate'}? This document will be permanently removed.`
+            : 'Are you sure you want to delete this document? This document will be permanently removed.'
+        }
+        confirmText="Delete Document"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }
