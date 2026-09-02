@@ -155,9 +155,9 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
         </div>
 
         {/* Action Status Widget */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="grid grid-cols-2 gap-3 w-full sm:flex sm:items-center sm:w-auto sm:shrink-0">
           {isAlreadySigned ? (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2 flex items-center gap-2.5 text-emerald-700 dark:text-emerald-400">
+            <div className="col-span-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 text-emerald-700 dark:text-emerald-400 w-full sm:w-auto">
               <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <div>
                 <p className="text-xs font-bold text-slate-900 dark:text-zinc-100">Offer Accepted & eSigned!</p>
@@ -165,7 +165,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
               </div>
             </div>
           ) : document.status === 'REJECTED' ? (
-            <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl px-3 py-2 flex items-center gap-2.5 text-rose-700 dark:text-rose-400">
+            <div className="col-span-2 bg-rose-500/10 border border-rose-500/20 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 text-rose-700 dark:text-rose-400 w-full sm:w-auto">
               <XCircle className="h-5 w-5 text-rose-600 dark:text-rose-400 shrink-0" />
               <div>
                 <p className="text-xs font-bold text-slate-900 dark:text-zinc-100">Offer Declined</p>
@@ -177,6 +177,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
               label="Review & Sign Offer"
               icon={<PenTool className="w-3.5 h-3.5 !text-white" />}
               onClick={() => setIsSignModalOpen(true)}
+              className="w-full justify-center !h-10 sm:!h-8 px-4 text-xs font-semibold"
             />
           )}
 
@@ -186,6 +187,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
             disabled={isDownloading}
             onClick={handleDownloadPdf}
             icon={<Download className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
+            className="w-full justify-center !h-10 sm:!h-8 px-4 text-xs font-semibold"
           >
             {isDownloading ? 'Generating...' : 'Download PDF'}
           </ButtonSharedComponent>

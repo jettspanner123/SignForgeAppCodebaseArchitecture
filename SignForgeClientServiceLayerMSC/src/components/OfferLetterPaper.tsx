@@ -51,27 +51,27 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
         className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden space-y-6 transition-all"
       >
         {/* Header: We.PLM Logo & Title */}
-        <div className="flex justify-between items-start pb-6 border-b-2 border-slate-900 gap-4">
+        <div className="relative flex items-center justify-between pb-5 sm:pb-6 border-b-2 border-slate-900 min-h-[58px] sm:min-h-[64px]">
           {/* Logo */}
-          <WePlmLogo className="h-12 sm:h-14 w-auto shrink-0" />
+          <WePlmLogo className="h-9 sm:h-12 md:h-14 w-auto shrink-0 z-10" />
 
           {/* Centered Title */}
-          <div className="flex-1 text-center px-2 sm:px-4">
+          <div className="absolute inset-x-0 mx-auto text-center pointer-events-none flex flex-col items-center justify-center">
             <h1
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-              className="text-xl sm:text-2xl font-serif-headline font-bold text-slate-900 uppercase tracking-widest"
+              className="text-sm sm:text-xl md:text-2xl font-serif-headline font-bold text-slate-900 uppercase tracking-wider sm:tracking-widest leading-tight whitespace-nowrap"
             >
               {docTypeTitle}
             </h1>
-            <div className="w-12 h-0.5 bg-[#0C2086] mx-auto mt-1.5 rounded-full" />
-            <p className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider mt-1.5">
+            <div className="w-8 sm:w-12 h-0.5 bg-[#0C2086] mx-auto mt-1 rounded-full" />
+            <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider mt-1 truncate max-w-[190px] sm:max-w-none">
               Ref: {document.documentNumber}
             </p>
           </div>
 
           {/* Date */}
-          <div className="text-right text-xs font-semibold text-slate-600 shrink-0">
-            <p className="font-mono text-slate-700 font-bold bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+          <div className="text-right shrink-0 z-10">
+            <p className="font-mono text-[10px] sm:text-xs text-slate-700 font-bold bg-slate-100 px-2 sm:px-2.5 py-1 rounded border border-slate-200 whitespace-nowrap">
               {new Date(document.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
             </p>
           </div>
@@ -370,21 +370,25 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
         className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden space-y-6 transition-all"
       >
         {/* Header */}
-        <div className="flex justify-between items-start pb-4 border-b-2 border-slate-900 gap-4">
-          <WePlmLogo className="h-10 sm:h-12 w-auto shrink-0" />
-          <div className="flex-1 text-center px-2 sm:px-4">
+        <div className="relative flex items-center justify-between pb-4 sm:pb-5 border-b-2 border-slate-900 min-h-[54px] sm:min-h-[60px]">
+          <WePlmLogo className="h-8 sm:h-10 md:h-12 w-auto shrink-0 z-10" />
+          <div className="absolute inset-x-0 mx-auto text-center pointer-events-none flex flex-col items-center justify-center">
             <h2
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-              className="text-base sm:text-lg font-serif-headline font-bold text-slate-900 uppercase tracking-wider"
+              className="text-xs sm:text-base md:text-lg font-serif-headline font-bold text-slate-900 uppercase tracking-wider leading-tight whitespace-nowrap"
             >
-              {docTypeTitle} — TERMS & CONDITIONS
+              TERMS & CONDITIONS
             </h2>
-            <div className="w-10 h-0.5 bg-[#0C2086] mx-auto mt-1 rounded-full" />
-            <p className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-widest mt-1">
+            <div className="w-8 sm:w-10 h-0.5 bg-[#0C2086] mx-auto mt-1 rounded-full" />
+            <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider mt-1 truncate max-w-[200px] sm:max-w-none">
               Page 2 of 3 • Ref: {document.documentNumber}
             </p>
           </div>
-          <div className="w-10 sm:w-12"></div>
+          <div className="text-right shrink-0 z-10">
+            <span className="font-mono text-[10px] sm:text-xs text-slate-700 font-bold bg-slate-100 px-2 sm:px-2.5 py-1 rounded border border-slate-200 whitespace-nowrap">
+              Pg 2 of 3
+            </span>
+          </div>
         </div>
 
         {/* Candidate Agreement Header */}
@@ -457,21 +461,25 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
         className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden space-y-6 transition-all"
       >
         {/* Header */}
-        <div className="flex justify-between items-start pb-4 border-b-2 border-slate-900 gap-4">
-          <WePlmLogo className="h-10 sm:h-12 w-auto shrink-0" />
-          <div className="flex-1 text-center px-2 sm:px-4">
+        <div className="relative flex items-center justify-between pb-4 sm:pb-5 border-b-2 border-slate-900 min-h-[54px] sm:min-h-[60px]">
+          <WePlmLogo className="h-8 sm:h-10 md:h-12 w-auto shrink-0 z-10" />
+          <div className="absolute inset-x-0 mx-auto text-center pointer-events-none flex flex-col items-center justify-center">
             <h2
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-              className="text-base sm:text-lg font-serif-headline font-bold text-slate-900 uppercase tracking-wider"
+              className="text-xs sm:text-base md:text-lg font-serif-headline font-bold text-slate-900 uppercase tracking-wider leading-tight whitespace-nowrap"
             >
-              {docTypeTitle} — EXECUTION & ACCEPTANCE
+              EXECUTION & ACCEPTANCE
             </h2>
-            <div className="w-10 h-0.5 bg-[#0C2086] mx-auto mt-1 rounded-full" />
-            <p className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-widest mt-1">
+            <div className="w-8 sm:w-10 h-0.5 bg-[#0C2086] mx-auto mt-1 rounded-full" />
+            <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider mt-1 truncate max-w-[200px] sm:max-w-none">
               Page 3 of 3 • Ref: {document.documentNumber}
             </p>
           </div>
-          <div className="w-10 sm:w-12"></div>
+          <div className="text-right shrink-0 z-10">
+            <span className="font-mono text-[10px] sm:text-xs text-slate-700 font-bold bg-slate-100 px-2 sm:px-2.5 py-1 rounded border border-slate-200 whitespace-nowrap">
+              Pg 3 of 3
+            </span>
+          </div>
         </div>
 
         {/* Term and Termination Section */}
