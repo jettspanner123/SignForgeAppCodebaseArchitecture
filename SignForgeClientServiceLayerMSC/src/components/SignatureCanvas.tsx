@@ -300,11 +300,11 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
         </div>
 
         {/* Segmented Capsule Tabs (1:1 AssetSphere Animated Segmented Controller) */}
-        <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9 w-full">
+        <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full">
           <button
             type="button"
             onClick={() => setActiveTab('DRAW')}
-            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
           >
             {activeTab === 'DRAW' && (
               <motion.div
@@ -313,20 +313,20 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
-            <span className={`relative z-10 flex items-center gap-1.5 ${
+            <span className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'DRAW'
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}>
-              <PenTool className="w-3.5 h-3.5" />
-              <span>Draw Signature</span>
+              <PenTool className="w-3.5 h-3.5 shrink-0" />
+              <span>Draw</span>
             </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('TYPE')}
-            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
           >
             {activeTab === 'TYPE' && (
               <motion.div
@@ -335,20 +335,20 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
-            <span className={`relative z-10 flex items-center gap-1.5 ${
+            <span className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'TYPE'
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}>
-              <Type className="w-3.5 h-3.5" />
-              <span>Type Signature</span>
+              <Type className="w-3.5 h-3.5 shrink-0" />
+              <span>Text</span>
             </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('UPLOAD')}
-            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
           >
             {activeTab === 'UPLOAD' && (
               <motion.div
@@ -357,13 +357,13 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
-            <span className={`relative z-10 flex items-center gap-1.5 ${
+            <span className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'UPLOAD'
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}>
-              <Upload className="w-3.5 h-3.5" />
-              <span>Upload Image</span>
+              <Upload className="w-3.5 h-3.5 shrink-0" />
+              <span>Upload</span>
             </span>
           </button>
         </div>

@@ -139,7 +139,7 @@ export default function ModalSharedComponent({
         <div
           ref={scrollContainerRef}
           style={{ zIndex }}
-          className="fixed inset-0 flex items-start justify-center p-4 sm:p-6 overflow-y-auto overflow-x-hidden"
+          className="fixed inset-0 flex items-end sm:items-start justify-center p-0 sm:p-6 overflow-y-auto overflow-x-hidden w-[100dvw] h-[100dvh]"
         >
           <motion.div
             initial={{ opacity: 0 }}
@@ -147,7 +147,7 @@ export default function ModalSharedComponent({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
             onClick={handleBackdropClick}
-            className="fixed inset-0 bg-slate-900/60 dark:bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-900/60 dark:bg-black/60 backdrop-blur-sm w-[100dvw] h-[100dvh]"
           />
 
           <motion.div
@@ -157,10 +157,10 @@ export default function ModalSharedComponent({
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`relative w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-xl shadow-2xl z-10 my-auto sm:my-8 flex flex-col shrink-0`}
+            className={`relative w-[100dvw] sm:w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-t-2xl rounded-b-none sm:rounded-xl shadow-2xl z-10 my-0 sm:my-8 max-h-[90dvh] sm:max-h-none flex flex-col shrink-0`}
           >
             {(title || subtitle) && (
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between shrink-0">
+              <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between shrink-0">
                 <div>
                   {title && (
                     <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-zinc-100 font-serif-headline">
@@ -175,19 +175,19 @@ export default function ModalSharedComponent({
                 </div>
                 <button
                   onClick={handleHeaderClose}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             )}
 
-            <div className={`p-6 flex-1 ${scrollMode === 'body' ? 'max-h-[85vh] overflow-y-auto' : ''} ${minHeight ? minHeight : ''}`}>
+            <div className={`p-5 sm:p-6 flex-1 overflow-y-auto max-h-[calc(90dvh-130px)] sm:max-h-none ${scrollMode === 'body' ? 'overflow-y-auto' : ''} ${minHeight ? minHeight : ''}`}>
               {children}
             </div>
 
             {footer && (
-              <div className="px-6 py-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#08080a] shrink-0">
+              <div className="px-5 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#08080a] shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-4">
                 {footer}
               </div>
             )}
