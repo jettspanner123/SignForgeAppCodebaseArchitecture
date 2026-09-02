@@ -168,10 +168,10 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
     }
   } else {
     // -------------------------------------------------------------
-    // WE.PLM JOINING / OFFER LETTER - EXACT PDF GENERATION
+    // WE.PLM JOINING / OFFER LETTER - EXACT PDF GENERATION (1:1 PARITY)
     // -------------------------------------------------------------
     const logoNavy = rgb(0.043, 0.145, 0.54); // #0B258A
-    const textDark = rgb(0.1, 0.12, 0.15);
+    const textDark = rgb(0.06, 0.08, 0.12);
     const footerText = `Regd. Office: ${cleanStr(doc.companyName)} | G22 Deepmala Pimple Saudagar Pune 411027 | INDIA | Tel: +91 8806060538 | sales@theweplm.com | www.theweplm.com | CIN : U72900PN2021FTC203259`;
 
     let embeddedLogoImg: any = null;
@@ -184,87 +184,115 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
       console.warn('Failed to embed PNG logo into PDF:', err);
     }
 
-    // -------------------------------------------------------------
-    // PAGE 1: APPOINTMENT LETTER
-    // -------------------------------------------------------------
-    const page1 = pdfDoc.addPage([612, 792]);
-    const { width, height } = page1.getSize();
-    const margin = 40;
-    const maxWidth = width - margin * 2;
-
-    // 1. Logo (Top-Left)
-    if (embeddedLogoImg) {
-      page1.drawImage(embeddedLogoImg, {
-        x: margin,
-        y: height - 85,
-        width: 75,
-        height: 45.4,
-      });
-    } else {
-      page1.drawText('We.', { x: margin, y: height - 58, size: 16, font: helveticaBold, color: logoNavy });
-      page1.drawText('PLM', { x: margin, y: height - 76, size: 14, font: helveticaBold, color: logoNavy });
-    }
-
-    // 2. Centered Title
     const docTitle = doc.documentType === 'JOINING_LETTER' ? 'JOINING LETTER' : 'OFFER LETTER';
-    const titleWidth = helveticaBold.widthOfTextAtSize(docTitle, 16);
-    const titleX = (width - titleWidth) / 2;
-    page1.drawText(docTitle, {
-      x: titleX,
-      y: height - 55,
-      size: 16,
-      font: helveticaBold,
-      color: textDark,
-    });
-    // Underline
-    page1.drawLine({
-      start: { x: titleX, y: height - 60 },
-      end: { x: titleX + titleWidth, y: height - 60 },
-      thickness: 1.5,
-      color: textDark,
-    });
+    const margin = 40;
 
-    // 3. Date & Doc Ref (Top-Right)
-    const dateStr = new Date(doc.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-    page1.drawText(`Ref: ${cleanStr(doc.documentNumber)}`, { x: width - margin - 140, y: height - 50, size: 8.5, font: helveticaBold, color: rgb(0.4, 0.4, 0.4) });
-    page1.drawText(`Date: ${dateStr}`, { x: width - margin - 140, y: height - 64, size: 8.5, font: helveticaFont, color: rgb(0.3, 0.3, 0.3) });
+    /**
+     * Standardized 3-column header matching Candidate Portal Paper (OfferLetterPaper.tsx)
+     */
+    function drawStandardHeader(
+      targetPage: any,
+      headingTitle: string,
+      subRefText: string,
+      rightBadgeLabel: string
+    ) {
+      const { width: pW, height: pH } = targetPage.getSize();
+      const headerBottomY = pH - 88;
 
-    // Header divider line
-    page1.drawLine({
-      start: { x: margin, y: height - 95 },
-      end: { x: width - margin, y: height - 95 },
-      thickness: 1,
-      color: textDark,
-    });
+      // 1. Logo (Top-Left)
+      if (embeddedLogoImg) {
+        targetPage.drawImage(embeddedLogoImg, {
+          x: margin,
+          y: pH - 82,
+          width: 58,
+          height: 35,
+        });
+      } else {
+        targetPage.drawText('We.', { x: margin, y: pH - 58, size: 15, font: helveticaBold, color: logoNavy });
+        targetPage.drawText('PLM', { x: margin, y: pH - 74, size: 13, font: helveticaBold, color: logoNavy });
+      }
 
-    // 4. Recipient Address Block
-    let currentY = height - 120;
-    page1.drawText('To,', { x: margin, y: currentY, size: 10, font: helveticaBold, color: textDark });
-    currentY -= 15;
-    page1.drawText(cleanStr(doc.offerDetails.candidateName), { x: margin, y: currentY, size: 10, font: helveticaBold, color: textDark });
-    currentY -= 14;
+      // 2. Dead-Centered Heading + Sapphire Accent Bar + Sub-Ref
+      const titleFontSize = 14;
+      const tWidth = helveticaBold.widthOfTextAtSize(headingTitle, titleFontSize);
+      const titleX = (pW - tWidth) / 2;
+      targetPage.drawText(headingTitle, {
+        x: titleX,
+        y: pH - 56,
+        size: titleFontSize,
+        font: helveticaBold,
+        color: textDark,
+      });
 
-    const addressLines = (doc.offerDetails.candidateAddress || 'Pune, Maharashtra - 411027').split('\n');
-    for (const addrLine of addressLines) {
-      page1.drawText(cleanStr(addrLine), { x: margin, y: currentY, size: 9, font: helveticaFont, color: rgb(0.25, 0.25, 0.25) });
-      currentY -= 13;
+      // Accent pill underneath heading
+      const accentW = 34;
+      targetPage.drawRectangle({
+        x: (pW - accentW) / 2,
+        y: pH - 62,
+        width: accentW,
+        height: 1.8,
+        color: logoNavy,
+      });
+
+      // Sub-ref underneath accent pill
+      const subRefSize = 8;
+      const subRefW = helveticaBold.widthOfTextAtSize(subRefText, subRefSize);
+      const subRefX = (pW - subRefW) / 2;
+      targetPage.drawText(subRefText, {
+        x: subRefX,
+        y: pH - 74,
+        size: subRefSize,
+        font: helveticaBold,
+        color: rgb(0.45, 0.48, 0.52),
+      });
+
+      // 3. Right-Aligned Pill Badge
+      const badgeFontSize = 8;
+      const bTextW = helveticaBold.widthOfTextAtSize(rightBadgeLabel, badgeFontSize);
+      const bPadX = 7;
+      const bPadY = 4;
+      const badgeW = bTextW + bPadX * 2;
+      const badgeH = badgeFontSize + bPadY * 2;
+      const badgeX = pW - margin - badgeW;
+      const badgeY = pH - 68;
+
+      targetPage.drawRectangle({
+        x: badgeX,
+        y: badgeY,
+        width: badgeW,
+        height: badgeH,
+        color: rgb(0.95, 0.96, 0.98),
+        borderColor: rgb(0.85, 0.88, 0.92),
+        borderWidth: 0.8,
+      });
+
+      targetPage.drawText(rightBadgeLabel, {
+        x: badgeX + bPadX,
+        y: badgeY + 4,
+        size: badgeFontSize,
+        font: helveticaBold,
+        color: rgb(0.25, 0.3, 0.38),
+      });
+
+      // Bottom Header Border Line
+      targetPage.drawLine({
+        start: { x: margin, y: headerBottomY },
+        end: { x: pW - margin, y: headerBottomY },
+        thickness: 1.5,
+        color: rgb(0.1, 0.12, 0.15),
+      });
     }
 
-    if (doc.offerDetails.candidateDob) {
-      page1.drawText(`DOB: ${cleanStr(doc.offerDetails.candidateDob)}`, { x: margin, y: currentY, size: 9, font: helveticaBold, color: textDark });
-      currentY -= 16;
-    }
-
-    currentY -= 10;
-
-    // 5. Salutation & Body Paragraphs
-    const candidateFirstName = doc.offerDetails.candidateName.split(' ')[0] || doc.offerDetails.candidateName;
-    page1.drawText(`Dear ${cleanStr(candidateFirstName)},`, { x: margin, y: currentY, size: 10.5, font: helveticaBold, color: textDark });
-    currentY -= 20;
-
-    const bodyP1 = `We are pleased to appoint you as ${cleanStr(doc.offerDetails.jobTitle)} in ${cleanStr(doc.companyName)}. During your engagement, you may be deputed at our ${cleanStr(doc.offerDetails.workLocation) || 'Pune office'}. Your assignment with the Company will be Effective from ${cleanStr(doc.offerDetails.joiningDate)}.`;
-
-    function drawWrappedTextOnPage(targetPage: any, text: string, font: any, fontSize: number, startY: number, lineHeight: number = 14, color = textDark): number {
+    function drawWrappedText(
+      targetPage: any,
+      text: string,
+      font: any,
+      fontSize: number,
+      startY: number,
+      lineHeight: number = 14,
+      color = textDark,
+      maxLineW = maxWidth
+    ): number {
       const paragraphs = text.split(/\r?\n/);
       let y = startY;
 
@@ -281,7 +309,7 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
           if (!word) continue;
           const testLine = currentLine ? `${currentLine} ${word}` : word;
           const textWidth = font.widthOfTextAtSize(testLine, fontSize);
-          if (textWidth > maxWidth) {
+          if (textWidth > maxLineW) {
             if (currentLine) {
               targetPage.drawText(currentLine, { x: margin, y, size: fontSize, font, color });
               y -= lineHeight;
@@ -299,34 +327,78 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
       return y;
     }
 
-    currentY = drawWrappedTextOnPage(page1, bodyP1, helveticaFont, 9.5, currentY, 15);
+    // -------------------------------------------------------------
+    // PAGE 1: APPOINTMENT LETTER & KEY TERMS
+    // -------------------------------------------------------------
+    const page1 = pdfDoc.addPage([612, 792]);
+    const { width, height } = page1.getSize();
+    const maxWidth = width - margin * 2;
+
+    const dateStr = new Date(doc.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    drawStandardHeader(
+      page1,
+      docTitle,
+      `Ref: ${cleanStr(doc.documentNumber)}`,
+      dateStr
+    );
+
+    // Recipient Address Block
+    let currentY = height - 115;
+    page1.drawText('To,', { x: margin, y: currentY, size: 10, font: helveticaBold, color: textDark });
+    currentY -= 15;
+    page1.drawText(cleanStr(doc.offerDetails.candidateName), { x: margin, y: currentY, size: 10, font: helveticaBold, color: textDark });
+    currentY -= 14;
+
+    const addressLines = (doc.offerDetails.candidateAddress || 'Pune, Maharashtra - 411027').split('\n');
+    for (const addrLine of addressLines) {
+      page1.drawText(cleanStr(addrLine), { x: margin, y: currentY, size: 9, font: helveticaFont, color: rgb(0.25, 0.25, 0.25) });
+      currentY -= 13;
+    }
+
+    if (doc.offerDetails.candidateDob) {
+      page1.drawText(`DOB: ${cleanStr(doc.offerDetails.candidateDob)}`, { x: margin, y: currentY, size: 9, font: helveticaBold, color: textDark });
+      currentY -= 16;
+    }
+
+    currentY -= 8;
+
+    // Salutation & Body Paragraphs
+    const candidateFirstName = doc.offerDetails.candidateName.split(' ')[0] || doc.offerDetails.candidateName;
+    page1.drawText(`Dear ${cleanStr(candidateFirstName)},`, { x: margin, y: currentY, size: 10.5, font: helveticaBold, color: textDark });
+    currentY -= 18;
+
+    const bodyP1 = `We are pleased to appoint you as ${cleanStr(doc.offerDetails.jobTitle)} in ${cleanStr(doc.companyName)}. During your engagement, you may be deputed at our ${cleanStr(doc.offerDetails.workLocation) || 'Pune office'}. Your assignment with the Company will be Effective from ${cleanStr(doc.offerDetails.joiningDate)}.`;
+    currentY = drawWrappedText(page1, bodyP1, helveticaFont, 9.5, currentY, 15);
     currentY -= 10;
 
-    currentY = drawWrappedTextOnPage(page1, 'We are looking forward to a wonderful journey together.', helveticaFont, 9.5, currentY, 15);
+    currentY = drawWrappedText(page1, 'We are looking forward to a wonderful journey together.', helveticaFont, 9.5, currentY, 15);
     currentY -= 10;
 
-    currentY = drawWrappedTextOnPage(page1, 'We wish you all the best and are very confident that you will successfully deliver your responsibilities.', helveticaFont, 9.5, currentY, 15);
-    currentY -= 20;
+    currentY = drawWrappedText(page1, 'We wish you all the best and are very confident that you will successfully deliver your responsibilities.', helveticaFont, 9.5, currentY, 15);
+    currentY -= 18;
 
-    // 6. Key Engagement Terms Box
+    // Key Engagement Terms Card (1:1 Paper Layout)
+    const termsCardH = 100;
     page1.drawRectangle({
       x: margin,
-      y: currentY - 110,
+      y: currentY - termsCardH,
       width: maxWidth,
-      height: 110,
-      color: rgb(0.97, 0.98, 0.99),
-      borderColor: rgb(0.8, 0.83, 0.88),
+      height: termsCardH,
+      color: rgb(0.98, 0.99, 1),
+      borderColor: rgb(0.82, 0.86, 0.92),
       borderWidth: 1,
     });
 
-    page1.drawText('KEY ENGAGEMENT TERMS', { x: margin + 15, y: currentY - 20, size: 9.5, font: helveticaBold, color: logoNavy });
-    page1.drawText(cleanStr(String(doc.offerDetails.annualSalary || '')), { x: width - margin - 120, y: currentY - 20, size: 10, font: helveticaBold, color: rgb(0.05, 0.5, 0.2) });
+    page1.drawText('KEY ENGAGEMENT TERMS', { x: margin + 14, y: currentY - 20, size: 9.5, font: helveticaBold, color: logoNavy });
+    const salaryText = cleanStr(String(doc.offerDetails.annualSalary || ''));
+    const salaryW = helveticaBold.widthOfTextAtSize(salaryText, 10.5);
+    page1.drawText(salaryText, { x: width - margin - 14 - salaryW, y: currentY - 20, size: 10.5, font: helveticaBold, color: rgb(0.05, 0.55, 0.25) });
 
     page1.drawLine({
-      start: { x: margin + 15, y: currentY - 28 },
-      end: { x: width - margin - 15, y: currentY - 28 },
+      start: { x: margin + 14, y: currentY - 28 },
+      end: { x: width - margin - 14, y: currentY - 28 },
       thickness: 0.5,
-      color: rgb(0.8, 0.83, 0.88),
+      color: rgb(0.85, 0.88, 0.93),
     });
 
     const summaryDetails = [
@@ -336,29 +408,29 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
       { l: 'Work Location:', v: cleanStr(doc.offerDetails.workLocation) }
     ];
 
-    let gridY = currentY - 45;
+    let gridY = currentY - 46;
     summaryDetails.forEach((item, idx) => {
-      const colX = idx % 2 === 0 ? margin + 15 : margin + 270;
-      if (idx === 2) gridY = currentY - 75;
-      page1.drawText(item.l, { x: colX, y: gridY, size: 8.5, font: helveticaBold, color: rgb(0.4, 0.4, 0.4) });
+      const colX = idx % 2 === 0 ? margin + 14 : margin + 270;
+      if (idx === 2) gridY = currentY - 72;
+      page1.drawText(item.l, { x: colX, y: gridY, size: 8.5, font: helveticaBold, color: rgb(0.4, 0.45, 0.5) });
       page1.drawText(item.v, { x: colX + 95, y: gridY, size: 8.5, font: helveticaFont, color: textDark });
     });
 
-    currentY -= 140;
+    currentY -= (termsCardH + 20);
 
-    // 7. Sign-off
+    // Sign-off
     page1.drawText('Yours truly,', { x: margin, y: currentY, size: 9.5, font: helveticaFont, color: rgb(0.3, 0.3, 0.3) });
-    currentY -= 15;
+    currentY -= 14;
     page1.drawText(`For ${cleanStr(doc.companyName)}`, { x: margin, y: currentY, size: 10, font: helveticaBold, color: textDark });
-    currentY -= 35;
+    currentY -= 32;
 
     page1.drawText(cleanStr(doc.offerDetails.directorName || 'Shantanu Jagtap'), { x: margin, y: currentY, size: 10, font: helveticaBold, color: textDark });
-    currentY -= 14;
+    currentY -= 13;
     page1.drawText(cleanStr(doc.offerDetails.directorTitle || 'Director'), { x: margin, y: currentY, size: 9, font: helveticaFont, color: rgb(0.4, 0.4, 0.4) });
 
     // Page 1 Footer
-    page1.drawLine({ start: { x: margin, y: 40 }, end: { x: width - margin, y: 40 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
-    page1.drawText(footerText, { x: margin, y: 25, size: 6.5, font: helveticaFont, color: rgb(0.45, 0.45, 0.45) });
+    page1.drawLine({ start: { x: margin, y: 38 }, end: { x: width - margin, y: 38 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
+    page1.drawText(footerText, { x: margin, y: 25, size: 6.2, font: helveticaFont, color: rgb(0.45, 0.45, 0.45) });
 
     // -------------------------------------------------------------
     // PAGE 2: TERMS AND CONDITIONS
@@ -366,25 +438,18 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
     const page2 = pdfDoc.addPage([612, 792]);
     const { width: p2W, height: p2H } = page2.getSize();
 
-    // Header Logo
-    if (embeddedLogoImg) {
-      page2.drawImage(embeddedLogoImg, { x: margin, y: p2H - 78, width: 55, height: 33.3 });
-    } else {
-      page2.drawText('We.', { x: margin, y: p2H - 58, size: 14, font: helveticaBold, color: logoNavy });
-      page2.drawText('PLM', { x: margin, y: p2H - 74, size: 12, font: helveticaBold, color: logoNavy });
-    }
-
-    // Header Title
-    page2.drawText(`${docTitle} - TERMS & CONDITIONS`, { x: margin + 65, y: p2H - 55, size: 13, font: helveticaBold, color: textDark });
-    page2.drawText(`Page 2 of 3 • Ref: ${cleanStr(doc.documentNumber)}`, { x: margin + 65, y: p2H - 68, size: 8, font: helveticaFont, color: rgb(0.4, 0.4, 0.4) });
-
-    page2.drawLine({ start: { x: margin, y: p2H - 85 }, end: { x: p2W - margin, y: p2H - 85 }, thickness: 1, color: textDark });
+    drawStandardHeader(
+      page2,
+      'TERMS & CONDITIONS',
+      `Page 2 of 3 • Ref: ${cleanStr(doc.documentNumber)}`,
+      'Pg 2 of 3'
+    );
 
     let p2Y = p2H - 110;
     page2.drawText(`I ${cleanStr(doc.offerDetails.candidateName)},`, { x: margin, y: p2Y, size: 10, font: helveticaBold, color: textDark });
-    p2Y -= 16;
+    p2Y -= 15;
     page2.drawText('Hereby agree to the following terms and conditions:', { x: margin, y: p2Y, size: 9.5, font: helveticaBold, color: rgb(0.2, 0.2, 0.2) });
-    p2Y -= 20;
+    p2Y -= 18;
 
     const termsBullets = [
       {
@@ -418,16 +483,16 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
     ];
 
     termsBullets.forEach((bullet) => {
-      page2.drawText('>', { x: margin, y: p2Y, size: 10, font: helveticaBold, color: logoNavy });
+      page2.drawText('>', { x: margin, y: p2Y, size: 9.5, font: helveticaBold, color: logoNavy });
       page2.drawText(cleanStr(bullet.head), { x: margin + 12, y: p2Y, size: 9, font: helveticaBold, color: textDark });
-      p2Y -= 13;
-      p2Y = drawWrappedTextOnPage(page2, bullet.text, helveticaFont, 8.5, p2Y, 13, rgb(0.25, 0.25, 0.25));
       p2Y -= 12;
+      p2Y = drawWrappedText(page2, bullet.text, helveticaFont, 8.5, p2Y, 12, rgb(0.25, 0.25, 0.25));
+      p2Y -= 10;
     });
 
     // Page 2 Footer
-    page2.drawLine({ start: { x: margin, y: 40 }, end: { x: p2W - margin, y: 40 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
-    page2.drawText(footerText, { x: margin, y: 25, size: 6.5, font: helveticaFont, color: rgb(0.45, 0.45, 0.45) });
+    page2.drawLine({ start: { x: margin, y: 38 }, end: { x: p2W - margin, y: 38 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
+    page2.drawText(footerText, { x: margin, y: 25, size: 6.2, font: helveticaFont, color: rgb(0.45, 0.45, 0.45) });
 
     // -------------------------------------------------------------
     // PAGE 3: TERM, TERMINATION & eSIGNATURE ACCEPTANCE
@@ -435,23 +500,16 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
     const page3 = pdfDoc.addPage([612, 792]);
     const { width: p3W, height: p3H } = page3.getSize();
 
-    // Header Logo
-    if (embeddedLogoImg) {
-      page3.drawImage(embeddedLogoImg, { x: margin, y: p3H - 78, width: 55, height: 33.3 });
-    } else {
-      page3.drawText('We.', { x: margin, y: p3H - 58, size: 14, font: helveticaBold, color: logoNavy });
-      page3.drawText('PLM', { x: margin, y: p3H - 74, size: 12, font: helveticaBold, color: logoNavy });
-    }
-
-    // Header Title
-    page3.drawText(`${docTitle} - EXECUTION & ACCEPTANCE`, { x: margin + 65, y: p3H - 55, size: 13, font: helveticaBold, color: textDark });
-    page3.drawText(`Page 3 of 3 • Ref: ${cleanStr(doc.documentNumber)}`, { x: margin + 65, y: p3H - 68, size: 8, font: helveticaFont, color: rgb(0.4, 0.4, 0.4) });
-
-    page3.drawLine({ start: { x: margin, y: p3H - 85 }, end: { x: p3W - margin, y: p3H - 85 }, thickness: 1, color: textDark });
+    drawStandardHeader(
+      page3,
+      'EXECUTION & ACCEPTANCE',
+      `Page 3 of 3 • Ref: ${cleanStr(doc.documentNumber)}`,
+      'Pg 3 of 3'
+    );
 
     let p3Y = p3H - 110;
     page3.drawText('Term and Termination:', { x: margin, y: p3Y, size: 10, font: helveticaBold, color: textDark });
-    p3Y -= 16;
+    p3Y -= 15;
 
     const termClauses = [
       'The Company shall be entitled to terminate your engagement immediately and without notice in cases of neglect of duties, breach of statutory policies, misappropriation of property, moral turpitude, fraudulent activity, or submission of forged documents.',
@@ -459,25 +517,25 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
     ];
 
     termClauses.forEach((clause) => {
-      page3.drawText('>', { x: margin, y: p3Y, size: 10, font: helveticaBold, color: logoNavy });
-      p3Y = drawWrappedTextOnPage(page3, clause, helveticaFont, 8.5, p3Y, 13, rgb(0.25, 0.25, 0.25));
-      p3Y -= 12;
+      page3.drawText('>', { x: margin, y: p3Y, size: 9.5, font: helveticaBold, color: logoNavy });
+      p3Y = drawWrappedText(page3, clause, helveticaFont, 8.5, p3Y, 12, rgb(0.25, 0.25, 0.25));
+      p3Y -= 10;
     });
 
-    p3Y -= 10;
-    page3.drawLine({ start: { x: margin, y: p3Y }, end: { x: p3W - margin, y: p3Y }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
-    p3Y -= 20;
+    p3Y -= 8;
+    page3.drawLine({ start: { x: margin, y: p3Y }, end: { x: p3W - margin, y: p3Y }, thickness: 0.5, color: rgb(0.85, 0.88, 0.92) });
+    p3Y -= 18;
 
-    page3.drawText('Acceptance', { x: margin, y: p3Y, size: 12, font: helveticaBold, color: textDark });
-    p3Y -= 16;
-    page3.drawText('I agree to abide by the terms of the Engagement Letter', { x: margin, y: p3Y, size: 9.5, font: helveticaFont, color: rgb(0.2, 0.2, 0.2) });
-    p3Y -= 16;
-    page3.drawText(cleanStr(doc.offerDetails.candidateName), { x: margin, y: p3Y, size: 10, font: helveticaBold, color: textDark });
-    p3Y -= 25;
+    page3.drawText('Acceptance', { x: margin, y: p3Y, size: 11, font: helveticaBold, color: textDark });
+    p3Y -= 14;
+    page3.drawText('I agree to abide by the terms of the Engagement Letter', { x: margin, y: p3Y, size: 9, font: helveticaFont, color: rgb(0.2, 0.2, 0.2) });
+    p3Y -= 14;
+    page3.drawText(cleanStr(doc.offerDetails.candidateName), { x: margin, y: p3Y, size: 9.5, font: helveticaBold, color: textDark });
+    p3Y -= 24;
 
-    // SIGNATURE BOXES CONTAINER (Candidate & HR Counter-Sign)
-    const sigBoxW = 245;
-    const sigBoxH = 125;
+    // 2 SIGNATURE EXECUTION CARDS (Matching 1:1 CandidatePortal & OfferLetterPaper)
+    const sigBoxW = (p3W - margin * 2 - 20) / 2;
+    const sigBoxH = 135;
 
     // 1. Candidate Signature Box
     page3.drawRectangle({
@@ -485,11 +543,13 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
       y: p3Y - sigBoxH,
       width: sigBoxW,
       height: sigBoxH,
-      color: rgb(0.98, 0.99, 1),
-      borderColor: rgb(0.7, 0.75, 0.85),
-      borderWidth: 1,
+      color: doc.candidateSignature ? rgb(0.98, 1, 0.98) : rgb(0.98, 0.99, 1),
+      borderColor: doc.candidateSignature ? rgb(0.4, 0.8, 0.5) : rgb(0.7, 0.75, 0.85),
+      borderWidth: 1.2,
     });
-    page3.drawText('CANDIDATE eSIGNATURE', { x: margin + 12, y: p3Y - 20, size: 8.5, font: helveticaBold, color: logoNavy });
+
+    // Top Title
+    page3.drawText('CANDIDATE eSIGNATURE', { x: margin + 12, y: p3Y - 18, size: 8.5, font: helveticaBold, color: textDark });
 
     if (doc.candidateSignature) {
       try {
@@ -501,18 +561,40 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
         const imgDims = embeddedImg.scale(0.35);
         page3.drawImage(embeddedImg, {
           x: margin + 12,
-          y: p3Y - 80,
-          width: Math.min(imgDims.width, 210),
-          height: Math.min(imgDims.height, 50),
+          y: p3Y - 68,
+          width: Math.min(imgDims.width, sigBoxW - 24),
+          height: Math.min(imgDims.height, 42),
         });
-        page3.drawText(`Signed by: ${cleanStr(doc.candidateSignature.signedBy)}`, { x: margin + 12, y: p3Y - 95, size: 8, font: helveticaBold, color: rgb(0.1, 0.5, 0.2) });
-        page3.drawText(`Date: ${cleanStr(formatTimestamp(doc.candidateSignature.timestamp))}`, { x: margin + 12, y: p3Y - 110, size: 7, font: helveticaFont, color: rgb(0.3, 0.3, 0.3) });
+        page3.drawText(`Signed by: ${cleanStr(doc.candidateSignature.signedBy)}`, { x: margin + 12, y: p3Y - 82, size: 8, font: helveticaBold, color: rgb(0.1, 0.5, 0.2) });
+        page3.drawText(`Date: ${cleanStr(formatTimestamp(doc.candidateSignature.timestamp))}`, { x: margin + 12, y: p3Y - 94, size: 7, font: helveticaFont, color: rgb(0.3, 0.3, 0.3) });
       } catch (e) {
-        page3.drawText(`eSigned by ${cleanStr(doc.offerDetails.candidateName)}`, { x: margin + 12, y: p3Y - 60, size: 12, font: timesItalic, color: rgb(0.1, 0.3, 0.6) });
+        page3.drawText(`eSigned by ${cleanStr(doc.offerDetails.candidateName)}`, { x: margin + 12, y: p3Y - 60, size: 10, font: timesItalic, color: rgb(0.1, 0.3, 0.6) });
       }
     } else {
-      page3.drawText('[ Pending Candidate eSignature ]', { x: margin + 40, y: p3Y - 65, size: 9, font: timesItalic, color: rgb(0.6, 0.6, 0.6) });
+      page3.drawText('Click to eSign', { x: margin + 12, y: p3Y - 55, size: 9.5, font: helveticaBold, color: logoNavy });
+      page3.drawText(cleanStr(doc.offerDetails.candidateEmail), { x: margin + 12, y: p3Y - 70, size: 8, font: helveticaFont, color: rgb(0.5, 0.5, 0.5) });
     }
+
+    // Bottom Full-Width Badge
+    const candBadgeY = p3Y - sigBoxH + 4;
+    page3.drawRectangle({
+      x: margin + 4,
+      y: candBadgeY,
+      width: sigBoxW - 8,
+      height: 18,
+      color: doc.candidateSignature ? rgb(0.85, 0.96, 0.88) : rgb(0.92, 0.94, 0.98),
+      borderColor: doc.candidateSignature ? rgb(0.5, 0.85, 0.6) : rgb(0.8, 0.85, 0.92),
+      borderWidth: 0.8,
+    });
+    const candBadgeText = doc.candidateSignature ? 'VERIFIED eSIGN' : 'PENDING SIGNATURE';
+    const candBadgeTW = helveticaBold.widthOfTextAtSize(candBadgeText, 7.5);
+    page3.drawText(candBadgeText, {
+      x: margin + 4 + (sigBoxW - 8 - candBadgeTW) / 2,
+      y: candBadgeY + 5.5,
+      size: 7.5,
+      font: helveticaBold,
+      color: doc.candidateSignature ? rgb(0.08, 0.45, 0.18) : rgb(0.2, 0.3, 0.5),
+    });
 
     // 2. HR Authorized Signer Box
     const hrX = p3W - margin - sigBoxW;
@@ -521,11 +603,13 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
       y: p3Y - sigBoxH,
       width: sigBoxW,
       height: sigBoxH,
-      color: rgb(0.98, 0.99, 1),
-      borderColor: rgb(0.7, 0.75, 0.85),
-      borderWidth: 1,
+      color: doc.hrSignature ? rgb(0.98, 1, 0.98) : rgb(0.98, 0.99, 1),
+      borderColor: doc.hrSignature ? rgb(0.4, 0.8, 0.5) : rgb(0.7, 0.75, 0.85),
+      borderWidth: 1.2,
     });
-    page3.drawText('HR AUTHORIZED SIGNER', { x: hrX + 12, y: p3Y - 20, size: 8.5, font: helveticaBold, color: logoNavy });
+
+    // Top Title
+    page3.drawText('HR AUTHORIZED SIGNER', { x: hrX + 12, y: p3Y - 18, size: 8.5, font: helveticaBold, color: textDark });
 
     if (doc.hrSignature) {
       try {
@@ -537,22 +621,44 @@ export async function generateExecutedOfferPDF(doc: OfferDocument): Promise<Uint
         const imgDims = embeddedHrImg.scale(0.35);
         page3.drawImage(embeddedHrImg, {
           x: hrX + 12,
-          y: p3Y - 80,
-          width: Math.min(imgDims.width, 210),
-          height: Math.min(imgDims.height, 50),
+          y: p3Y - 68,
+          width: Math.min(imgDims.width, sigBoxW - 24),
+          height: Math.min(imgDims.height, 42),
         });
-        page3.drawText(`Countersigned: ${cleanStr(doc.hrSignature.signedBy)}`, { x: hrX + 12, y: p3Y - 95, size: 8, font: helveticaBold, color: rgb(0.1, 0.5, 0.2) });
-        page3.drawText(`Date: ${cleanStr(formatTimestamp(doc.hrSignature.timestamp))}`, { x: hrX + 12, y: p3Y - 110, size: 7, font: helveticaFont, color: rgb(0.3, 0.3, 0.3) });
+        page3.drawText(`Countersigned: ${cleanStr(doc.hrSignature.signedBy)}`, { x: hrX + 12, y: p3Y - 82, size: 8, font: helveticaBold, color: rgb(0.1, 0.5, 0.2) });
+        page3.drawText(`Date: ${cleanStr(formatTimestamp(doc.hrSignature.timestamp))}`, { x: hrX + 12, y: p3Y - 94, size: 7, font: helveticaFont, color: rgb(0.3, 0.3, 0.3) });
       } catch (e) {
-        page3.drawText('eSigned by HR Representative', { x: hrX + 12, y: p3Y - 60, size: 12, font: timesItalic, color: rgb(0.1, 0.3, 0.6) });
+        page3.drawText('eSigned by HR Representative', { x: hrX + 12, y: p3Y - 60, size: 10, font: timesItalic, color: rgb(0.1, 0.3, 0.6) });
       }
     } else {
-      page3.drawText('[ Pending HR Counter-Signature ]', { x: hrX + 40, y: p3Y - 65, size: 9, font: timesItalic, color: rgb(0.6, 0.6, 0.6) });
+      page3.drawText('Pending Counter-Sign', { x: hrX + 12, y: p3Y - 55, size: 9.5, font: helveticaBold, color: rgb(0.35, 0.38, 0.45) });
+      page3.drawText(cleanStr(doc.hrHeadEmail || 'hr@theweplm.com'), { x: hrX + 12, y: p3Y - 70, size: 8, font: helveticaFont, color: rgb(0.5, 0.5, 0.5) });
     }
 
+    // Bottom Full-Width Badge
+    const hrBadgeY = p3Y - sigBoxH + 4;
+    page3.drawRectangle({
+      x: hrX + 4,
+      y: hrBadgeY,
+      width: sigBoxW - 8,
+      height: 18,
+      color: doc.hrSignature ? rgb(0.85, 0.96, 0.88) : rgb(0.92, 0.93, 0.95),
+      borderColor: doc.hrSignature ? rgb(0.5, 0.85, 0.6) : rgb(0.82, 0.84, 0.88),
+      borderWidth: 0.8,
+    });
+    const hrBadgeText = doc.hrSignature ? 'COUNTERSIGNED' : 'PENDING COUNTERSIGN';
+    const hrBadgeTW = helveticaBold.widthOfTextAtSize(hrBadgeText, 7.5);
+    page3.drawText(hrBadgeText, {
+      x: hrX + 4 + (sigBoxW - 8 - hrBadgeTW) / 2,
+      y: hrBadgeY + 5.5,
+      size: 7.5,
+      font: helveticaBold,
+      color: doc.hrSignature ? rgb(0.08, 0.45, 0.18) : rgb(0.35, 0.38, 0.45),
+    });
+
     // Page 3 Footer
-    page3.drawLine({ start: { x: margin, y: 40 }, end: { x: p3W - margin, y: 40 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
-    page3.drawText(footerText, { x: margin, y: 25, size: 6.5, font: helveticaFont, color: rgb(0.45, 0.45, 0.45) });
+    page3.drawLine({ start: { x: margin, y: 38 }, end: { x: p3W - margin, y: 38 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
+    page3.drawText(footerText, { x: margin, y: 25, size: 6.2, font: helveticaFont, color: rgb(0.45, 0.45, 0.45) });
   }
 
   // -------------------------------------------------------------

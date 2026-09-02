@@ -23,6 +23,7 @@ import {
 import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
 import { downloadExecutedPDF } from '../utils/pdfGenerator';
+import PDFGeneratorService from '../Services/PDFGeneratorService';
 import { generateSHA256, getSimulatedIP } from '../utils/crypto';
 import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
@@ -63,7 +64,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
-    const result = await downloadExecutedPDF(document);
+    const result = await PDFGeneratorService.current.generateAndDownloadOfferLetterPDF(document);
     setIsDownloading(false);
 
     if (result.success && result.blobUrl && result.fileName) {

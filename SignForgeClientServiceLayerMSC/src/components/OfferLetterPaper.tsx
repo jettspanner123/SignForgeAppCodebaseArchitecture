@@ -12,6 +12,7 @@ interface OfferLetterPaperProps {
   isPreview?: boolean;
   isInteractiveForm?: boolean;
   interactive?: OfferLetterInteractiveStateInterfaceModel;
+  layoutMode?: 'grid' | 'stack';
 }
 
 export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
@@ -22,6 +23,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
   isPreview = false,
   isInteractiveForm = false,
   interactive,
+  layoutMode = 'grid',
 }) => {
   const isCandidateSigned = !!document.candidateSignature;
   const isHRSigned = !!document.hrSignature;
@@ -43,12 +45,12 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
   const errors = interactive?.errors || {};
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full font-sans text-slate-900">
+    <div className={`${layoutMode === 'stack' ? 'flex flex-col gap-8' : 'grid grid-cols-1 lg:grid-cols-2 gap-8'} w-full font-sans text-slate-900`}>
       
       {/* PAGE 1: APPOINTMENT & OFFER DETAILS */}
       <div 
         id="offer-letter-page-1"
-        className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between transition-all h-full"
+        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between transition-all ${layoutMode === 'grid' ? 'h-full' : ''}`}
       >
         <div className="space-y-6 flex-1">
           {/* Header: We.PLM Logo & Title */}
@@ -171,11 +173,11 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
         </div>
 
         {/* Salutation & Main Body Paragraphs */}
-        <div className="space-y-4 text-xs sm:text-sm text-slate-800 leading-relaxed pt-2">
-          <p className="font-bold text-slate-900">Dear {candidateFirstName},</p>
+        <div className="space-y-3.5 text-xs sm:text-[13px] text-slate-800 leading-relaxed pt-2 text-justify">
+          <p className="font-bold text-slate-900 text-left">Dear {candidateFirstName},</p>
           
           {isInteractiveForm && interactive ? (
-            <div className="space-y-3">
+            <div className="space-y-3 text-left">
               <p className="flex flex-wrap items-center gap-1.5 leading-loose">
                 <span>We are pleased to appoint you as</span>
                 <input
@@ -222,7 +224,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
               </p>
             </div>
           ) : (
-            <p>
+            <p className="text-justify">
               We are pleased to appoint you as <strong className="text-slate-900 font-extrabold">{document.offerDetails.jobTitle || '[Job Title]'}</strong> in{' '}
               <strong className="text-slate-900 font-extrabold">{currentCompanyName}</strong>. During your engagement, you may be deputed at our{' '}
               <strong className="text-slate-900 font-semibold">{document.offerDetails.workLocation || 'Pune office'}</strong>. Your assignment with the Company will be Effective from{' '}
@@ -230,11 +232,11 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
             </p>
           )}
 
-          <p>
+          <p className="text-justify">
             We are looking forward to a wonderful journey together.
           </p>
 
-          <p>
+          <p className="text-justify">
             We wish you all the best and are very confident that you will successfully deliver your responsibilities.
           </p>
         </div>
@@ -242,7 +244,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
         {/* Offer Highlights Box */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-3 text-xs">
           <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px] border-b border-slate-200 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span>KEY ENGAGEMENT TERMS</span>
+            <span className="text-[#0C2086]">KEY ENGAGEMENT TERMS</span>
             {isInteractiveForm && interactive ? (
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] text-slate-500 uppercase font-semibold">Annual CTC Compensation *:</span>
@@ -332,18 +334,22 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-slate-700 pt-1">
-              <div>
-                <span className="text-slate-500 block text-[10px]">Department:</span>
-                <span className="font-bold text-slate-900">{document.offerDetails.department || 'PLM Engineering'}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              <div className="bg-white p-2.5 rounded-lg border border-slate-200/90 flex flex-col justify-center">
+                <span className="text-slate-500 block text-[10px] font-semibold uppercase tracking-wider">Department</span>
+                <span className="font-bold text-slate-900 text-xs sm:text-[13px] mt-0.5">{document.offerDetails.department || 'PLM Engineering'}</span>
               </div>
-              <div>
-                <span className="text-slate-500 block text-[10px]">Reporting Manager:</span>
-                <span className="font-bold text-slate-900">{document.offerDetails.reportingManager || 'Management'}</span>
+              <div className="bg-white p-2.5 rounded-lg border border-slate-200/90 flex flex-col justify-center">
+                <span className="text-slate-500 block text-[10px] font-semibold uppercase tracking-wider">Reporting Manager</span>
+                <span className="font-bold text-slate-900 text-xs sm:text-[13px] mt-0.5">{document.offerDetails.reportingManager || 'Management'}</span>
               </div>
-              <div>
-                <span className="text-slate-500 block text-[10px]">Probation Period:</span>
-                <span className="font-bold text-slate-900">{document.offerDetails.probationMonths || 3} Month(s)</span>
+              <div className="bg-white p-2.5 rounded-lg border border-slate-200/90 flex flex-col justify-center">
+                <span className="text-slate-500 block text-[10px] font-semibold uppercase tracking-wider">Probation Period</span>
+                <span className="font-bold text-slate-900 text-xs sm:text-[13px] mt-0.5">{document.offerDetails.probationMonths || 3} Month(s)</span>
+              </div>
+              <div className="bg-white p-2.5 rounded-lg border border-slate-200/90 flex flex-col justify-center">
+                <span className="text-slate-500 block text-[10px] font-semibold uppercase tracking-wider">Work Location</span>
+                <span className="font-bold text-slate-900 text-xs sm:text-[13px] mt-0.5">{document.offerDetails.workLocation || 'Pune Office / Hybrid'}</span>
               </div>
             </div>
           )}
@@ -369,7 +375,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
       {/* PAGE 2: TERMS AND CONDITIONS */}
       <div 
         id="offer-letter-page-2"
-        className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between transition-all h-full"
+        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between transition-all ${layoutMode === 'grid' ? 'h-full' : ''}`}
       >
         <div className="space-y-6 flex-1">
           {/* Header */}
@@ -462,7 +468,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
       {/* PAGE 3: TERM, TERMINATION & SIGNATURE EXECUTION */}
       <div 
         id="offer-letter-page-3"
-        className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden space-y-6 transition-all"
+        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden space-y-6 transition-all ${layoutMode === 'grid' ? 'lg:col-span-1' : ''}`}
       >
         {/* Header */}
         <div className="relative flex items-center justify-between pb-4 sm:pb-5 border-b-2 border-slate-900 min-h-[54px] sm:min-h-[60px]">

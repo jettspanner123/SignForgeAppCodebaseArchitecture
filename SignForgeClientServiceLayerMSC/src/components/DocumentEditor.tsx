@@ -1037,6 +1037,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
               <OfferLetterPaper
                 document={previewDocument}
                 isPreview={true}
+                layoutMode="stack"
                 isInteractiveForm={formMode === DocumentEditorFormModeEnumModel.INTERACTIVE}
                 interactive={interactiveState}
               />
