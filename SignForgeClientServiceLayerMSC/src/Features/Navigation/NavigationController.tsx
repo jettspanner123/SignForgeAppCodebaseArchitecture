@@ -1,7 +1,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import HeaderStaticComponent from './Components/static/HeaderStaticComponent';
+import CandidateHeaderStaticComponent from './Components/static/CandidateHeaderStaticComponent';
 import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
+import ApplicationRouteCON from '../../Constants/ApplicationRouteCON';
 
 export interface NavigationControllerProps {
   children: React.ReactNode;
@@ -13,14 +15,19 @@ export default function NavigationController({
   onOpenAuditLogs,
 }: NavigationControllerProps): React.JSX.Element {
   const { currentView, setCurrentView } = useOfferDocumentStore();
+  const isCandidateView = currentView === ApplicationRouteCON.CANDIDATE_VIEW;
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-black text-slate-900 dark:text-zinc-100 font-sans transition-colors duration-200">
-      <HeaderStaticComponent
-        currentView={currentView}
-        onSelectView={setCurrentView}
-        onOpenAuditLogs={onOpenAuditLogs}
-      />
+      {isCandidateView ? (
+        <CandidateHeaderStaticComponent />
+      ) : (
+        <HeaderStaticComponent
+          currentView={currentView}
+          onSelectView={setCurrentView}
+          onOpenAuditLogs={onOpenAuditLogs}
+        />
+      )}
       <main className="flex-1 w-full">
         <motion.div
           key={currentView}
