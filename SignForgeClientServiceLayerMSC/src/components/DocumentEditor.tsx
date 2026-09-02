@@ -479,9 +479,145 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
         </div>
       </div>
 
+      {/* Interactive Top Capsule Bar */}
+      <AnimatePresence>
+        {formMode === DocumentEditorFormModeEnumModel.INTERACTIVE && (
+          <motion.div
+            key="interactive-top-bar"
+            initial={{ opacity: 0, height: 0, marginBottom: 0, scale: 0.98 }}
+            animate={{ opacity: 1, height: 'auto', marginBottom: 24, scale: 1 }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0, scale: 0.98 }}
+            transition={{ type: 'spring', duration: 0.8, bounce: 0.25 }}
+            className="overflow-hidden sticky top-4 z-20 max-w-4xl mx-auto w-full"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-xl border border-slate-200/80 dark:border-zinc-800/80 shadow-md">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Document Type Segmented Control */}
+                <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-8">
+                  <button
+                    type="button"
+                    onClick={() => handleDocTypeChange('OFFER_LETTER')}
+                    className="relative flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded text-xs font-medium transition-colors cursor-pointer select-none"
+                  >
+                    {documentType === 'OFFER_LETTER' && (
+                      <motion.div
+                        layoutId="activeInteractiveDocTypePill"
+                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <span className={`relative z-10 flex items-center gap-1 ${
+                      documentType === 'OFFER_LETTER'
+                        ? 'text-[#0C2086] dark:text-white font-bold'
+                        : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}>
+                      <FileText className="w-3 h-3" />
+                      <span>Offer Letter</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDocTypeChange('JOINING_LETTER')}
+                    className="relative flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded text-xs font-medium transition-colors cursor-pointer select-none"
+                  >
+                    {documentType === 'JOINING_LETTER' && (
+                      <motion.div
+                        layoutId="activeInteractiveDocTypePill"
+                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <span className={`relative z-10 flex items-center gap-1 ${
+                      documentType === 'JOINING_LETTER'
+                        ? 'text-[#0C2086] dark:text-white font-bold'
+                        : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}>
+                      <Briefcase className="w-3 h-3" />
+                      <span>Joining Letter</span>
+                    </span>
+                  </button>
+                </div>
+
+                {/* Workflow Signatures Segmented Control */}
+                <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-8">
+                  <button
+                    type="button"
+                    onClick={() => setSignatureCount(2)}
+                    className="relative flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded text-xs font-medium transition-colors cursor-pointer select-none"
+                  >
+                    {signatureCount === 2 && (
+                      <motion.div
+                        layoutId="activeInteractiveSigCountPill"
+                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <span className={`relative z-10 flex items-center gap-1 ${
+                      signatureCount === 2
+                        ? 'text-slate-900 dark:text-white font-bold'
+                        : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}>
+                      <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span>2 Signatures</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSignatureCount(3)}
+                    className="relative flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded text-xs font-medium transition-colors cursor-pointer select-none"
+                  >
+                    {signatureCount === 3 && (
+                      <motion.div
+                        layoutId="activeInteractiveSigCountPill"
+                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <span className={`relative z-10 flex items-center gap-1 ${
+                      signatureCount === 3
+                        ? 'text-amber-700 dark:text-amber-400 font-bold'
+                        : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}>
+                      <UserCheck className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                      <span>3 Signatures (Director)</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Jump Multi-Page Anchors */}
+              <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-zinc-400">
+                <span className="text-[11px] font-semibold text-slate-400 mr-1">Quick Jump:</span>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('offer-letter-page-1')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
+                >
+                  Page 1: Terms
+                </button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('offer-letter-page-2')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
+                >
+                  Page 2: Clauses
+                </button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('offer-letter-page-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
+                >
+                  Page 3: Execution
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 2. MAIN UNIFIED FLUID LAYOUT (LayoutGroup Spring Transitions) */}
       <LayoutGroup id="document-editor-layout">
-        <div className={`transition-none ${
+        <div className={`transition-none items-start ${
           formMode === DocumentEditorFormModeEnumModel.STANDARD 
             ? 'grid grid-cols-1 lg:grid-cols-2 gap-5' 
             : 'max-w-4xl mx-auto w-full space-y-6 pb-28'
@@ -882,142 +1018,12 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           <motion.div
             layout
             transition={{ type: 'spring', duration: 0.8, bounce: 0.25 }}
-            className="w-full"
+            className={`w-full ${
+              formMode === DocumentEditorFormModeEnumModel.STANDARD
+                ? 'sticky top-24'
+                : ''
+            }`}
           >
-            {/* Top Interactive Capsule Bar (In Interactive Mode) */}
-            <AnimatePresence>
-              {formMode === DocumentEditorFormModeEnumModel.INTERACTIVE && (
-                <motion.div
-                  key="interactive-top-bar"
-                  initial={{ opacity: 0, y: -12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ type: 'spring', duration: 0.8, bounce: 0.25 }}
-                  className="sticky top-4 z-20 mb-6 flex flex-wrap items-center justify-between gap-3 p-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-xl border border-slate-200/80 dark:border-zinc-800/80 shadow-md"
-                >
-                  <div className="flex flex-wrap items-center gap-3">
-                    {/* Document Type Segmented Control */}
-                    <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-8">
-                      <button
-                        type="button"
-                        onClick={() => handleDocTypeChange('OFFER_LETTER')}
-                        className="relative flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded text-xs font-medium transition-colors cursor-pointer select-none"
-                      >
-                        {documentType === 'OFFER_LETTER' && (
-                          <motion.div
-                            layoutId="activeInteractiveDocTypePill"
-                            className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
-                            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                          />
-                        )}
-                        <span className={`relative z-10 flex items-center gap-1 ${
-                          documentType === 'OFFER_LETTER'
-                            ? 'text-[#0C2086] dark:text-white font-bold'
-                            : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}>
-                          <FileText className="w-3 h-3" />
-                          <span>Offer Letter</span>
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDocTypeChange('JOINING_LETTER')}
-                        className="relative flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded text-xs font-medium transition-colors cursor-pointer select-none"
-                      >
-                        {documentType === 'JOINING_LETTER' && (
-                          <motion.div
-                            layoutId="activeInteractiveDocTypePill"
-                            className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
-                            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                          />
-                        )}
-                        <span className={`relative z-10 flex items-center gap-1 ${
-                          documentType === 'JOINING_LETTER'
-                            ? 'text-[#0C2086] dark:text-white font-bold'
-                            : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}>
-                          <Briefcase className="w-3 h-3" />
-                          <span>Joining Letter</span>
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Workflow Signatures Segmented Control */}
-                    <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-8">
-                      <button
-                        type="button"
-                        onClick={() => setSignatureCount(2)}
-                        className="relative flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded text-xs font-medium transition-colors cursor-pointer select-none"
-                      >
-                        {signatureCount === 2 && (
-                          <motion.div
-                            layoutId="activeInteractiveSigCountPill"
-                            className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
-                            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                          />
-                        )}
-                        <span className={`relative z-10 flex items-center gap-1 ${
-                          signatureCount === 2
-                            ? 'text-slate-900 dark:text-white font-bold'
-                            : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}>
-                          <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                          <span>2 Signatures</span>
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSignatureCount(3)}
-                        className="relative flex items-center justify-center gap-1.5 px-3 py-1 h-6 rounded text-xs font-medium transition-colors cursor-pointer select-none"
-                      >
-                        {signatureCount === 3 && (
-                          <motion.div
-                            layoutId="activeInteractiveSigCountPill"
-                            className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
-                            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                          />
-                        )}
-                        <span className={`relative z-10 flex items-center gap-1 ${
-                          signatureCount === 3
-                            ? 'text-amber-700 dark:text-amber-400 font-bold'
-                            : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}>
-                          <UserCheck className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                          <span>3 Signatures (Director)</span>
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Quick Jump Multi-Page Anchors */}
-                  <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-zinc-400">
-                    <span className="text-[11px] font-semibold text-slate-400 mr-1">Quick Jump:</span>
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('offer-letter-page-1')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
-                    >
-                      Page 1: Terms
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('offer-letter-page-2')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
-                    >
-                      Page 2: Clauses
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('offer-letter-page-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
-                    >
-                      Page 3: Execution
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Document Paper Container */}
             <motion.div
               layout
