@@ -25,6 +25,7 @@ import {
 import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
 import { OfferDocument } from '../../Types';
 import ApplicationRouteCON from '../../Constants/ApplicationRouteCON';
+import { motion } from 'motion/react';
 import ButtonSharedComponent from '../../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../../Shared/Components/PrimaryActionButtonSharedComponent';
 import BadgeSharedComponent from '../../Shared/Components/BadgeSharedComponent';
@@ -340,26 +341,44 @@ export default function DocumentInventoryScreenController({
                 <button
                   type="button"
                   onClick={() => setGridColumns(2)}
-                  className={`px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                    gridColumns === 2
-                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
+                  className="relative flex items-center justify-center px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
                   title="Show 2 Items Per Row"
                 >
-                  2 Per Row
+                  {gridColumns === 2 && (
+                    <motion.div
+                      layoutId="activeGridDensityPill"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <span className={`relative z-10 ${
+                    gridColumns === 2
+                      ? 'text-slate-900 dark:text-white font-bold'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}>
+                    2 Per Row
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setGridColumns(3)}
-                  className={`px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                    gridColumns === 3
-                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
+                  className="relative flex items-center justify-center px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
                   title="Show 3 Items Per Row"
                 >
-                  3 Per Row
+                  {gridColumns === 3 && (
+                    <motion.div
+                      layoutId="activeGridDensityPill"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <span className={`relative z-10 ${
+                    gridColumns === 3
+                      ? 'text-slate-900 dark:text-white font-bold'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}>
+                    3 Per Row
+                  </span>
                 </button>
               </div>
             )}
@@ -370,28 +389,46 @@ export default function DocumentInventoryScreenController({
                 <button
                   type="button"
                   onClick={() => setIsSingleLineMode(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                    isSingleLineMode
-                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
+                  className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
                   title="Single-Line Table Mode"
                 >
-                  <Maximize2 className="w-3.5 h-3.5" />
-                  <span>Single-Line</span>
+                  {isSingleLineMode && (
+                    <motion.div
+                      layoutId="activeTableSingleLinePill"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <span className={`relative z-10 flex items-center gap-1.5 ${
+                    isSingleLineMode
+                      ? 'text-slate-900 dark:text-white font-bold'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}>
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span>Single-Line</span>
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsSingleLineMode(false)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                    !isSingleLineMode
-                      ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
+                  className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
                   title="Wrap Text Table Mode"
                 >
-                  <WrapText className="w-3.5 h-3.5" />
-                  <span>Wrap Text</span>
+                  {!isSingleLineMode && (
+                    <motion.div
+                      layoutId="activeTableSingleLinePill"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <span className={`relative z-10 flex items-center gap-1.5 ${
+                    !isSingleLineMode
+                      ? 'text-slate-900 dark:text-white font-bold'
+                      : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}>
+                    <WrapText className="w-3.5 h-3.5" />
+                    <span>Wrap Text</span>
+                  </span>
                 </button>
               </div>
             )}
@@ -401,28 +438,46 @@ export default function DocumentInventoryScreenController({
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                  viewMode === 'table'
-                    ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
                 title="Table View"
               >
-                <List className="w-3.5 h-3.5" />
-                <span>Table</span>
+                {viewMode === 'table' && (
+                  <motion.div
+                    layoutId="activeInventoryViewModePill"
+                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <span className={`relative z-10 flex items-center gap-1.5 ${
+                  viewMode === 'table'
+                    ? 'text-slate-900 dark:text-white font-bold'
+                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                }`}>
+                  <List className="w-3.5 h-3.5" />
+                  <span>Table</span>
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                  viewMode === 'grid'
-                    ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
                 title="Grid View"
               >
-                <Grid className="w-3.5 h-3.5" />
-                <span>Grid</span>
+                {viewMode === 'grid' && (
+                  <motion.div
+                    layoutId="activeInventoryViewModePill"
+                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <span className={`relative z-10 flex items-center gap-1.5 ${
+                  viewMode === 'grid'
+                    ? 'text-slate-900 dark:text-white font-bold'
+                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+                }`}>
+                  <Grid className="w-3.5 h-3.5" />
+                  <span>Grid</span>
+                </span>
               </button>
             </div>
           </div>

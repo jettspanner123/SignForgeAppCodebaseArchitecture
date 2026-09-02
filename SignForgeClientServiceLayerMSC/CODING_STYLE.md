@@ -71,6 +71,10 @@ AssetsphereClientServiceLayerMSC/src/
 │       │   └── SoftwareLicenseFormModalController.tsx
 │       └── Services/
 │           └── SoftwareLicensesService.ts
+├── Models/                     # Isolated Models, Enums, Interfaces, and Type definitions
+│   ├── [Name]EnumModel.ts      # One Enum per file (*EnumModel.ts)
+│   ├── [Name]InterfaceModel.ts # One Interface per file (*InterfaceModel.ts)
+│   └── [Name]TypeModel.ts      # One Type alias per file (*TypeModel.ts)
 ├── Routes/                     # Screen route wrappers (ending in *ScreenRoute.tsx)
 │   ├── AssetInventoryScreenRoute.tsx
 │   ├── EmployeesScreenRoute.tsx
@@ -126,7 +130,10 @@ Every file, class, component, and type **MUST** adhere to strict suffix and case
 │ Constant Class            │ [Name]CON.ts                  │ export default class [Name]CON           │
 │ Service Singleton         │ [Name]Service.ts              │ export default class [Name]Service       │
 │ Utility Singleton         │ [Name]Utility.ts              │ export default class [Name]Utility       │
-│ Type Definition           │ [Name]Type.ts                 │ export interface / type / enum [Name]    │
+│ Enum Model Definition     │ [Name]EnumModel.ts            │ export enum [Name]EnumModel (1 per file) │
+│ Interface Model Definition│ [Name]InterfaceModel.ts       │ export interface [Name]InterfaceModel    │
+│ Type Model Definition     │ [Name]TypeModel.ts            │ export type [Name]TypeModel              │
+│ Type Definition (Legacy)  │ [Name]Type.ts                 │ export interface / type / enum [Name]    │
 │ Zustand State Store       │ [Name]Store.ts                │ const use[Name]Store = create(...)       │
 └───────────────────────────┴───────────────────────────────┴──────────────────────────────────────────┘
 ```
@@ -231,6 +238,14 @@ export default function SoftwareLicenseCard({
 - Every global data model must be declared in its own isolated file in `src/Types/` ending in `*Type.ts` (e.g. `AssetType.ts`, `SoftwareLicenseType.ts`).
 - Monolithic `types.ts` files are strictly forbidden.
 - All types are re-exported through the central barrel `src/Types/index.ts`.
+
+### 4. Isolated Model Files in `src/Models/` (One Definition Per File Invariant)
+- **Zero Raw Strings for State Options / Modes**: Whenever state represents discrete modes, options, tabs, or statuses, TypeScript `enum` models must be used instead of raw string literals or string unions.
+- **Strict Single-Definition-Per-File**: Each enum, interface, or type alias must reside in its own isolated file inside `src/Models/`:
+  - **Enums**: Must end with `*EnumModel.ts` and declare `export enum [Name]EnumModel` (one enum per file).
+  - **Interfaces**: Must end with `*InterfaceModel.ts` and declare `export interface [Name]InterfaceModel` (one interface per file).
+  - **Type Aliases / Unions**: Must end with `*TypeModel.ts` and declare `export type [Name]TypeModel` (one type alias per file).
+- **Default and Named Export**: Every model file must export its type/enum both as a named export and as the `default` export.
 
 ---
 

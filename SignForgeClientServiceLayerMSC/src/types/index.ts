@@ -68,7 +68,7 @@ export interface OfferDetails {
   retentionBonus?: number;
   stockOptionsValue?: number;
   equityUnits?: string | number;
-  signOnBonus?: number;
+  signOnBonus?: string | number;
   relocationAllowance?: number;
   joiningDate?: string;
   startDate?: string;
@@ -96,6 +96,9 @@ export interface OfferDocument {
   companyName: string;
   companyAddress?: string;
   createdBy?: string;
+  candidateEmail?: string;
+  hrHeadEmail?: string;
+  ctoEmail?: string;
   offerDetails: OfferDetails;
   status: DocumentStatus;
   createdAt: string;
