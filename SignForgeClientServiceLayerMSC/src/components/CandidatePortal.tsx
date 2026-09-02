@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { 
   CheckCircle2, 
@@ -16,7 +17,8 @@ import {
   X, 
   ExternalLink,
   Lock,
-  FileSignature
+  FileSignature,
+  FileEdit
 } from 'lucide-react';
 import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
@@ -42,6 +44,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
 }) => {
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [rejectTab, setRejectTab] = useState<'DECLINE' | 'REVISION'>('DECLINE');
   const [rejectReason, setRejectReason] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadReady, setDownloadReady] = useState<{ blobUrl: string; fileName: string } | null>(null);
@@ -114,22 +117,23 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
     if (!rejectReason.trim()) return;
     const now = new Date().toISOString();
     const ip = getSimulatedIP();
+    const isDecline = rejectTab === 'DECLINE';
 
     const updatedDoc: OfferDocument = {
       ...document,
-      status: 'REJECTED',
+      status: isDecline ? 'REJECTED' : document.status,
       updatedAt: now,
-      rejectionReason: rejectReason,
+      rejectionReason: isDecline ? rejectReason : document.rejectionReason,
       auditTrail: [
         {
           id: `audit-${Date.now()}`,
           timestamp: now,
-          action: 'Offer Declined by Candidate',
+          action: isDecline ? 'Offer Declined by Candidate' : 'Terms Revision Requested by Candidate',
           actor: document.offerDetails.candidateName,
           actorRole: 'Candidate',
           ipAddress: ip,
-          details: `Reason: ${rejectReason}`,
-          checksum: await generateSHA256(`REJECTED-${document.id}`)
+          details: `${isDecline ? 'Reason' : 'Revision Details'}: ${rejectReason}`,
+          checksum: await generateSHA256(`${isDecline ? 'REJECTED' : 'REVISION'}-${document.id}`)
         },
         ...document.auditTrail
       ]
@@ -137,6 +141,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
 
     onUpdateDocument(updatedDoc);
     setIsRejecting(false);
+    setRejectReason('');
   };
 
   return (
@@ -177,7 +182,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
               label="Review & Sign Offer"
               icon={<PenTool className="w-3.5 h-3.5 !text-white" />}
               onClick={() => setIsSignModalOpen(true)}
-              className="w-full justify-center !h-10 sm:!h-8 px-4 text-xs font-semibold"
+              className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
             />
           )}
 
@@ -187,7 +192,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
             disabled={isDownloading}
             onClick={handleDownloadPdf}
             icon={<Download className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
-            className="w-full justify-center !h-10 sm:!h-8 px-4 text-xs font-semibold"
+            className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
           >
             {isDownloading ? 'Generating...' : 'Download PDF'}
           </ButtonSharedComponent>
@@ -343,19 +348,14 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
           <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div
               onClick={() => !isAlreadySigned && setIsSignModalOpen(true)}
-              className={`border-2 rounded-xl p-4 transition-all ${
+              className={`border-2 rounded-xl p-4 flex flex-col justify-between transition-all ${
                 isAlreadySigned
                   ? 'border-emerald-500 bg-emerald-500/10'
                   : 'border-dashed border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 cursor-pointer'
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase font-mono">1. Candidate eSignature inside PDF</span>
-                {isAlreadySigned ? (
-                  <span className="text-[10px] font-bold font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded">VERIFIED</span>
-                ) : (
-                  <span className="text-[10px] font-bold font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded animate-pulse">CLICK TO SIGN</span>
-                )}
+              <div className="mb-2">
+                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase font-mono block">1. Candidate eSignature</span>
               </div>
               {document.candidateSignature ? (
                 <div className="space-y-1 text-xs">
@@ -372,17 +372,23 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
               ) : (
                 <div className="py-4 text-center text-emerald-600 dark:text-emerald-400 space-y-1">
                   <PenTool className="h-5 w-5 mx-auto opacity-75" />
-                  <p className="text-xs font-bold font-serif-headline">Apply Candidate Signature</p>
+                  <p className="text-xs font-bold font-serif-headline whitespace-nowrap truncate">Click to eSign</p>
                 </div>
               )}
+
+              {/* Bottom Full-Width Badge */}
+              <div className="mt-3 pt-2 border-t border-slate-200/60 dark:border-zinc-800/60">
+                {isAlreadySigned ? (
+                  <span className="w-full block text-center text-[10px] font-bold font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-500/20 py-1 rounded">VERIFIED</span>
+                ) : (
+                  <span className="w-full block text-center text-[10px] font-bold font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-500/20 py-1 rounded animate-pulse">CLICK TO SIGN</span>
+                )}
+              </div>
             </div>
 
-            <div className="border border-slate-200/80 dark:border-zinc-800/80 rounded-xl p-4 bg-slate-50 dark:bg-zinc-900/50 text-xs">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase font-mono">2. HR Counter-Sign inside PDF</span>
-                <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded ${document.hrSignature ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'}`}>
-                  {document.hrSignature ? 'COUNTERSIGNED' : 'PENDING COUNTERSIGN'}
-                </span>
+            <div className="border border-slate-200/80 dark:border-zinc-800/80 rounded-xl p-4 bg-slate-50 dark:bg-zinc-900/50 text-xs flex flex-col justify-between">
+              <div className="mb-2">
+                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase font-mono block">2. HR Counter-Sign</span>
               </div>
               {document.hrSignature ? (
                 <div className="space-y-1">
@@ -390,11 +396,18 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
                   <p className="text-[10px] font-mono text-slate-500 dark:text-zinc-400">IP: {document.hrSignature.ipAddress}</p>
                 </div>
               ) : (
-                <div className="py-4 text-center text-slate-400 dark:text-zinc-500">
+                <div className="py-4 text-center text-slate-400 dark:text-zinc-500 space-y-1">
                   <ShieldCheck className="h-5 w-5 mx-auto opacity-50 mb-1" />
-                  <p className="text-xs italic">Pending HR Counter-Signature</p>
+                  <p className="text-xs font-semibold whitespace-nowrap truncate">Pending Counter-Sign</p>
                 </div>
               )}
+
+              {/* Bottom Full-Width Badge */}
+              <div className="mt-3 pt-2 border-t border-slate-200/60 dark:border-zinc-800/60">
+                <span className={`w-full block text-center text-[10px] font-bold font-mono py-1 rounded ${document.hrSignature ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'}`}>
+                  {document.hrSignature ? 'COUNTERSIGNED' : 'PENDING COUNTERSIGN'}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -425,12 +438,12 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
         </div>
       )}
 
-      {/* Decline Modal using ModalSharedComponent */}
+      {/* Decline / Terms Revision Modal using ModalSharedComponent */}
       <ModalSharedComponent
         isOpen={isRejecting}
         onClose={() => setIsRejecting(false)}
-        title="Decline Employment Offer"
-        subtitle={`Document #${document.documentNumber} • Provide feedback for declining`}
+        title={rejectTab === 'DECLINE' ? "Decline Employment Offer" : "Request Terms Revision"}
+        subtitle={`Document #${document.documentNumber} • ${rejectTab === 'DECLINE' ? 'Provide feedback for declining' : 'Submit proposed adjustments to HR'}`}
         maxWidth="md"
         footer={
           <div className="flex items-center justify-end gap-2.5 w-full">
@@ -442,24 +455,82 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
               Cancel
             </ButtonSharedComponent>
             <ButtonSharedComponent
-              variant="danger"
+              variant={rejectTab === 'DECLINE' ? 'danger' : 'primary'}
               size="sm"
               onClick={handleRejectOffer}
+              className={rejectTab === 'REVISION' ? '!bg-[#0C2086] hover:!bg-[#081765] !text-white border-none shadow-xs font-semibold' : ''}
             >
-              Confirm Decline
+              {rejectTab === 'DECLINE' ? 'Confirm Decline' : 'Confirm Request'}
             </ButtonSharedComponent>
           </div>
         }
       >
         <div className="space-y-4">
+          {/* Segmented Capsule Tabs (1:1 AssetSphere Animated Segmented Controller) */}
+          <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full">
+            <button
+              type="button"
+              onClick={() => setRejectTab('DECLINE')}
+              className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+                rejectTab === 'DECLINE' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
+              }`}
+            >
+              {rejectTab === 'DECLINE' && (
+                <motion.div
+                  layoutId="declineModalTabPill"
+                  className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+              <span className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap ${
+                rejectTab === 'DECLINE'
+                  ? 'text-rose-600 dark:text-rose-400 font-bold'
+                  : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+              }`}>
+                <XCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>Decline Offer</span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setRejectTab('REVISION')}
+              className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+                rejectTab === 'REVISION' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
+              }`}
+            >
+              {rejectTab === 'REVISION' && (
+                <motion.div
+                  layoutId="declineModalTabPill"
+                  className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+              <span className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap ${
+                rejectTab === 'REVISION'
+                  ? 'text-[#0C2086] dark:text-blue-400 font-bold'
+                  : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
+              }`}>
+                <FileEdit className="w-3.5 h-3.5 shrink-0" />
+                <span>Request Terms</span>
+              </span>
+            </button>
+          </div>
+
           <p className="text-xs text-slate-600 dark:text-zinc-400">
-            Please provide feedback or the reason for declining this offer:
+            {rejectTab === 'DECLINE'
+              ? 'Please provide feedback or the reason for declining this offer:'
+              : 'Please specify the terms, compensation, or start date adjustments you would like revised:'}
           </p>
           <textarea
             rows={4}
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
-            placeholder="e.g. Accepted another offer, compensation mismatch, start date conflict..."
+            placeholder={
+              rejectTab === 'DECLINE'
+                ? 'e.g. Accepted another offer, compensation mismatch, start date conflict...'
+                : 'e.g. Requesting adjustment on start date to 15th of next month, or revision on annual compensation...'
+            }
             className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 rounded-lg p-3 text-xs text-slate-900 dark:text-zinc-100 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] dark:focus:ring-blue-500"
           />
         </div>

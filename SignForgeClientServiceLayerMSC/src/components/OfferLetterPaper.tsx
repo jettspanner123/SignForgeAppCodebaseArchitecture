@@ -43,14 +43,15 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
   const errors = interactive?.errors || {};
 
   return (
-    <div className="space-y-8 w-full font-sans text-slate-900">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full font-sans text-slate-900">
       
       {/* PAGE 1: APPOINTMENT & OFFER DETAILS */}
       <div 
         id="offer-letter-page-1"
-        className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden space-y-6 transition-all"
+        className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between transition-all h-full"
       >
-        {/* Header: We.PLM Logo & Title */}
+        <div className="space-y-6 flex-1">
+          {/* Header: We.PLM Logo & Title */}
         <div className="relative flex items-center justify-between pb-5 sm:pb-6 border-b-2 border-slate-900 min-h-[58px] sm:min-h-[64px]">
           {/* Logo */}
           <WePlmLogo className="h-9 sm:h-12 md:h-14 w-auto shrink-0 z-10" />
@@ -357,9 +358,10 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
             <p className="text-slate-600 font-medium">{isInteractiveForm ? interactive?.directorTitle || 'Director & VP' : document.offerDetails.directorTitle || 'Director'}</p>
           </div>
         </div>
+        </div>
 
         {/* Page 1 Footer */}
-        <div className="pt-6 border-t border-slate-200 text-[10px] text-slate-500 italic text-center leading-tight">
+        <div className="pt-6 mt-6 border-t border-slate-200 text-[10px] text-slate-500 italic text-center leading-tight">
           Regd. Office: {currentCompanyName} | {isInteractiveForm ? interactive?.companyAddress || 'G22 Deepmala Pimple Saudagar Pune 411027' : document.companyAddress || 'G22 Deepmala Pimple Saudagar Pune 411027'} | INDIA | Tel: +91 8806060538 | sales@theweplm.com | www.theweplm.com | CIN : U72900PN2021FTC203259
         </div>
       </div>
@@ -367,9 +369,10 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
       {/* PAGE 2: TERMS AND CONDITIONS */}
       <div 
         id="offer-letter-page-2"
-        className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden space-y-6 transition-all"
+        className="bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between transition-all h-full"
       >
-        {/* Header */}
+        <div className="space-y-6 flex-1">
+          {/* Header */}
         <div className="relative flex items-center justify-between pb-4 sm:pb-5 border-b-2 border-slate-900 min-h-[54px] sm:min-h-[60px]">
           <WePlmLogo className="h-8 sm:h-10 md:h-12 w-auto shrink-0 z-10" />
           <div className="absolute inset-x-0 mx-auto text-center pointer-events-none flex flex-col items-center justify-center">
@@ -448,9 +451,10 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
             </p>
           </div>
         </div>
+        </div>
 
         {/* Page 2 Footer */}
-        <div className="pt-6 border-t border-slate-200 text-[10px] text-slate-500 italic text-center leading-tight">
+        <div className="pt-6 mt-6 border-t border-slate-200 text-[10px] text-slate-500 italic text-center leading-tight">
           Regd. Office: {currentCompanyName} | {isInteractiveForm ? interactive?.companyAddress || 'G22 Deepmala Pimple Saudagar Pune 411027' : document.companyAddress || 'G22 Deepmala Pimple Saudagar Pune 411027'} | INDIA | Tel: +91 8806060538 | sales@theweplm.com | www.theweplm.com | CIN : U72900PN2021FTC203259
         </div>
       </div>
@@ -585,7 +589,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
           {/* Candidate Signature Box */}
           <div
             onClick={() => isCandidateView && !isCandidateSigned && onOpenSignModal && onOpenSignModal()}
-            className={`border-2 rounded-xl p-4 transition-all ${
+            className={`border-2 rounded-xl p-4 flex flex-col justify-between transition-all ${
               isCandidateSigned
                 ? 'border-emerald-500 bg-emerald-50/70'
                 : isCandidateView
@@ -593,21 +597,8 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
                 : 'border-dashed border-slate-300 bg-slate-50'
             }`}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">CANDIDATE eSIGNATURE</span>
-              {isCandidateSigned ? (
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
-                  VERIFIED eSIGN
-                </span>
-              ) : isCandidateView ? (
-                <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded animate-pulse border border-blue-300">
-                  CLICK TO SIGN
-                </span>
-              ) : (
-                <span className="text-[10px] font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded">
-                  PENDING
-                </span>
-              )}
+            <div className="mb-2">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">CANDIDATE eSIGNATURE</span>
             </div>
 
             {document.candidateSignature ? (
@@ -628,25 +619,39 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
                 <p className="text-[10px] text-slate-500 font-mono">IP: {document.candidateSignature.ipAddress}</p>
               </div>
             ) : (
-              <div className="py-6 text-center space-y-1">
+              <div className="py-5 text-center space-y-1">
                 <PenTool className={`h-6 w-6 mx-auto ${isCandidateView ? 'text-blue-600 opacity-90' : 'text-slate-400 opacity-60'}`} />
-                <p className={`text-xs font-bold ${isCandidateView ? 'text-blue-700' : 'text-slate-500'}`}>
-                  {isCandidateView ? 'Click Here to Apply Candidate eSignature' : '[ Pending Candidate Signature ]'}
+                <p className={`text-xs font-bold whitespace-nowrap truncate ${isCandidateView ? 'text-blue-700' : 'text-slate-500'}`}>
+                  {isCandidateView ? 'Click to eSign' : 'Pending Signature'}
                 </p>
-                <p className="text-[10px] text-slate-400 font-mono">
+                <p className="text-[10px] text-slate-400 font-mono truncate">
                   {isInteractiveForm ? interactive?.candidateEmail || 'candidate@email.com' : document.candidateEmail}
                 </p>
               </div>
             )}
+
+            {/* Bottom Full-Width Badge */}
+            <div className="mt-3 pt-2 border-t border-slate-200/60">
+              {isCandidateSigned ? (
+                <span className="w-full block text-center text-[10px] font-bold text-emerald-700 bg-emerald-100 py-1 rounded border border-emerald-300 font-mono">
+                  VERIFIED eSIGN
+                </span>
+              ) : isCandidateView ? (
+                <span className="w-full block text-center text-[10px] font-bold text-blue-700 bg-blue-100 py-1 rounded animate-pulse border border-blue-300 font-mono">
+                  CLICK TO SIGN
+                </span>
+              ) : (
+                <span className="w-full block text-center text-[10px] font-medium text-slate-500 bg-slate-200 py-1 rounded font-mono">
+                  PENDING
+                </span>
+              )}
+            </div>
           </div>
 
           {/* HR Representative Counter-Signature Box */}
-          <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">HR AUTHORIZED SIGNER</span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isHRSigned ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-slate-200 text-slate-600'}`}>
-                {isHRSigned ? 'COUNTERSIGNED' : 'PENDING COUNTERSIGN'}
-              </span>
+          <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 flex flex-col justify-between">
+            <div className="mb-2">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">HR AUTHORIZED SIGNER</span>
             </div>
 
             {document.hrSignature ? (
@@ -666,14 +671,25 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
                 <p className="text-[10px] text-slate-500 font-mono">IP: {document.hrSignature.ipAddress}</p>
               </div>
             ) : (
-              <div className="py-6 text-center text-slate-400 space-y-1">
+              <div className="py-5 text-center text-slate-400 space-y-1">
                 <ShieldCheck className="h-6 w-6 mx-auto opacity-50" />
-                <p className="text-xs italic">[ Pending HR Counter-Signature ]</p>
-                <p className="text-[10px] text-slate-400 font-mono">
+                <p className="text-xs font-semibold text-slate-600 whitespace-nowrap truncate">
+                  Pending Counter-Sign
+                </p>
+                <p className="text-[10px] text-slate-400 font-mono truncate">
                   {isInteractiveForm ? interactive?.hrHeadEmail || 'hr@theweplm.com' : document.hrHeadEmail}
                 </p>
               </div>
             )}
+
+            {/* Bottom Full-Width Badge */}
+            <div className="mt-3 pt-2 border-t border-slate-200/60">
+              <span className={`w-full block text-center text-[10px] font-bold py-1 rounded font-mono ${
+                isHRSigned ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-slate-200 text-slate-600'
+              }`}>
+                {isHRSigned ? 'COUNTERSIGNED' : 'PENDING COUNTERSIGN'}
+              </span>
+            </div>
           </div>
 
         </div>
