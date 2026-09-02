@@ -5,15 +5,16 @@ import {
   Copy, 
   Check, 
   ExternalLink, 
-  X, 
-  Sparkles, 
-  ShieldCheck, 
   Smartphone, 
   Inbox, 
-  Link as LinkIcon
+  Link as LinkIcon,
+  UserCheck
 } from 'lucide-react';
 import { OfferDocument } from '../Types';
 import { getCandidateShareLink } from '../utils/urlEncoder';
+import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
+import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
+import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
 
 interface SendEmailModalProps {
   document: OfferDocument;
@@ -21,13 +22,14 @@ interface SendEmailModalProps {
 }
 
 export const SendEmailModal: React.FC<SendEmailModalProps> = ({ document, onClose }) => {
+  const [isOpen, setIsOpen] = useState(true);
+  const [exitDirection, setExitDirection] = useState<'down' | 'up'>('down');
   const [copied, setCopied] = useState(false);
-  const [emailStatus, setEmailStatus] = useState<'IDLE' | 'SENDING' | 'SENT'>('IDLE');
 
   const candidateEmail = document.offerDetails.candidateEmail || 'candidate@example.com';
   const candidateName = document.offerDetails.candidateName || 'Candidate';
   const jobTitle = document.offerDetails.jobTitle || 'Position';
-  const companyName = document.companyName || 'We.PLM';
+  const companyName = document.companyName || 'We.PLM Global Technologies (P) Ltd.';
 
   // Construct direct candidate eSign link with embedded data payload
   const directLink = getCandidateShareLink(document);
@@ -65,202 +67,198 @@ ${companyName}
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleSimulateSend = () => {
-    setEmailStatus('SENDING');
+  const handleHeaderOrBackdropClose = () => {
+    setExitDirection('down');
+    setIsOpen(false);
     setTimeout(() => {
-      setEmailStatus('SENT');
-    }, 1200);
+      onClose();
+    }, 550);
+  };
+
+  const handleFooterClose = () => {
+    setExitDirection('up');
+    setIsOpen(false);
+    setTimeout(() => {
+      onClose();
+    }, 550);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col">
-        
-        {/* Modal Header */}
-        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-950/90 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-800">
-              <Mail className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Candidate eSign Email & Direct Link</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Candidate signs directly via link — No login or registration required</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+    <ModalSharedComponent
+      isOpen={isOpen}
+      onClose={handleHeaderOrBackdropClose}
+      exitDirection={exitDirection}
+      headerCloseDirection="down"
+      title="Dispatch Offer & Candidate eSign Link"
+      subtitle={`Document #${document.documentNumber} • Direct eSign dispatch to ${candidateEmail}`}
+      maxWidth="2xl"
+      footer={
+        <div className="flex items-center justify-end gap-2.5 w-full">
+          <ButtonSharedComponent
+            variant="outline"
+            size="sm"
+            onClick={handleFooterClose}
           >
-            <X className="h-5 w-5" />
-          </button>
+            Close
+          </ButtonSharedComponent>
+          <PrimaryActionButtonSharedComponent
+            label="Launch Mail Client"
+            icon={<Send className="w-3.5 h-3.5 !text-white" />}
+            onClick={() => {
+              window.location.href = mailtoUrl;
+            }}
+          />
         </div>
-
-        <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
-          
-          {/* Candidate Direct Link Box */}
-          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <LinkIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">Direct Candidate eSign URL</span>
-              </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                NO LOGIN REQUIRED
-              </span>
+      }
+    >
+      <div className="space-y-6">
+        
+        {/* Section 1: Candidate Direct Link Box */}
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
+            <div className="flex items-center gap-1.5">
+              <LinkIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>1. Direct Candidate eSignature URL</span>
             </div>
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+              NO LOGIN REQUIRED
+            </span>
+          </h4>
 
-            <div className="flex items-center space-x-2">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 space-y-2.5">
+            <div className="flex items-center gap-2">
               <input
                 type="text"
                 readOnly
                 value={directLink}
-                className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-none select-all truncate"
+                className="flex-1 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-800 dark:text-zinc-200 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] dark:focus:ring-blue-500 select-all truncate"
               />
               <button
+                type="button"
                 onClick={handleCopyLink}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center space-x-1.5 shrink-0"
+                className="px-3.5 py-2 bg-[#0C2086] hover:bg-[#0a1b70] text-white font-medium text-xs rounded-lg shadow-xs transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer"
               >
                 {copied ? (
                   <>
-                    <Check className="h-4 w-4 text-emerald-300" />
-                    <span>Copied Link!</span>
+                    <Check className="w-3.5 h-3.5 text-emerald-300" />
+                    <span>Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="h-4 w-4" />
-                    <span>Copy Link</span>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy</span>
                   </>
                 )}
               </button>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Share this link with <strong className="text-slate-700 dark:text-slate-200">{candidateName} ({candidateEmail})</strong> via Email, WhatsApp, or Slack.
+            <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+              Share this cryptographic URL directly with <strong className="text-slate-700 dark:text-zinc-200">{candidateName} ({candidateEmail})</strong> via Email, WhatsApp, or Slack.
             </p>
           </div>
+        </div>
 
-          {/* Option A: Send via Web Mail or Mail App */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-200 dark:border-blue-800 rounded-2xl p-5 space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-2 text-blue-700 dark:text-blue-300 font-bold text-sm">
-                <Send className="h-4.5 w-4.5" />
-                <span>Option 1: Send Live Email via Webmail or Local Mail App</span>
-              </div>
-              <span className="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                1-CLICK LIVE DISPATCH
-              </span>
-            </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300">
-              Opens your preferred mail provider with a pre-filled professional invitation email containing the candidate eSign link.
+        {/* Section 2: 1-Click Live Email Dispatch Channels */}
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center gap-1.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
+            <Mail className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>2. Live Mail Client Dispatch Options</span>
+          </h4>
+
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 space-y-3">
+            <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+              Launch your preferred mail service with a pre-filled professional invitation letter and direct cryptographic eSign link:
             </p>
 
-            <div className="pt-2 flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 pt-1">
               {/* Web Gmail Compose */}
-              <a
-                href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidateEmail)}&su=${mailSubject}&body=${mailBody}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition-all"
+              <ButtonSharedComponent
+                variant="outline"
+                size="sm"
+                icon={<Mail className="w-3.5 h-3.5 text-red-500" />}
+                onClick={() => {
+                  window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidateEmail)}&su=${mailSubject}&body=${mailBody}`, '_blank');
+                }}
               >
-                <Mail className="h-4 w-4" />
-                <span>Open in Gmail</span>
-                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-              </a>
+                Gmail
+              </ButtonSharedComponent>
 
               {/* Web Outlook Compose */}
-              <a
-                href={`https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(candidateEmail)}&subject=${mailSubject}&body=${mailBody}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all"
+              <ButtonSharedComponent
+                variant="outline"
+                size="sm"
+                icon={<Inbox className="w-3.5 h-3.5 text-blue-500" />}
+                onClick={() => {
+                  window.open(`https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(candidateEmail)}&subject=${mailSubject}&body=${mailBody}`, '_blank');
+                }}
               >
-                <Inbox className="h-4 w-4" />
-                <span>Open in Outlook Web</span>
-                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-              </a>
+                Outlook Web
+              </ButtonSharedComponent>
 
-              {/* Local Desktop App (No target="_blank" to prevent blank google.com/webhp tab) */}
-              <button
+              {/* Local Desktop App */}
+              <ButtonSharedComponent
+                variant="outline"
+                size="sm"
+                icon={<Smartphone className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
                 onClick={() => {
                   window.location.href = mailtoUrl;
                 }}
-                className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow-md transition-all"
               >
-                <Smartphone className="h-4 w-4" />
-                <span>Default Mail App</span>
-              </button>
+                Default Mail App
+              </ButtonSharedComponent>
 
-              {/* Test Candidate Link in New Tab */}
-              <button
-                onClick={() => {
-                  window.open(directLink, '_blank');
-                }}
-                className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all ml-auto"
-              >
-                <ExternalLink className="h-4 w-4" />
-                <span>Test Candidate View in New Tab</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Option B: Simulate In-App Email Dispatch */}
-          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-slate-800 dark:text-slate-200 font-bold text-sm">
-                <Sparkles className="h-4.5 w-4.5 text-amber-500" />
-                <span>Option 2: Simulate Direct Server Dispatch</span>
+              {/* Test Portal View */}
+              <div className="sm:ml-auto">
+                <ButtonSharedComponent
+                  variant="secondary"
+                  size="sm"
+                  icon={<ExternalLink className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                  onClick={() => {
+                    window.open(directLink, '_blank');
+                  }}
+                >
+                  Test Portal View
+                </ButtonSharedComponent>
               </div>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-400">
-              Simulates automated background SMTP dispatch to <strong className="text-slate-800 dark:text-slate-200">{candidateEmail}</strong>.
-            </p>
-
-            <div className="pt-1 flex items-center space-x-3">
-              <button
-                disabled={emailStatus === 'SENDING'}
-                onClick={handleSimulateSend}
-                className="px-4 py-2 rounded-xl bg-slate-800 dark:bg-slate-800 hover:bg-slate-900 dark:hover:bg-slate-700 text-white text-xs font-bold transition-all disabled:opacity-50"
-              >
-                {emailStatus === 'SENDING' ? 'Sending Email...' : emailStatus === 'SENT' ? '✓ Email Sent Successfully' : 'Simulate Email Send'}
-              </button>
-
-              {emailStatus === 'SENT' && (
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1 animate-in fade-in">
-                  <Check className="h-4 w-4" />
-                  <span>Dispatched to candidate inbox log!</span>
-                </span>
-              )}
-            </div>
           </div>
-
-          {/* Production Setup Explanation */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-slate-300 text-xs space-y-2">
-            <div className="flex items-center space-x-2 text-emerald-400 font-bold">
-              <ShieldCheck className="h-4 w-4" />
-              <span>Production Setup (Resend / SendGrid / Postmark)</span>
-            </div>
-            <p className="text-slate-400 leading-relaxed text-[11px]">
-              To enable automated server-side email delivery when deploying to production (Vercel / Cloud Run), add your API key in <code className="bg-slate-800 text-emerald-300 px-1 py-0.5 rounded font-mono">.env</code>:
-            </p>
-            <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400">
-              RESEND_API_KEY=re_123456789<br />
-              # Or for SendGrid:<br />
-              SENDGRID_API_KEY=SG.xxxxxxxx
-            </div>
-          </div>
-
         </div>
 
-        {/* Modal Footer */}
-        <div className="px-6 py-3.5 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-5 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl transition-colors"
-          >
-            Close
-          </button>
+        {/* Section 3: Executive Signatory Status */}
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center gap-1.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
+            <UserCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>3. Executive Notification Routing</span>
+          </h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 font-mono">HR Head Channel</span>
+                <span className="text-[10px] bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 px-1.5 py-0.5 rounded font-mono font-bold">
+                  {document.executives?.hrHead?.status || 'PENDING'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono truncate">
+                {document.executives?.hrHead?.email || document.hrHeadEmail || 'hr@theweplm.com'}
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 font-mono">CTO Channel</span>
+                <span className="text-[10px] bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 px-1.5 py-0.5 rounded font-mono font-bold">
+                  {document.executives?.cto?.status || 'PENDING'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono truncate">
+                {document.executives?.cto?.email || document.ctoEmail || 'cto@theweplm.com'}
+              </p>
+            </div>
+          </div>
         </div>
 
       </div>
-    </div>
+    </ModalSharedComponent>
   );
 };
+export default SendEmailModal;

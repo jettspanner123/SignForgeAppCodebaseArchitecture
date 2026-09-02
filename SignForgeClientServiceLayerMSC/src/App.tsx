@@ -52,11 +52,7 @@ export default function App() {
           window.history.replaceState(null, '', targetPath);
         }
 
-        if (resolved.view === ApplicationRouteCON.AUDIT_TRAILS) {
-          setShowAuditModal(true);
-        } else {
-          setCurrentView(resolved.view, resolved.docId);
-        }
+        setCurrentView(resolved.view, resolved.docId);
       } catch (err) {
         console.error('Pathname routing error:', err);
       }
@@ -156,14 +152,6 @@ export default function App() {
             onSaveAndSend={handleSaveOffer}
             onCancel={() => setCurrentView(ApplicationRouteCON.DOCUMENTS)}
             onSwitchToTemplate={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
-          />
-        )}
-
-        {/* Audit Trail Vault Screen (When navigated via Top Nav Tab) */}
-        {currentView === ApplicationRouteCON.AUDIT_TRAILS && (
-          <DocumentInventoryScreenController
-            onOpenAuditModalForDoc={handleOpenAuditModalForDoc}
-            onOpenSendEmailModal={(doc) => setShowEmailModalDoc(doc)}
           />
         )}
 

@@ -3,7 +3,6 @@ export default class ApplicationRouteCON {
   public static readonly DOCUMENTS: string = 'documents';
   public static readonly CREATE_OFFER: string = 'create_offer';
   public static readonly UPLOAD_PDF: string = 'upload_pdf';
-  public static readonly AUDIT_TRAILS: string = 'audit_trail';
   public static readonly CANDIDATE_VIEW: string = 'candidate_view';
   public static readonly HR_COUNTERSIGN: string = 'hr_countersign';
   public static readonly SETTINGS: string = 'settings';
@@ -13,7 +12,6 @@ export default class ApplicationRouteCON {
     [ApplicationRouteCON.DOCUMENTS]: '/documents',
     [ApplicationRouteCON.CREATE_OFFER]: '/create-offer',
     [ApplicationRouteCON.UPLOAD_PDF]: '/upload-pdf',
-    [ApplicationRouteCON.AUDIT_TRAILS]: '/audit-trail',
     [ApplicationRouteCON.CANDIDATE_VIEW]: '/candidate',
     [ApplicationRouteCON.HR_COUNTERSIGN]: '/countersign',
   };
@@ -47,7 +45,6 @@ export default class ApplicationRouteCON {
     }
     if (pathname === '/create-offer') return { view: this.CREATE_OFFER };
     if (pathname === '/upload-pdf') return { view: this.UPLOAD_PDF };
-    if (pathname === '/audit-trail') return { view: this.AUDIT_TRAILS };
 
     return { view: this.DOCUMENTS };
   }

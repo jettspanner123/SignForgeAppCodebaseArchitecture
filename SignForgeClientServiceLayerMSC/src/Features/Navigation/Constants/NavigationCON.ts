@@ -1,4 +1,4 @@
-import { FileText, Plus, Upload, ShieldCheck } from 'lucide-react';
+import { FileText, Plus, Upload } from 'lucide-react';
 import ApplicationRouteCON from '../../../Constants/ApplicationRouteCON';
 
 export interface NavItemDef {
@@ -34,13 +34,6 @@ export default class NavigationCON {
       icon: Upload,
       hashPath: '#/upload-pdf',
       description: 'Upload PDF and place eSignature coordinate fields'
-    },
-    {
-      id: ApplicationRouteCON.AUDIT_TRAILS,
-      label: 'Audit Trail Vault',
-      icon: ShieldCheck,
-      hashPath: '#/audit-trail',
-      description: 'Cryptographic hash chains and audit trail inspection'
     }
   ];
 
