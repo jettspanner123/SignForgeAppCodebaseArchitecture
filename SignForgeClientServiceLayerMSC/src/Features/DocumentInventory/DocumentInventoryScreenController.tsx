@@ -186,24 +186,25 @@ export default function DocumentInventoryScreenController({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       {/* 1. Editorial Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif-headline tracking-tight text-slate-900 dark:text-zinc-100">
-            Document Inventory & Pipeline
+          <h1 className="text-3xl sm:text-4xl font-bold font-serif-headline tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
+            Document Inventory <br className="sm:hidden" />&amp; Pipeline
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1.5 max-w-2xl">
             Monitor real-time candidate signing status, verify dual cryptographic audit trails, and dispatch executed offer packages.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="grid grid-cols-2 gap-3 w-full sm:flex sm:items-center sm:w-auto sm:shrink-0">
           <ButtonSharedComponent
             variant="outline"
             size="sm"
-            leftIcon={<FileCode2 className="w-3.5 h-3.5" />}
+            leftIcon={<FileCode2 className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
             onClick={() => setCurrentView(ApplicationRouteCON.UPLOAD_PDF)}
+            className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
           >
             Upload PDF
           </ButtonSharedComponent>
@@ -211,6 +212,7 @@ export default function DocumentInventoryScreenController({
             label="New Offer Package"
             onClick={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
             icon={<Plus className="w-3.5 h-3.5 !text-white" />}
+            className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
           />
         </div>
       </div>
@@ -318,23 +320,21 @@ export default function DocumentInventoryScreenController({
         </div>
 
         {/* Row 2: Secondary Dropdown Filters & Uniform View Switchers 1:1 AssetSphere */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-zinc-800/80 text-xs">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-zinc-800/80 text-xs">
           {/* Left: Secondary Dropdown Filters */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-slate-500 dark:text-zinc-400 font-medium">Status:</span>
-              <CustomSelectSharedComponent
-                value={activeStatusFilter}
-                options={statusOptions}
-                onChange={(val) => setActiveStatusFilter(val)}
-                size="sm"
-                className="w-52 sm:w-60"
-              />
-            </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-slate-500 dark:text-zinc-400 font-medium shrink-0">Status:</span>
+            <CustomSelectSharedComponent
+              value={activeStatusFilter}
+              options={statusOptions}
+              onChange={(val) => setActiveStatusFilter(val)}
+              size="sm"
+              className="w-full sm:w-60"
+            />
           </div>
 
           {/* Right: Uniform Switchers */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto overflow-x-auto no-scrollbar">
             {/* Grid Density Switcher (2 Col vs 3 Col) */}
             {viewMode === 'grid' && (
               <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9">

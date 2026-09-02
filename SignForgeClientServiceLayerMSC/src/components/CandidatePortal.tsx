@@ -146,15 +146,15 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       
       {/* 1. Editorial Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif-headline tracking-tight text-slate-900 dark:text-zinc-100">
-            Employment Offer for {document.offerDetails.candidateName}
+          <h1 className="text-3xl sm:text-4xl font-bold font-serif-headline tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
+            Employment Offer <br className="sm:hidden" />for {document.offerDetails.candidateName}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1.5 max-w-2xl">
             Issued by <strong className="text-slate-800 dark:text-zinc-200">{document.companyName}</strong> for the position of{' '}
             <strong className="text-[#0C2086] dark:text-blue-400">{document.offerDetails.jobTitle}</strong>.
           </p>

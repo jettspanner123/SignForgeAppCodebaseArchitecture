@@ -120,7 +120,7 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       
       {/* Banner */}
       <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -131,8 +131,8 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
             </span>
             <span className="text-xs text-slate-500">Ref: {document.documentNumber}</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 mt-2 tracking-tight">
-            Counter-Sign Employment Offer
+          <h1 className="text-3xl sm:text-4xl font-bold font-serif-headline tracking-tight text-slate-900 mt-2 leading-tight">
+            Counter-Sign <br className="sm:hidden" />Employment Offer
           </h1>
           <p className="text-sm text-slate-600 mt-1">
             Candidate: <strong className="text-slate-900">{document.offerDetails.candidateName}</strong> • Position:{' '}

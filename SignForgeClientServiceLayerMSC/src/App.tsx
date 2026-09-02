@@ -207,7 +207,7 @@ export default function App() {
 
       {/* 3. AssetSphere Enterprise Footer */}
       <footer className="border-t border-slate-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-black/80 backdrop-blur-sm py-6 text-xs text-slate-500 dark:text-zinc-400 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-serif-headline font-semibold text-slate-900 dark:text-zinc-100">
               We.SignForge

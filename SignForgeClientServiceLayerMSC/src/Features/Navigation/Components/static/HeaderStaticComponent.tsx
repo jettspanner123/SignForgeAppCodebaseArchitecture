@@ -24,7 +24,7 @@ export default function HeaderStaticComponent({
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800/80 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand Insignia 1:1 AssetSphere */}
         <div
           onClick={() => onSelectView(ApplicationRouteCON.DOCUMENTS)}
