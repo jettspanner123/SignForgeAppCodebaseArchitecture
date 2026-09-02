@@ -304,12 +304,14 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('DRAW')}
-            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+              activeTab === 'DRAW' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
+            }`}
           >
             {activeTab === 'DRAW' && (
               <motion.div
                 layoutId="activeSignatureTabPill"
-                className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
@@ -326,12 +328,14 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('TYPE')}
-            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+              activeTab === 'TYPE' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
+            }`}
           >
             {activeTab === 'TYPE' && (
               <motion.div
                 layoutId="activeSignatureTabPill"
-                className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
@@ -348,12 +352,14 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('UPLOAD')}
-            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+              activeTab === 'UPLOAD' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
+            }`}
           >
             {activeTab === 'UPLOAD' && (
               <motion.div
                 layoutId="activeSignatureTabPill"
-                className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
