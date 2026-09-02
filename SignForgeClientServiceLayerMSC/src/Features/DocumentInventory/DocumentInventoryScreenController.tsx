@@ -295,33 +295,34 @@ export default function DocumentInventoryScreenController({
         {/* Row 1: Search Input & Primary Actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search Box */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none" />
+          <div className="relative flex-1 max-w-full sm:max-w-md">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by candidate, role, doc #, or email..."
-              className="w-full h-9 pl-9 pr-3 text-xs rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-300 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
+              className="w-full h-10 sm:h-9 pl-10 pr-3.5 text-sm sm:text-xs rounded-xl sm:rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-300 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
             <ButtonSharedComponent
               variant="outline"
               size="sm"
               onClick={handleExportCSV}
               icon={<Download className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />}
+              className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
             >
               Export CSV
             </ButtonSharedComponent>
           </div>
         </div>
 
-        {/* Row 2: Secondary Dropdown Filters & Uniform View Switchers 1:1 AssetSphere */}
+        {/* Row 2: Secondary Dropdown Filters & Uniform View Switchers */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-zinc-800/80 text-xs">
-          {/* Left: Secondary Dropdown Filters */}
+          {/* Status Filter */}
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <span className="text-slate-500 dark:text-zinc-400 font-medium shrink-0">Status:</span>
             <CustomSelectSharedComponent
@@ -333,21 +334,21 @@ export default function DocumentInventoryScreenController({
             />
           </div>
 
-          {/* Right: Uniform Switchers */}
-          <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto overflow-x-auto no-scrollbar">
-            {/* Grid Density Switcher (2 Col vs 3 Col) */}
+          {/* View Switchers Container (Separate Rows on Mobile, Side-by-Side on Desktop) */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+            {/* Row A: Sub-View Options (Grid Density / Single-Line Mode) */}
             {viewMode === 'grid' && (
-              <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9">
+              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setGridColumns(2)}
-                  className="relative flex items-center justify-center px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                  className="flex-1 sm:flex-initial relative flex items-center justify-center px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
                   title="Show 2 Items Per Row"
                 >
                   {gridColumns === 2 && (
                     <motion.div
                       layoutId="activeGridDensityPill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -362,13 +363,13 @@ export default function DocumentInventoryScreenController({
                 <button
                   type="button"
                   onClick={() => setGridColumns(3)}
-                  className="relative flex items-center justify-center px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                  className="flex-1 sm:flex-initial relative flex items-center justify-center px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
                   title="Show 3 Items Per Row"
                 >
                   {gridColumns === 3 && (
                     <motion.div
                       layoutId="activeGridDensityPill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -385,17 +386,17 @@ export default function DocumentInventoryScreenController({
 
             {/* Table Single-Line Segmented Control */}
             {viewMode === 'table' && (
-              <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9">
+              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setIsSingleLineMode(true)}
-                  className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                  className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
                   title="Single-Line Table Mode"
                 >
                   {isSingleLineMode && (
                     <motion.div
                       layoutId="activeTableSingleLinePill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -411,13 +412,13 @@ export default function DocumentInventoryScreenController({
                 <button
                   type="button"
                   onClick={() => setIsSingleLineMode(false)}
-                  className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                  className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
                   title="Wrap Text Table Mode"
                 >
                   {!isSingleLineMode && (
                     <motion.div
                       layoutId="activeTableSingleLinePill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -433,18 +434,18 @@ export default function DocumentInventoryScreenController({
               </div>
             )}
 
-            {/* View Mode Segmented Control (Table, Grid) */}
-            <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9">
+            {/* Row B: View Mode Segmented Control (Table, Grid) */}
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
-                className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
                 title="Table View"
               >
                 {viewMode === 'table' && (
                   <motion.div
                     layoutId="activeInventoryViewModePill"
-                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
@@ -460,13 +461,13 @@ export default function DocumentInventoryScreenController({
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none"
+                className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
                 title="Grid View"
               >
                 {viewMode === 'grid' && (
                   <motion.div
                     layoutId="activeInventoryViewModePill"
-                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
@@ -700,13 +701,14 @@ export default function DocumentInventoryScreenController({
                 </div>
 
                 {/* Bottom Actions Cluster */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-zinc-800/80">
-                  <div className="flex items-center gap-1">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2.5 border-t border-slate-200 dark:border-zinc-800/80">
+                  {/* Row 1: 4-Column Equal Icon Actions Grid on Mobile */}
+                  <div className="grid grid-cols-4 gap-2 w-full sm:flex sm:items-center sm:gap-1 sm:w-auto">
                     <button
                       type="button"
                       onClick={() => onOpenAuditModalForDoc(doc)}
                       title="Audit Trail Logs"
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
+                      className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
                     >
                       <ShieldCheck className="w-4 h-4" />
                     </button>
@@ -715,7 +717,7 @@ export default function DocumentInventoryScreenController({
                       disabled={downloadingDocId === doc.id}
                       onClick={() => handleDownloadPdf(doc)}
                       title="Download PDF"
-                      className="p-1.5 rounded-lg text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-900/60 transition-colors cursor-pointer disabled:opacity-50"
+                      className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-900/60 transition-colors cursor-pointer disabled:opacity-50"
                     >
                       <Download className="w-4 h-4" />
                     </button>
@@ -723,7 +725,7 @@ export default function DocumentInventoryScreenController({
                       type="button"
                       onClick={() => onOpenSendEmailModal(doc)}
                       title="Dispatch Email"
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
+                      className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
                     >
                       <Mail className="w-4 h-4" />
                     </button>
@@ -731,35 +733,40 @@ export default function DocumentInventoryScreenController({
                       type="button"
                       onClick={() => setDocToDelete(doc)}
                       title="Delete Document"
-                      className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-300 transition-colors cursor-pointer"
+                      className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-300 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div>
-                    {isReadyForCountersign && (
-                      <ButtonSharedComponent
-                        variant="primary"
-                        size="sm"
-                        leftIcon={<FileSignature className="w-3.5 h-3.5 !text-white" />}
-                        onClick={() => handleOpenCountersignPortal(doc)}
-                      >
-                        Countersign
-                      </ButtonSharedComponent>
-                    )}
+                  {/* Row 2: Full-Width Workflow Button on Mobile */}
+                  {(isReadyForCountersign || isPendingCandidate) && (
+                    <div className="w-full sm:w-auto">
+                      {isReadyForCountersign && (
+                        <ButtonSharedComponent
+                          variant="primary"
+                          size="sm"
+                          leftIcon={<FileSignature className="w-3.5 h-3.5 !text-white" />}
+                          onClick={() => handleOpenCountersignPortal(doc)}
+                          className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+                        >
+                          Countersign
+                        </ButtonSharedComponent>
+                      )}
 
-                    {isPendingCandidate && (
-                      <ButtonSharedComponent
-                        variant="secondary"
-                        size="sm"
-                        leftIcon={<ExternalLink className="w-3.5 h-3.5" />}
-                        onClick={() => handleOpenCandidatePortal(doc)}
-                      >
-                        Sign Portal
-                      </ButtonSharedComponent>
-                    )}
-                  </div>
+                      {isPendingCandidate && (
+                        <ButtonSharedComponent
+                          variant="secondary"
+                          size="sm"
+                          leftIcon={<ExternalLink className="w-3.5 h-3.5" />}
+                          onClick={() => handleOpenCandidatePortal(doc)}
+                          className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+                        >
+                          Sign Portal
+                        </ButtonSharedComponent>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardSharedComponent>
             );
