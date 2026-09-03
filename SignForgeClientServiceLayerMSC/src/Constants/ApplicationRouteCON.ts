@@ -1,5 +1,6 @@
 export default class ApplicationRouteCON {
   public static readonly ROOT: string = '/';
+  public static readonly LOGIN: string = 'login';
   public static readonly DOCUMENTS: string = 'documents';
   public static readonly CREATE_OFFER: string = 'create_offer';
   public static readonly UPLOAD_PDF: string = 'upload_pdf';
@@ -9,6 +10,7 @@ export default class ApplicationRouteCON {
   public static readonly VERCEL_GUIDE: string = 'vercel_guide';
 
   public static readonly PATH_MAP: Record<string, string> = {
+    [ApplicationRouteCON.LOGIN]: '/login',
     [ApplicationRouteCON.DOCUMENTS]: '/documents',
     [ApplicationRouteCON.CREATE_OFFER]: '/create-offer',
     [ApplicationRouteCON.UPLOAD_PDF]: '/upload-pdf',
@@ -17,7 +19,7 @@ export default class ApplicationRouteCON {
   };
 
   public static toPath(view: string, docId?: string): string {
-    const base = this.PATH_MAP[view] || '/documents';
+    const base = this.PATH_MAP[view] || '/login';
     if (docId && (view === this.CANDIDATE_VIEW || view === this.HR_COUNTERSIGN)) {
       return `${base}/${docId}`;
     }
@@ -32,7 +34,10 @@ export default class ApplicationRouteCON {
     }
 
     // 2. Standard clean pathnames
-    if (!pathname || pathname === '/' || pathname === '/documents') {
+    if (!pathname || pathname === '/' || pathname === '/login') {
+      return { view: this.LOGIN };
+    }
+    if (pathname === '/documents') {
       return { view: this.DOCUMENTS };
     }
     if (pathname.startsWith('/candidate/')) {
@@ -46,6 +51,6 @@ export default class ApplicationRouteCON {
     if (pathname === '/create-offer') return { view: this.CREATE_OFFER };
     if (pathname === '/upload-pdf') return { view: this.UPLOAD_PDF };
 
-    return { view: this.DOCUMENTS };
+    return { view: this.LOGIN };
   }
 }

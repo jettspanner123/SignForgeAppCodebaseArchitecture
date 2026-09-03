@@ -22,6 +22,8 @@ import { AuditTrailModal } from './components/AuditTrailModal';
 import { ExecutiveDispatchModal } from './components/ExecutiveDispatchModal';
 import { SendEmailModal } from './components/SendEmailModal';
 
+import LoginScreenController from './Features/LoginScreen/LoginScreenController';
+
 export default function App() {
   const {
     documents,
@@ -32,6 +34,7 @@ export default function App() {
     updateDocument,
     setSelectedDocId,
     setCurrentView,
+    toggleTheme,
   } = useOfferDocumentStore();
 
   const [editingDoc, setEditingDoc] = useState<OfferDocument | null>(null);
@@ -116,6 +119,16 @@ export default function App() {
     setSelectedDocId(doc.id);
     setShowAuditModal(true);
   };
+
+  if (currentView === ApplicationRouteCON.LOGIN) {
+    return (
+      <LoginScreenController
+        currentTheme={theme}
+        onToggleTheme={toggleTheme}
+        onLoginSuccess={() => setCurrentView(ApplicationRouteCON.DOCUMENTS)}
+      />
+    );
+  }
 
   return (
     <NavigationController

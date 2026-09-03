@@ -1,26 +1,27 @@
-import { create } from 'zustand';
-import { UserRoleType } from '../Types';
+﻿import { create } from 'zustand';
+import { AuthenticationStateStoreInterface, AuthTokens } from './Interface/AuthenticationStateStoreInterface';
+import { UserProfileType } from '../Features/LoginScreen/Models/LoginScreenModel';
 
-export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRoleType;
-}
+export const useAuthenticationStateStore = create<AuthenticationStateStoreInterface>((set) => ({
+  isAuthenticated: false,
+  user: null,
+  tokens: null,
 
-export interface AuthenticationState {
-  user: UserProfile | null;
-  setUser: (user: UserProfile | null) => void;
-}
-
-export const useAuthenticationStateStore = create<AuthenticationState>((set) => ({
-  user: {
-    id: 'user-admin-1',
-    name: 'Pooja Sharma',
-    email: 'pooja.sharma@weplm.com',
-    role: 'HR_ADMIN'
+  setAuth: (tokens: AuthTokens, user: UserProfileType) => {
+    set({
+      isAuthenticated: true,
+      tokens,
+      user,
+    });
   },
-  setUser: (user) => set({ user })
+
+  clearAuth: () => {
+    set({
+      isAuthenticated: false,
+      user: null,
+      tokens: null,
+    });
+  },
 }));
 
 export default useAuthenticationStateStore;
