@@ -15,6 +15,7 @@ import { getCandidateShareLink } from '../utils/urlEncoder';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
+import { triggerHapticFeedback } from '../utils/haptics';
 
 interface SendEmailModalProps {
   document: OfferDocument;
@@ -76,7 +77,7 @@ ${companyName}
   };
 
   const handleFooterClose = () => {
-    setExitDirection('up');
+    setExitDirection('down');
     setIsOpen(false);
     setTimeout(() => {
       onClose();
@@ -89,24 +90,27 @@ ${companyName}
       onClose={handleHeaderOrBackdropClose}
       exitDirection={exitDirection}
       headerCloseDirection="down"
-      title="Dispatch Offer & Candidate eSign Link"
+      title="Candidate eSign Link"
       subtitle={`Document #${document.documentNumber} • Direct eSign dispatch to ${candidateEmail}`}
       maxWidth="2xl"
       footer={
-        <div className="flex items-center justify-end gap-2.5 w-full">
+        <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-3 w-full">
           <ButtonSharedComponent
             variant="outline"
-            size="sm"
+            size="md"
             onClick={handleFooterClose}
+            className="w-full sm:w-auto justify-center"
           >
             Close
           </ButtonSharedComponent>
           <PrimaryActionButtonSharedComponent
-            label="Launch Mail Client"
+            label="Launch Client"
+            size="md"
             icon={<Send className="w-3.5 h-3.5 !text-white" />}
             onClick={() => {
               window.location.href = mailtoUrl;
             }}
+            className="w-full sm:w-auto justify-center"
           />
         </div>
       }
@@ -115,37 +119,33 @@ ${companyName}
         
         {/* Section 1: Candidate Direct Link Box */}
         <div className="space-y-3">
-          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
-            <div className="flex items-center gap-1.5">
-              <LinkIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>1. Direct Candidate eSignature URL</span>
-            </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-              NO LOGIN REQUIRED
-            </span>
+          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider font-mono flex items-center gap-1.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
+            <LinkIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>1. Direct Candidate eSignature URL</span>
           </h4>
 
           <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 space-y-2.5">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <input
                 type="text"
                 readOnly
                 value={directLink}
-                className="flex-1 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-800 dark:text-zinc-200 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] dark:focus:ring-blue-500 select-all truncate"
+                className="flex-1 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-lg px-3.5 py-2.5 sm:py-2 text-sm sm:text-xs font-mono text-slate-800 dark:text-zinc-200 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] dark:focus:ring-blue-500 select-all truncate h-11 sm:h-9"
               />
               <button
                 type="button"
+                onPointerDown={() => triggerHapticFeedback(12)}
                 onClick={handleCopyLink}
-                className="px-3.5 py-2 bg-[#0C2086] hover:bg-[#0a1b70] text-white font-medium text-xs rounded-lg shadow-xs transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 !h-11 sm:!h-9 bg-[#0C2086] hover:bg-[#0a1b70] text-white font-bold text-sm sm:text-xs rounded-xl sm:rounded-lg shadow-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
               >
                 {copied ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-300" />
+                    <Check className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-emerald-300" />
                     <span>Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                     <span>Copy</span>
                   </>
                 )}
@@ -169,15 +169,16 @@ ${companyName}
               Launch your preferred mail service with a pre-filled professional invitation letter and direct cryptographic eSign link:
             </p>
 
-            <div className="flex flex-wrap items-center gap-2 pt-1">
+            <div className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:items-center sm:gap-2 pt-1">
               {/* Web Gmail Compose */}
               <ButtonSharedComponent
                 variant="outline"
-                size="sm"
-                icon={<Mail className="w-3.5 h-3.5 text-red-500" />}
+                size="md"
+                icon={<Mail className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-red-500" />}
                 onClick={() => {
                   window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidateEmail)}&su=${mailSubject}&body=${mailBody}`, '_blank');
                 }}
+                className="w-full sm:w-auto justify-center !h-11 sm:!h-9 text-xs font-semibold"
               >
                 Gmail
               </ButtonSharedComponent>
@@ -185,11 +186,12 @@ ${companyName}
               {/* Web Outlook Compose */}
               <ButtonSharedComponent
                 variant="outline"
-                size="sm"
-                icon={<Inbox className="w-3.5 h-3.5 text-blue-500" />}
+                size="md"
+                icon={<Inbox className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-blue-500" />}
                 onClick={() => {
                   window.open(`https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(candidateEmail)}&subject=${mailSubject}&body=${mailBody}`, '_blank');
                 }}
+                className="w-full sm:w-auto justify-center !h-11 sm:!h-9 text-xs font-semibold"
               >
                 Outlook Web
               </ButtonSharedComponent>
@@ -197,26 +199,28 @@ ${companyName}
               {/* Local Desktop App */}
               <ButtonSharedComponent
                 variant="outline"
-                size="sm"
-                icon={<Smartphone className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
+                size="md"
+                icon={<Smartphone className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-600 dark:text-zinc-400" />}
                 onClick={() => {
                   window.location.href = mailtoUrl;
                 }}
+                className="w-full sm:w-auto justify-center !h-11 sm:!h-9 text-xs font-semibold"
               >
-                Default Mail App
+                Default App
               </ButtonSharedComponent>
 
               {/* Test Portal View */}
-              <div className="sm:ml-auto">
+              <div className="w-full sm:w-auto sm:ml-auto">
                 <ButtonSharedComponent
                   variant="secondary"
-                  size="sm"
-                  icon={<ExternalLink className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                  size="md"
+                  icon={<ExternalLink className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-emerald-600 dark:text-emerald-400" />}
                   onClick={() => {
                     window.open(directLink, '_blank');
                   }}
+                  className="w-full sm:w-auto justify-center !h-11 sm:!h-9 text-xs font-semibold"
                 >
-                  Test Portal View
+                  Test Portal
                 </ButtonSharedComponent>
               </div>
             </div>

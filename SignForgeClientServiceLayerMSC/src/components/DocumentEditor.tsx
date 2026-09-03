@@ -653,7 +653,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                 transition={{ type: 'spring', duration: 0.8, bounce: 0.25 }}
                 className="w-full"
               >
-                <div className="rounded-xl bg-white dark:bg-[#0a0a0c] border border-slate-200/80 dark:border-zinc-800/80 shadow-xs p-6 space-y-8">
+                <div className="rounded-xl bg-white dark:bg-[#0a0a0c] border border-slate-200/80 dark:border-zinc-800/80 shadow-xs px-3.5 py-5 sm:p-6 space-y-6 sm:space-y-8">
                   
                   {/* Section 0: Document Type & eSignature Setup */}
                   <div className="space-y-4">
@@ -1027,11 +1027,14 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                   <div className="pt-4 mt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-end">
                     <PrimaryActionButtonSharedComponent
                       type="button"
+                      size="md"
+                      onPointerDown={() => triggerHapticFeedback(12)}
                       onClick={() => handleIssueOffer()}
                       label={isEditing ? 'Update Offer' : 'Issue Offer'}
-                      icon={<Send className="w-3.5 h-3.5 !text-white" />}
+                      icon={<Send className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
                       isLoading={isSubmitting}
                       loadingText={isEditing ? 'Updating...' : 'Dispatching...'}
+                      className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-6 text-sm sm:text-xs font-bold"
                     />
                   </div>
 
@@ -1099,11 +1102,14 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
             <div className="flex items-center gap-3">
               <PrimaryActionButtonSharedComponent
                 type="button"
+                size="md"
+                onPointerDown={() => triggerHapticFeedback(12)}
                 onClick={() => handleIssueOffer()}
                 label={isEditing ? 'Update Offer' : 'Issue Offer & Dispatch'}
-                icon={<Send className="w-3.5 h-3.5 !text-white" />}
+                icon={<Send className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
                 isLoading={isSubmitting}
                 loadingText={isEditing ? 'Updating...' : 'Dispatching...'}
+                className="!h-11 sm:!h-9 px-5 text-sm sm:text-xs font-bold"
               />
             </div>
           </motion.div>

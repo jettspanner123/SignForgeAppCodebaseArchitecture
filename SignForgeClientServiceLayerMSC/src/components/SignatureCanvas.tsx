@@ -204,7 +204,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
   };
 
   const handleFooterClose = () => {
-    setExitDirection('up');
+    setExitDirection('down');
     setInternalIsOpen(false);
     setTimeout(() => {
       onClose();
@@ -267,20 +267,23 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
       subtitle="ESIGN Act §101 & eIDAS Cryptographically Compliant"
       maxWidth="2xl"
       footer={
-        <div className="flex items-center justify-end gap-2.5 w-full">
+        <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-3 w-full">
           <ButtonSharedComponent
             variant="outline"
-            size="sm"
+            size="md"
             onClick={handleFooterClose}
+            className="w-full sm:w-auto justify-center"
           >
             Cancel
           </ButtonSharedComponent>
           
           <PrimaryActionButtonSharedComponent
-            label="Apply Electronic Signature"
+            label="Apply Signature"
+            size="md"
             icon={<Check className="w-3.5 h-3.5 !text-white" />}
             disabled={isSaveDisabled}
             onClick={handleSaveSignature}
+            className="w-full sm:w-auto justify-center"
           />
         </div>
       }

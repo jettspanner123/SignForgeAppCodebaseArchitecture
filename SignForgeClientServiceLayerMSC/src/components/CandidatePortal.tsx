@@ -450,19 +450,20 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
         subtitle={`Document #${document.documentNumber} • ${rejectTab === 'DECLINE' ? 'Provide feedback for declining' : 'Submit proposed adjustments to HR'}`}
         maxWidth="md"
         footer={
-          <div className="flex items-center justify-end gap-2.5 w-full">
+          <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-3 w-full">
             <ButtonSharedComponent
               variant="outline"
-              size="sm"
+              size="md"
               onClick={() => setIsRejecting(false)}
+              className="w-full sm:w-auto justify-center"
             >
               Cancel
             </ButtonSharedComponent>
             <ButtonSharedComponent
               variant={rejectTab === 'DECLINE' ? 'danger' : 'primary'}
-              size="sm"
+              size="md"
               onClick={handleRejectOffer}
-              className={rejectTab === 'REVISION' ? '!bg-[#0C2086] hover:!bg-[#081765] !text-white border-none shadow-xs font-semibold' : ''}
+              className={`w-full sm:w-auto justify-center ${rejectTab === 'REVISION' ? '!bg-[#0C2086] hover:!bg-[#081765] !text-white border-none shadow-xs font-semibold' : ''}`}
             >
               {rejectTab === 'DECLINE' ? 'Confirm Decline' : 'Confirm Request'}
             </ButtonSharedComponent>

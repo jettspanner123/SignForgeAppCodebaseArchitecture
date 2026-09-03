@@ -14,6 +14,7 @@ export interface PrimaryActionButtonSharedComponentProps {
   type?: 'button' | 'submit' | 'reset';
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  id?: string;
 }
 
 export default function PrimaryActionButtonSharedComponent({
@@ -28,12 +29,14 @@ export default function PrimaryActionButtonSharedComponent({
   type = 'button',
   className = '',
   size = 'sm',
+  id,
 }: PrimaryActionButtonSharedComponentProps): React.JSX.Element {
   return (
     <ButtonSharedComponent
       variant="primary"
       size={size}
       type={type}
+      id={id}
       onClick={onClick}
       onPointerDown={onPointerDown}
       disabled={disabled}

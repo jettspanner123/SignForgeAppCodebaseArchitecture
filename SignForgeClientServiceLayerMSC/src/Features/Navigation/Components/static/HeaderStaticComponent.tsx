@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Menu } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Menu, ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import NavigationCON from '../../Constants/NavigationCON';
 import ApplicationRouteCON from '../../../../Constants/ApplicationRouteCON';
 import ProfileDropdownStaticComponent from './ProfileDropdownStaticComponent';
 import MobileNavigationDrawerStaticComponent from './MobileNavigationDrawerStaticComponent';
 import { triggerHapticFeedback } from '../../../../utils/haptics';
+import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
+import PWAService from '../../../../Services/PWAService';
 import weplmLogo from '../../../../assets/weplm.jpeg';
 
 export interface HeaderStaticComponentProps {
@@ -22,21 +24,69 @@ export default function HeaderStaticComponent({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const user = NavigationCON.DEFAULT_USER;
+  const isStandalone = typeof window !== 'undefined' && PWAService.current.isStandalone();
+  const isMainTab =
+    currentView === ApplicationRouteCON.DOCUMENTS ||
+    currentView === ApplicationRouteCON.CREATE_OFFER ||
+    currentView === ApplicationRouteCON.UPLOAD_PDF;
+  const showBackButton = isStandalone && !isMainTab;
+  const { goBack } = useOfferDocumentStore();
+
+  const handleNavClick = () => {
+    if (showBackButton) {
+      goBack();
+    } else {
+      onSelectView(ApplicationRouteCON.DOCUMENTS);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white dark:bg-black sm:bg-white/90 sm:dark:bg-black/90 sm:backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Brand Insignia 1:1 AssetSphere */}
-        <div
-          onClick={() => onSelectView(ApplicationRouteCON.DOCUMENTS)}
-          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0"
-        >
-          <img
-            src={weplmLogo}
-            alt="We.PLM Logo"
-            className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg sm:rounded-sm object-cover shrink-0 shadow-sm border border-slate-200/80 dark:border-zinc-800"
-          />
-          <div className="flex flex-col justify-center">
+        {/* Brand Insignia & Back Navigation 1:1 AssetSphere */}
+        <div className="flex items-center gap-2.5 sm:gap-3 select-none shrink-0">
+          <div className="w-10 h-10 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center relative">
+            <AnimatePresence mode="wait" initial={false}>
+              {!showBackButton ? (
+                <motion.div
+                  key="brand-logo"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  onClick={() => onSelectView(ApplicationRouteCON.DOCUMENTS)}
+                  className="w-10 h-10 sm:w-8 sm:h-8 cursor-pointer shrink-0"
+                >
+                  <img
+                    src={weplmLogo}
+                    alt="We.PLM Logo"
+                    className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg sm:rounded-sm object-cover shrink-0 shadow-sm border border-slate-200/80 dark:border-zinc-800"
+                  />
+                </motion.div>
+              ) : (
+                <motion.button
+                  key="back-button"
+                  type="button"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onClick={goBack}
+                  aria-label="Go back to previous page"
+                  title="Go Back"
+                  className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg sm:rounded-sm flex items-center justify-center text-slate-700 dark:text-zinc-300 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800/90 dark:hover:bg-zinc-700/90 border border-slate-200/80 dark:border-zinc-700/80 shadow-xs cursor-pointer select-none transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div
+            onClick={handleNavClick}
+            className="flex flex-col justify-center cursor-pointer"
+          >
             <h1 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-white font-serif-headline leading-tight">
               {NavigationCON.BRAND_TITLE}
             </h1>

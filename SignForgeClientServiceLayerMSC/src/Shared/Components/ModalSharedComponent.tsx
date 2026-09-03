@@ -187,7 +187,7 @@ export default function ModalSharedComponent({
             </div>
 
             {footer && (
-              <div className="px-5 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#08080a] shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-4">
+              <div className="px-5 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#08080a] shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:pb-4">
                 {footer}
               </div>
             )}

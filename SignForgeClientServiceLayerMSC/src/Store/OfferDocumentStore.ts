@@ -51,6 +51,7 @@ interface OfferDocumentState {
   deleteDocument: (id: string) => void;
   resetToSampleData: () => void;
   toggleTheme: () => void;
+  goBack: () => void;
   getSelectedDocument: () => OfferDocument | undefined;
 }
 
@@ -128,6 +129,14 @@ export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
     const currentTheme = get().theme;
     const next = ApplicationThemeUtility.current.toggleTheme(currentTheme);
     set({ theme: next });
+  },
+
+  goBack: () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back();
+    } else {
+      get().setCurrentView(ApplicationRouteCON.DOCUMENTS);
+    }
   },
 
   getSelectedDocument: () => {
