@@ -23,6 +23,7 @@ import {
 import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
 import { downloadExecutedPDF } from '../utils/pdfGenerator';
+import { triggerHapticFeedback } from '../utils/haptics';
 import PDFGeneratorService from '../Services/PDFGeneratorService';
 import { generateSHA256, getSimulatedIP } from '../utils/crypto';
 import { OfferLetterPaper } from './OfferLetterPaper';
@@ -146,7 +147,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       
       {/* 1. Editorial Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">
@@ -181,9 +182,10 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
           ) : (
             <PrimaryActionButtonSharedComponent
               label="Review & Sign Offer"
-              icon={<PenTool className="w-3.5 h-3.5 !text-white" />}
+              icon={<PenTool className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={() => setIsSignModalOpen(true)}
-              className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+              className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
             />
           )}
 
@@ -191,9 +193,10 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
             variant="outline"
             size="sm"
             disabled={isDownloading}
+            onPointerDown={() => triggerHapticFeedback(12)}
             onClick={handleDownloadPdf}
-            icon={<Download className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
-            className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+            icon={<Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-600 dark:text-zinc-400" />}
+            className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
           >
             {isDownloading ? 'Generating...' : 'Download PDF'}
           </ButtonSharedComponent>
@@ -468,18 +471,19 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
       >
         <div className="space-y-4">
           {/* Segmented Capsule Tabs (1:1 AssetSphere Animated Segmented Controller) */}
-          <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full">
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
             <button
               type="button"
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={() => setRejectTab('DECLINE')}
-              className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+              className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
                 rejectTab === 'DECLINE' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
               }`}
             >
               {rejectTab === 'DECLINE' && (
                 <motion.div
                   layoutId="declineModalTabPill"
-                  className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                  className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}
@@ -488,32 +492,33 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
                   ? 'text-rose-600 dark:text-rose-400 font-bold'
                   : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
               }`}>
-                <XCircle className="w-3.5 h-3.5 shrink-0" />
+                <XCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" />
                 <span>Decline Offer</span>
               </span>
             </button>
 
             <button
               type="button"
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={() => setRejectTab('REVISION')}
-              className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+              className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
                 rejectTab === 'REVISION' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
               }`}
             >
               {rejectTab === 'REVISION' && (
                 <motion.div
                   layoutId="declineModalTabPill"
-                  className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                  className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}
               <span className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap ${
                 rejectTab === 'REVISION'
-                  ? 'text-[#0C2086] dark:text-blue-400 font-bold'
+                  ? 'text-blue-600 dark:text-blue-400 font-bold'
                   : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
               }`}>
-                <FileEdit className="w-3.5 h-3.5 shrink-0" />
-                <span>Request Terms</span>
+                <FileEdit className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" />
+                <span>Request Revision</span>
               </span>
             </button>
           </div>

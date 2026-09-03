@@ -18,7 +18,7 @@ export default function NavigationController({
   const isCandidateView = currentView === ApplicationRouteCON.CANDIDATE_VIEW;
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-white dark:bg-black text-slate-900 dark:text-zinc-100 font-sans transition-colors duration-200">
+    <div className="min-h-screen w-full max-w-full flex flex-col bg-white dark:bg-black text-slate-900 dark:text-zinc-100 font-sans transition-colors duration-200">
       {isCandidateView ? (
         <CandidateHeaderStaticComponent />
       ) : (
@@ -28,7 +28,7 @@ export default function NavigationController({
           onOpenAuditLogs={onOpenAuditLogs}
         />
       )}
-      <main className="flex-1 w-full max-w-full overflow-x-hidden">
+      <main className="flex-1 w-full max-w-full overflow-x-clip">
         <motion.div
           key={currentView}
           initial={{ opacity: 0, y: 6 }}

@@ -63,8 +63,8 @@ export default function InputSharedComponent({
           step={step}
           required={required}
           disabled={disabled}
-          className={`h-10 text-sm px-3 py-2 rounded-md bg-white dark:bg-[#0a0a0c] text-slate-900 dark:text-zinc-100 hairline-border-strong focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors duration-200 ${
-            (leftIcon || icon) ? 'pl-9' : ''
+          className={`h-11 sm:h-10 text-base sm:text-sm px-3.5 sm:px-3 py-2 rounded-xl sm:rounded-md bg-white dark:bg-[#0a0a0c] text-slate-900 dark:text-zinc-100 hairline-border-strong focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors duration-200 ${
+            (leftIcon || icon) ? 'pl-10' : ''
           } ${error ? 'border-red-500 dark:border-red-500' : ''} ${className} ${widthStyle}`}
         />
       </div>

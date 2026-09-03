@@ -1,0 +1,41 @@
+{
+  "name": "We.SignForge - Enterprise eSignature",
+  "short_name": "SignForge",
+  "description": "Enterprise Dual Cryptographic Offer Letter & eSignature Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0C2086",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/weplm.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/weplm.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Create Offer",
+      "short_name": "New Offer",
+      "description": "Create a new enterprise offer letter",
+      "url": "/#/create-offer",
+      "icons": [{ "src": "/weplm.jpeg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Document Inventory",
+      "short_name": "Documents",
+      "description": "View all offer documents and signing pipeline",
+      "url": "/#/documents",
+      "icons": [{ "src": "/weplm.jpeg", "sizes": "192x192" }]
+    }
+  ]
+}

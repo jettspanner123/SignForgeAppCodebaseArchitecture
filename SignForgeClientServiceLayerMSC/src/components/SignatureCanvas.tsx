@@ -15,6 +15,7 @@ import { motion } from 'motion/react';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
+import { triggerHapticFeedback } from '../utils/haptics';
 
 interface SignatureCanvasProps {
   isOpen: boolean;
@@ -300,18 +301,19 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
         </div>
 
         {/* Segmented Capsule Tabs (1:1 AssetSphere Animated Segmented Controller) */}
-        <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full">
+        <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
           <button
             type="button"
+            onPointerDown={() => triggerHapticFeedback(12)}
             onClick={() => setActiveTab('DRAW')}
-            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
               activeTab === 'DRAW' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
             }`}
           >
             {activeTab === 'DRAW' && (
               <motion.div
                 layoutId="activeSignatureTabPill"
-                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
@@ -320,22 +322,23 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}>
-              <PenTool className="w-3.5 h-3.5 shrink-0" />
+              <PenTool className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" />
               <span>Draw</span>
             </span>
           </button>
 
           <button
             type="button"
+            onPointerDown={() => triggerHapticFeedback(12)}
             onClick={() => setActiveTab('TYPE')}
-            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
               activeTab === 'TYPE' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
             }`}
           >
             {activeTab === 'TYPE' && (
               <motion.div
                 layoutId="activeSignatureTabPill"
-                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
@@ -344,22 +347,23 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}>
-              <Type className="w-3.5 h-3.5 shrink-0" />
+              <Type className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" />
               <span>Text</span>
             </span>
           </button>
 
           <button
             type="button"
+            onPointerDown={() => triggerHapticFeedback(12)}
             onClick={() => setActiveTab('UPLOAD')}
-            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-md text-xs font-medium transition-colors cursor-pointer select-none ${
+            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
               activeTab === 'UPLOAD' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
             }`}
           >
             {activeTab === 'UPLOAD' && (
               <motion.div
                 layoutId="activeSignatureTabPill"
-                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
+                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
@@ -368,7 +372,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
                 ? 'text-slate-900 dark:text-white font-bold'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}>
-              <Upload className="w-3.5 h-3.5 shrink-0" />
+              <Upload className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" />
               <span>Upload</span>
             </span>
           </button>

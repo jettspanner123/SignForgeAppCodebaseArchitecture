@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { X } from 'lucide-react';
+import { X, Download, Smartphone } from 'lucide-react';
 import NavigationCON from '../../Constants/NavigationCON';
 import PrimaryActionButtonSharedComponent from '../../../../Shared/Components/PrimaryActionButtonSharedComponent';
-import ApplicationRouteCON from '../../../../Constants/ApplicationRouteCON';
+import PWAService from '../../../../Services/PWAService';
 import weplmLogo from '../../../../assets/weplm.jpeg';
 
 export interface MobileNavigationDrawerStaticComponentProps {
@@ -18,11 +19,48 @@ export default function MobileNavigationDrawerStaticComponent({
   onClose,
   currentView,
   onSelectView,
-}: MobileNavigationDrawerStaticComponentProps): React.JSX.Element {
-  return (
+}: MobileNavigationDrawerStaticComponentProps): React.JSX.Element | null {
+  const [canInstall, setCanInstall] = useState<boolean>(false);
+
+  useEffect(() => {
+    const unsubscribe = PWAService.current.subscribe((installable) => {
+      setCanInstall(installable);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Prevent background scrolling when mobile drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  const handleInstallApp = async () => {
+    if (canInstall) {
+      const installed = await PWAService.current.promptInstall();
+      if (installed) {
+        onClose();
+      }
+    } else {
+      // Fallback instruction for iOS Safari / already installed
+      alert(
+        'To install SignForge on your phone:\n\n1. In Safari / Chrome, tap the Share or Menu button.\n2. Tap "Add to Home Screen".'
+      );
+    }
+  };
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end">
+        <div className="fixed inset-0 z-[100] md:hidden flex flex-col justify-end">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -32,13 +70,13 @@ export default function MobileNavigationDrawerStaticComponent({
             className="fixed inset-0 bg-black/60 backdrop-blur-xs"
           />
 
-          {/* Drawer Sheet */}
+          {/* Drawer Sheet 1:1 AssetSphere */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full bg-white dark:bg-[#0c0c0e] border-t border-slate-200 dark:border-zinc-800 rounded-t-2xl shadow-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
+            className="relative z-10 w-full bg-white dark:bg-[#0c0c0e] border-t border-slate-200 dark:border-zinc-800 rounded-t-2xl shadow-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
           >
             {/* Header 1:1 AssetSphere */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800/80">
@@ -60,14 +98,15 @@ export default function MobileNavigationDrawerStaticComponent({
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800"
+                aria-label="Close navigation menu"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Nav Items */}
-            <div className="space-y-1.5">
+            {/* Nav Items List (AssetSphere Aesthetics with Increased Touch Targets) */}
+            <div className="space-y-2.5">
               {NavigationCON.PRIMARY_NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentView === item.id;
@@ -79,17 +118,29 @@ export default function MobileNavigationDrawerStaticComponent({
                       onSelectView(item.id);
                       onClose();
                     }}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
+                    className={`w-full flex items-center gap-3.5 p-3.5 rounded-xl text-left transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#0C2086] dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/40 font-bold'
-                        : 'text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-900/60'
+                        ? 'bg-slate-100 dark:bg-zinc-800/90 border border-slate-300/80 dark:border-zinc-700 border-l-4 border-l-[#0C2086] dark:border-l-blue-500 shadow-xs'
+                        : 'bg-slate-50/70 dark:bg-[#121215]/80 hover:bg-slate-100 dark:hover:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-800/80'
                     }`}
                   >
-                    <Icon className="w-5 h-5 shrink-0" />
+                    <div className={`p-2 rounded-lg shrink-0 border ${
+                      isActive
+                        ? 'bg-white dark:bg-zinc-800 text-[#0C2086] dark:text-blue-400 border-slate-200 dark:border-zinc-700 shadow-xs'
+                        : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-800'
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold">{item.label}</div>
+                      <div className={`text-sm font-bold font-serif-headline tracking-tight ${
+                        isActive
+                          ? 'text-[#0C2086] dark:text-white'
+                          : 'text-slate-900 dark:text-zinc-100'
+                      }`}>
+                        {item.label}
+                      </div>
                       {item.description && (
-                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-normal">
+                        <div className="text-xs text-slate-500 dark:text-zinc-400 font-normal mt-0.5 leading-snug">
                           {item.description}
                         </div>
                       )}
@@ -99,21 +150,22 @@ export default function MobileNavigationDrawerStaticComponent({
               })}
             </div>
 
-            {/* CTA */}
-            <div className="pt-2">
-              <PrimaryActionButtonSharedComponent
-                label="Create Offer"
-                size="md"
-                className="w-full justify-center"
-                onClick={() => {
-                  onSelectView(ApplicationRouteCON.CREATE_OFFER);
-                  onClose();
-                }}
-              />
-            </div>
+            {/* Bottom Actions 1:1 AssetSphere (Only shown when not running in PWA standalone mode) */}
+            {!PWAService.current.isStandalone() && (
+              <div className="pt-2">
+                <PrimaryActionButtonSharedComponent
+                  label="Install SignForge App"
+                  size="lg"
+                  icon={<Smartphone className="w-4 h-4 !text-white" />}
+                  className="w-full justify-center !h-11 text-xs font-bold shadow-md"
+                  onClick={handleInstallApp}
+                />
+              </div>
+            )}
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

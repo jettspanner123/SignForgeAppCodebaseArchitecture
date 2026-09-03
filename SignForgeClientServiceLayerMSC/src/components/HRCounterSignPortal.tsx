@@ -19,6 +19,7 @@ import { SignatureCanvasModal } from './SignatureCanvas';
 import { generateSHA256, getSimulatedIP } from '../utils/crypto';
 import { ExecutiveDispatchModal } from './ExecutiveDispatchModal';
 import { downloadExecutedPDF } from '../utils/pdfGenerator';
+import { triggerHapticFeedback } from '../utils/haptics';
 import { OfferLetterPaper } from './OfferLetterPaper';
 
 interface HRCounterSignPortalProps {
@@ -120,7 +121,7 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       
       {/* Banner */}
       <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -141,11 +142,12 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center space-x-3">
+        <div className="grid grid-cols-1 sm:flex sm:items-center gap-3 w-full sm:w-auto">
           {isFullyExecuted ? (
             <button
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={() => setShowDispatchModal(true)}
-              className="flex items-center space-x-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors"
+              className="flex items-center justify-center space-x-2 px-5 py-2.5 !h-11 sm:!h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-xs shadow-sm transition-colors cursor-pointer"
             >
               <Send className="h-4 w-4" />
               <span>View Executive Dispatch Logs</span>
@@ -153,14 +155,15 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
           ) : isCandidateSigned ? (
             <button
               id="hr-countersign-btn"
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={() => setIsSignModalOpen(true)}
-              className="flex items-center space-x-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors"
+              className="flex items-center justify-center space-x-2 px-6 py-2.5 !h-11 sm:!h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors cursor-pointer"
             >
               <ShieldCheck className="h-4 w-4" />
               <span>Counter-Sign & Execute Offer</span>
             </button>
           ) : (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-800 text-xs font-semibold flex items-center space-x-2">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 !h-11 sm:!h-9 text-amber-800 text-xs font-semibold flex items-center justify-center space-x-2">
               <Lock className="h-4 w-4 text-amber-600" />
               <span>Awaiting Candidate Signature First</span>
             </div>
@@ -168,8 +171,9 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
 
           <button
             disabled={isDownloading}
+            onPointerDown={() => triggerHapticFeedback(12)}
             onClick={handleDownloadPdf}
-            className="flex items-center space-x-1.5 px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors disabled:opacity-50"
+            className="flex items-center justify-center space-x-1.5 px-4 py-2.5 !h-11 sm:!h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-sm sm:text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer"
           >
             {isDownloading ? (
               <>

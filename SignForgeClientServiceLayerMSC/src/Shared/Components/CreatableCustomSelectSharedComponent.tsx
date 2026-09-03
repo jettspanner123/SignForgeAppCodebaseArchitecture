@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, Check, Search, Plus, Sparkles } from 'lucide-react';
+import { triggerHapticFeedback } from '../../utils/haptics';
 
 export interface CreatableSelectOption {
   value: string;
@@ -104,7 +105,7 @@ export default function CreatableCustomSelectSharedComponent({
     setIsOpen(false);
   };
 
-  const heightClass = size === 'sm' ? 'h-9 px-2.5' : 'h-10 px-3';
+  const heightClass = size === 'sm' ? 'h-11 sm:h-9 px-3.5 sm:px-2.5 text-sm sm:text-xs' : 'h-11 sm:h-10 px-3.5 sm:px-3 text-sm sm:text-xs';
 
   return (
     <div className={`space-y-1.5 ${className}`} ref={dropdownRef}>
@@ -126,21 +127,22 @@ export default function CreatableCustomSelectSharedComponent({
         <button
           type="button"
           disabled={disabled}
+          onPointerDown={() => triggerHapticFeedback(12)}
           onClick={() => !disabled && setIsOpen(!isOpen)}
-          className={`w-full flex items-center justify-between text-xs rounded-xl bg-white dark:bg-zinc-900/80 border border-slate-300 dark:border-zinc-700/80 text-slate-900 dark:text-zinc-100 hover:border-slate-400 dark:hover:border-zinc-600 transition-all shadow-2xs cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#0C2086]/50 ${
+          className={`w-full flex items-center justify-between rounded-xl bg-white dark:bg-zinc-900/80 border border-slate-300 dark:border-zinc-700/80 text-slate-900 dark:text-zinc-100 hover:border-slate-400 dark:hover:border-zinc-600 transition-all shadow-2xs cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#0C2086]/50 ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''
           } ${heightClass} ${triggerClassName || ''}`}
         >
           <div className="flex items-center gap-2 truncate min-w-0 pr-2">
             {selectedOption?.icon}
             {displayLabel ? (
-              <span className="truncate font-medium">{displayLabel}</span>
+              <span className="truncate font-semibold">{displayLabel}</span>
             ) : (
               <span className="text-slate-400 dark:text-zinc-500 truncate">{placeholder}</span>
             )}
           </div>
           <ChevronDown
-            className={`w-3.5 h-3.5 text-slate-400 dark:text-zinc-500 shrink-0 transition-transform duration-200 ${
+            className={`w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-400 dark:text-zinc-500 shrink-0 transition-transform duration-200 ${
               isOpen ? 'rotate-180 text-[#0C2086] dark:text-blue-400' : ''
             }`}
           />

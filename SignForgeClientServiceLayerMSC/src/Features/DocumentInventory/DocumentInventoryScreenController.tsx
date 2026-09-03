@@ -35,6 +35,7 @@ import ConfirmationModalSharedComponent from '../../Shared/Components/Confirmati
 import CardSharedComponent from '../../Shared/Components/CardSharedComponent';
 import { downloadExecutedPDF } from '../../utils/pdfGenerator';
 import { formatTimestamp } from '../../utils/crypto';
+import { triggerHapticFeedback } from '../../utils/haptics';
 
 export interface DocumentInventoryScreenControllerProps {
   onOpenAuditModalForDoc: (doc: OfferDocument) => void;
@@ -186,7 +187,7 @@ export default function DocumentInventoryScreenController({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       {/* 1. Editorial Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">
         <div>
@@ -202,18 +203,22 @@ export default function DocumentInventoryScreenController({
           <ButtonSharedComponent
             variant="outline"
             size="sm"
-            leftIcon={<FileCode2 className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
+            leftIcon={<FileCode2 className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-600 dark:text-zinc-400" />}
+            onPointerDown={() => triggerHapticFeedback(12)}
             onClick={() => setCurrentView(ApplicationRouteCON.UPLOAD_PDF)}
-            className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+            className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 sm:px-3.5 text-sm sm:text-xs font-bold"
           >
             Upload PDF
           </ButtonSharedComponent>
           <PrimaryActionButtonSharedComponent
-            label="New Offer Package"
+            onPointerDown={() => triggerHapticFeedback(12)}
             onClick={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
-            icon={<Plus className="w-3.5 h-3.5 !text-white" />}
-            className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
-          />
+            icon={<Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
+            className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 sm:px-3.5 text-sm sm:text-xs font-bold"
+          >
+            <span className="sm:hidden">New Offer</span>
+            <span className="hidden sm:inline">New Offer Package</span>
+          </PrimaryActionButtonSharedComponent>
         </div>
       </div>
 
@@ -296,13 +301,13 @@ export default function DocumentInventoryScreenController({
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search Box */}
           <div className="relative flex-1 max-w-full sm:max-w-md">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none" />
+            <Search className="w-4.5 h-4.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by candidate, role, doc #, or email..."
-              className="w-full h-10 sm:h-9 pl-10 pr-3.5 text-sm sm:text-xs rounded-xl sm:rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-300 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
+              className="w-full h-11 sm:h-9 pl-11 pr-4 text-base sm:text-xs rounded-xl sm:rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-300 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
             />
           </div>
 
@@ -311,9 +316,10 @@ export default function DocumentInventoryScreenController({
             <ButtonSharedComponent
               variant="outline"
               size="sm"
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={handleExportCSV}
-              icon={<Download className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />}
-              className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+              icon={<Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-500 dark:text-zinc-400" />}
+              className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
             >
               Export CSV
             </ButtonSharedComponent>
@@ -338,11 +344,12 @@ export default function DocumentInventoryScreenController({
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
             {/* Row A: Sub-View Options (Grid Density / Single-Line Mode) */}
             {viewMode === 'grid' && (
-              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full sm:w-auto">
+              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
                 <button
                   type="button"
+                  onPointerDown={() => triggerHapticFeedback(12)}
                   onClick={() => setGridColumns(2)}
-                  className="flex-1 sm:flex-initial relative flex items-center justify-center px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                  className="flex-1 sm:flex-initial relative flex items-center justify-center px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Show 2 Items Per Row"
                 >
                   {gridColumns === 2 && (
@@ -362,8 +369,9 @@ export default function DocumentInventoryScreenController({
                 </button>
                 <button
                   type="button"
+                  onPointerDown={() => triggerHapticFeedback(12)}
                   onClick={() => setGridColumns(3)}
-                  className="flex-1 sm:flex-initial relative flex items-center justify-center px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                  className="flex-1 sm:flex-initial relative flex items-center justify-center px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Show 3 Items Per Row"
                 >
                   {gridColumns === 3 && (
@@ -386,11 +394,12 @@ export default function DocumentInventoryScreenController({
 
             {/* Table Single-Line Segmented Control */}
             {viewMode === 'table' && (
-              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full sm:w-auto">
+              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
                 <button
                   type="button"
+                  onPointerDown={() => triggerHapticFeedback(12)}
                   onClick={() => setIsSingleLineMode(true)}
-                  className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                  className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Single-Line Table Mode"
                 >
                   {isSingleLineMode && (
@@ -411,8 +420,9 @@ export default function DocumentInventoryScreenController({
                 </button>
                 <button
                   type="button"
+                  onPointerDown={() => triggerHapticFeedback(12)}
                   onClick={() => setIsSingleLineMode(false)}
-                  className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                  className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Wrap Text Table Mode"
                 >
                   {!isSingleLineMode && (
@@ -435,11 +445,12 @@ export default function DocumentInventoryScreenController({
             )}
 
             {/* Row B: View Mode Segmented Control (Table, Grid) */}
-            <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full sm:w-auto">
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
               <button
                 type="button"
+                onPointerDown={() => triggerHapticFeedback(12)}
                 onClick={() => setViewMode('table')}
-                className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                 title="Table View"
               >
                 {viewMode === 'table' && (
@@ -460,8 +471,9 @@ export default function DocumentInventoryScreenController({
               </button>
               <button
                 type="button"
+                onPointerDown={() => triggerHapticFeedback(12)}
                 onClick={() => setViewMode('grid')}
-                className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                 title="Grid View"
               >
                 {viewMode === 'grid' && (
@@ -670,10 +682,16 @@ export default function DocumentInventoryScreenController({
               >
                 {/* Top: Document # & Status */}
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="font-mono text-xs font-bold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-slate-300 dark:border-zinc-700">
-                      {doc.documentNumber}
-                    </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                      <span className="font-mono text-xs font-bold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-slate-300 dark:border-zinc-700 inline-block w-fit">
+                        {doc.documentNumber}
+                      </span>
+                      {/* Mobile: Badge placed on next line below Document ID */}
+                      <div className="sm:hidden w-fit">
+                        <BadgeSharedComponent status={doc.status} size="sm" />
+                      </div>
+                    </div>
                     <h3 className="font-serif-headline font-bold text-base text-slate-900 dark:text-zinc-100 mt-2 truncate">
                       {doc.offerDetails?.candidateName || 'N/A'}
                     </h3>
@@ -681,7 +699,10 @@ export default function DocumentInventoryScreenController({
                       {doc.offerDetails?.jobTitle || doc.offerDetails?.roleTitle || 'N/A'}
                     </p>
                   </div>
-                  <BadgeSharedComponent status={doc.status} size="sm" />
+                  {/* Desktop: Badge on top-right */}
+                  <div className="hidden sm:block shrink-0">
+                    <BadgeSharedComponent status={doc.status} size="sm" />
+                  </div>
                 </div>
 
                 {/* Middle: Details Grid */}

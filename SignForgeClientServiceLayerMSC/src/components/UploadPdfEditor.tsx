@@ -318,7 +318,7 @@ export const UploadPdfEditor: React.FC<UploadPdfEditorProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       
       {/* 1. Standard Page Header (No Card, with bottom divider matching /documents) */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">

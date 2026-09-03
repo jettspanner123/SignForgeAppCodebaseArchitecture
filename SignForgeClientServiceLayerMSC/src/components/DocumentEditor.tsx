@@ -22,6 +22,7 @@ import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
 import InputSharedComponent from '../Shared/Components/InputSharedComponent';
+import { triggerHapticFeedback } from '../utils/haptics';
 import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
 import DocumentEditorFormModeEnumModel from '../Models/DocumentEditorFormModeEnumModel';
 import OfferLetterInteractiveStateInterfaceModel from '../Models/OfferLetterInteractiveStateInterfaceModel';
@@ -404,7 +405,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       
       {/* 1. Standard Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">
@@ -426,11 +427,12 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto sm:shrink-0">
           {/* Form Mode Segmented Control (Standard Form vs Interactive Form) */}
-          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full sm:w-auto">
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
             <button
               type="button"
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={() => setFormMode(DocumentEditorFormModeEnumModel.STANDARD)}
-              className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+              className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
               title="Standard Form Mode"
             >
               {formMode === DocumentEditorFormModeEnumModel.STANDARD && (
@@ -445,14 +447,15 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                   ? 'text-slate-900 dark:text-white font-bold'
                   : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
               }`}>
-                <FileText className="w-3.5 h-3.5" />
+                <FileText className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                 <span>Standard Form</span>
               </span>
             </button>
             <button
               type="button"
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={() => setFormMode(DocumentEditorFormModeEnumModel.INTERACTIVE)}
-              className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+              className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
               title="Interactive Form Mode"
             >
               {formMode === DocumentEditorFormModeEnumModel.INTERACTIVE && (
@@ -467,7 +470,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                   ? 'text-slate-900 dark:text-white font-bold'
                   : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
               }`}>
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                 <span>Interactive Form</span>
               </span>
             </button>
@@ -476,9 +479,10 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           {!isEditing && onSwitchToUpload && (
             <PrimaryActionButtonSharedComponent
               label="Upload PDF Instead"
+              onPointerDown={() => triggerHapticFeedback(12)}
               onClick={onSwitchToUpload}
-              icon={<Upload className="w-3.5 h-3.5 !text-white" />}
-              className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+              icon={<Upload className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
+              className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
             />
           )}
         </div>
@@ -498,93 +502,97 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-xl border border-slate-200/80 dark:border-zinc-800/80 shadow-md">
               <div className="flex flex-wrap items-center gap-3">
                 {/* Document Type Segmented Control */}
-                <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-8">
+                <div className="flex items-center p-1 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9">
                   <button
                     type="button"
+                    onPointerDown={() => triggerHapticFeedback(12)}
                     onClick={() => handleDocTypeChange('OFFER_LETTER')}
-                    className="relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1 h-8 sm:h-6 rounded text-xs font-semibold transition-colors cursor-pointer select-none"
+                    className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
                     {documentType === 'OFFER_LETTER' && (
                       <motion.div
                         layoutId="activeInteractiveDocTypePill"
-                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
+                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                       />
                     )}
-                    <span className={`relative z-10 flex items-center gap-1 ${
+                    <span className={`relative z-10 flex items-center gap-1.5 ${
                       documentType === 'OFFER_LETTER'
                         ? 'text-[#0C2086] dark:text-white font-bold'
                         : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                     }`}>
-                      <FileText className="w-3.5 h-3.5" />
+                      <FileText className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                       <span>Offer Letter</span>
                     </span>
                   </button>
                   <button
                     type="button"
+                    onPointerDown={() => triggerHapticFeedback(12)}
                     onClick={() => handleDocTypeChange('JOINING_LETTER')}
-                    className="relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1 h-8 sm:h-6 rounded text-xs font-semibold transition-colors cursor-pointer select-none"
+                    className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
                     {documentType === 'JOINING_LETTER' && (
                       <motion.div
                         layoutId="activeInteractiveDocTypePill"
-                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
+                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                       />
                     )}
-                    <span className={`relative z-10 flex items-center gap-1 ${
+                    <span className={`relative z-10 flex items-center gap-1.5 ${
                       documentType === 'JOINING_LETTER'
                         ? 'text-[#0C2086] dark:text-white font-bold'
                         : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                     }`}>
-                      <Briefcase className="w-3.5 h-3.5" />
+                      <Briefcase className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                       <span>Joining Letter</span>
                     </span>
                   </button>
                 </div>
 
                 {/* Workflow Signatures Segmented Control */}
-                <div className="flex items-center p-1 rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-8">
+                <div className="flex items-center p-1 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9">
                   <button
                     type="button"
+                    onPointerDown={() => triggerHapticFeedback(12)}
                     onClick={() => setSignatureCount(2)}
-                    className="relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1 h-8 sm:h-6 rounded text-xs font-semibold transition-colors cursor-pointer select-none"
+                    className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
                     {signatureCount === 2 && (
                       <motion.div
                         layoutId="activeInteractiveSigCountPill"
-                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
+                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                       />
                     )}
-                    <span className={`relative z-10 flex items-center gap-1 ${
+                    <span className={`relative z-10 flex items-center gap-1.5 ${
                       signatureCount === 2
                         ? 'text-slate-900 dark:text-white font-bold'
                         : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                     }`}>
-                      <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      <ShieldCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-blue-600 dark:text-blue-400" />
                       <span className="sm:hidden">2 Signature</span>
                       <span className="hidden sm:inline">2 Signatures</span>
                     </span>
                   </button>
                   <button
                     type="button"
+                    onPointerDown={() => triggerHapticFeedback(12)}
                     onClick={() => setSignatureCount(3)}
-                    className="relative flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1 h-8 sm:h-6 rounded text-xs font-semibold transition-colors cursor-pointer select-none"
+                    className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
                     {signatureCount === 3 && (
                       <motion.div
                         layoutId="activeInteractiveSigCountPill"
-                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded shadow-xs"
+                        className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                       />
                     )}
-                    <span className={`relative z-10 flex items-center gap-1 ${
+                    <span className={`relative z-10 flex items-center gap-1.5 ${
                       signatureCount === 3
                         ? 'text-amber-700 dark:text-amber-400 font-bold'
                         : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                     }`}>
-                      <UserCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                      <UserCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-amber-600 dark:text-amber-400" />
                       <span className="sm:hidden">3 Signature</span>
                       <span className="hidden sm:inline">3 Signatures (Director)</span>
                     </span>
@@ -597,22 +605,25 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                 <span className="text-[11px] font-semibold text-slate-400 mr-1">Quick Jump:</span>
                 <button
                   type="button"
+                  onPointerDown={() => triggerHapticFeedback(12)}
                   onClick={() => document.getElementById('offer-letter-page-1')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
                 >
                   Page 1: Terms
                 </button>
                 <button
                   type="button"
+                  onPointerDown={() => triggerHapticFeedback(12)}
                   onClick={() => document.getElementById('offer-letter-page-2')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
                 >
                   Page 2: Clauses
                 </button>
                 <button
                   type="button"
+                  onPointerDown={() => triggerHapticFeedback(12)}
                   onClick={() => document.getElementById('offer-letter-page-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
                 >
                   Page 3: Execution
                 </button>
@@ -657,11 +668,12 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
                           Document Type
                         </label>
-                        <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full">
+                        <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
                           <button
                             type="button"
+                            onPointerDown={() => triggerHapticFeedback(12)}
                             onClick={() => handleDocTypeChange('OFFER_LETTER')}
-                            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                            className="relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                           >
                             {documentType === 'OFFER_LETTER' && (
                               <motion.div
@@ -675,7 +687,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                                 ? 'text-[#0C2086] dark:text-white font-bold'
                                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                             }`}>
-                              <FileText className="w-3.5 h-3.5" />
+                              <FileText className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                               <span className="sm:hidden">Offer Letter</span>
                               <span className="hidden sm:inline truncate">Offer Letter Package (Full Terms)</span>
                             </span>
@@ -683,8 +695,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
                           <button
                             type="button"
+                            onPointerDown={() => triggerHapticFeedback(12)}
                             onClick={() => handleDocTypeChange('JOINING_LETTER')}
-                            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                            className="relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                           >
                             {documentType === 'JOINING_LETTER' && (
                               <motion.div
@@ -698,7 +711,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                                 ? 'text-[#0C2086] dark:text-white font-bold'
                                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                             }`}>
-                              <Briefcase className="w-3.5 h-3.5" />
+                              <Briefcase className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                               <span className="sm:hidden">Joining Letter</span>
                               <span className="hidden sm:inline truncate">Joining Letter & Appointment</span>
                             </span>
@@ -711,11 +724,12 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
                           Required eSignature Workflow
                         </label>
-                        <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-10 sm:h-9 w-full">
+                        <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
                           <button
                             type="button"
+                            onPointerDown={() => triggerHapticFeedback(12)}
                             onClick={() => setSignatureCount(2)}
-                            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                            className="relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                           >
                             {signatureCount === 2 && (
                               <motion.div
@@ -729,7 +743,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                                 ? 'text-slate-900 dark:text-white font-bold'
                                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                             }`}>
-                              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                              <ShieldCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-blue-600 dark:text-blue-400" />
                               <span className="sm:hidden">2 Signature</span>
                               <span className="hidden sm:inline truncate">2 Signatures (Candidate + HR)</span>
                             </span>
@@ -737,8 +751,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
                           <button
                             type="button"
+                            onPointerDown={() => triggerHapticFeedback(12)}
                             onClick={() => setSignatureCount(3)}
-                            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 h-8 sm:h-7 rounded-lg sm:rounded-md text-xs font-semibold transition-colors cursor-pointer select-none"
+                            className="relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                           >
                             {signatureCount === 3 && (
                               <motion.div
@@ -752,7 +767,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                                 ? 'text-amber-700 dark:text-amber-400 font-bold'
                                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                             }`}>
-                              <UserCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                              <UserCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-amber-600 dark:text-amber-400" />
                               <span className="sm:hidden">3 Signature</span>
                               <span className="hidden sm:inline truncate">3 Signatures (Director + Candidate + HR)</span>
                             </span>

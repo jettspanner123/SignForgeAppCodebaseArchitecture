@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, Check, Search } from 'lucide-react';
+import { triggerHapticFeedback } from '../../utils/haptics';
 
 export interface SelectOption {
   value: string;
@@ -86,7 +87,7 @@ export default function CustomSelectSharedComponent({
     );
   }, [options, searchable, searchTerm]);
 
-  const heightClass = size === 'sm' ? 'h-9 px-2.5' : 'h-10 px-3';
+  const heightClass = size === 'sm' ? 'h-11 sm:h-9 px-3.5 sm:px-2.5 text-sm sm:text-xs' : 'h-11 sm:h-10 px-3.5 sm:px-3 text-sm sm:text-xs';
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -98,17 +99,18 @@ export default function CustomSelectSharedComponent({
 
       <button
         type="button"
+        onPointerDown={() => triggerHapticFeedback(12)}
         onClick={() => setIsOpen(!isOpen)}
-        className={`${className.includes('w-') ? 'w-full' : ''} ${heightClass} rounded-lg bg-white dark:bg-[#0a0a0c] text-slate-900 dark:text-zinc-100 border border-slate-200/80 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 transition-colors focus:outline-none text-xs flex items-center justify-between gap-2 cursor-pointer select-none ${triggerClassName || ''}`}
+        className={`${className.includes('w-') ? 'w-full' : ''} ${heightClass} rounded-xl sm:rounded-lg bg-white dark:bg-[#0a0a0c] text-slate-900 dark:text-zinc-100 border border-slate-200/80 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 transition-colors focus:outline-none flex items-center justify-between gap-2 cursor-pointer select-none ${triggerClassName || ''}`}
       >
         <div className="flex items-center gap-2 truncate font-medium">
           {selectedOption?.icon}
-          <span className="truncate">
+          <span className="truncate font-semibold">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${
+          className={`w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${
             isOpen ? 'rotate-180 text-slate-700 dark:text-zinc-200' : ''
           }`}
         />

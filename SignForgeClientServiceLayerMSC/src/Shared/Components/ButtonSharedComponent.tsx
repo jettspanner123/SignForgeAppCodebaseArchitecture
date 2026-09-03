@@ -1,10 +1,12 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Loader2 } from 'lucide-react';
+import { triggerHapticFeedback } from '../../utils/haptics';
 
 export interface ButtonSharedComponentProps {
   children: React.ReactNode;
   onClick?: () => void;
+  onPointerDown?: React.PointerEventHandler<HTMLButtonElement>;
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger';
   leftIcon?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
@@ -22,6 +24,7 @@ export interface ButtonSharedComponentProps {
 export default function ButtonSharedComponent({
   children,
   onClick,
+  onPointerDown,
   variant = 'primary',
   size = 'md',
   icon,
@@ -36,15 +39,15 @@ export default function ButtonSharedComponent({
   title,
 }: ButtonSharedComponentProps): React.JSX.Element {
   let baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-md cursor-pointer select-none transition-colors duration-200 focus:outline-none whitespace-nowrap';
+    'inline-flex items-center justify-center font-medium rounded-xl sm:rounded-lg cursor-pointer select-none transition-colors duration-200 focus:outline-none whitespace-nowrap';
 
   let sizeStyles = '';
   if (size === 'sm') {
-    sizeStyles = 'px-3 py-1.5 text-xs h-8 gap-1.5';
+    sizeStyles = 'px-3.5 sm:px-3 py-2 sm:py-1.5 text-sm sm:text-xs h-10 sm:h-8 gap-1.5';
   } else if (size === 'lg') {
-    sizeStyles = 'px-5 py-2.5 text-sm h-11 gap-2.5';
+    sizeStyles = 'px-5 py-3 sm:py-2.5 text-base sm:text-sm h-12 sm:h-11 gap-2.5';
   } else {
-    sizeStyles = 'px-4 py-2 text-sm h-9 gap-2';
+    sizeStyles = 'px-4 py-2.5 sm:py-2 text-sm sm:text-xs h-11 sm:h-9 gap-2';
   }
 
   let variantStyles = '';
@@ -71,6 +74,10 @@ export default function ButtonSharedComponent({
     <motion.button
       type={type}
       onClick={onClick}
+      onPointerDown={(e) => {
+        triggerHapticFeedback(12);
+        onPointerDown?.(e);
+      }}
       disabled={isButtonDisabled}
       title={title}
       whileHover={isButtonDisabled ? {} : { scale: 1.01 }}
@@ -79,7 +86,7 @@ export default function ButtonSharedComponent({
       className={`${baseStyles} ${sizeStyles} ${variantStyles} ${widthStyle} ${disabledStyle} ${className}`}
     >
       {isLoading ? (
-        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-current" />
+        <Loader2 className="w-4 h-4 sm:w-3.5 sm:h-3.5 animate-spin shrink-0 text-current" />
       ) : (
         icon && <span className="inline-flex items-center shrink-0">{leftIcon || icon}</span>
       )}

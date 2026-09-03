@@ -1,20 +1,16 @@
-import UserPreferencesUtility from '../../../../Utilities/UserPreferencesUtility';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Shield,
   Mail,
   Sun,
   Moon,
-  Trash2,
-  LogOut,
-  FileText
+  LogOut
 } from 'lucide-react';
 import ApplicationThemeCON from '../../../../Constants/ApplicationThemeCON';
 import ApplicationThemeUtility from '../../../../Utilities/ApplicationThemeUtility';
 import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
 import NavigationCON from '../../Constants/NavigationCON';
-import ConfirmationModalSharedComponent from '../../../../Shared/Components/ConfirmationModalSharedComponent';
+import { triggerHapticFeedback } from '../../../../utils/haptics';
 
 export interface ProfileDropdownStaticComponentProps {
   isOpen: boolean;
@@ -25,13 +21,10 @@ export interface ProfileDropdownStaticComponentProps {
 export default function ProfileDropdownStaticComponent({
   isOpen,
   onClose,
-  onOpenAuditLogs,
 }: ProfileDropdownStaticComponentProps): React.JSX.Element {
   const { theme, toggleTheme } = useOfferDocumentStore();
   const isDark = theme === ApplicationThemeCON.DARK;
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-
-  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const user = NavigationCON.DEFAULT_USER;
 
   useEffect(() => {
@@ -55,16 +48,6 @@ export default function ProfileDropdownStaticComponent({
     };
   }, [isOpen, onClose]);
 
-  const handleClearAll = () => {
-    try {
-      localStorage.removeItem('signcorp_documents');
-      UserPreferencesUtility.current.clearAllPreferences();
-      window.location.reload();
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -82,7 +65,7 @@ export default function ProfileDropdownStaticComponent({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -6 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute right-0 top-12 w-80 z-50 bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl p-4 text-xs select-none space-y-4"
+            className="fixed inset-x-3 top-20 sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-80 z-50 bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-4 text-xs select-none space-y-4"
           >
             {/* 1. Header: User Identity */}
             <div className="flex items-center gap-3 pb-3.5 border-b border-slate-100 dark:border-zinc-800/80">
@@ -113,16 +96,17 @@ export default function ProfileDropdownStaticComponent({
               <div className="space-y-2 p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-100 dark:border-zinc-800/80">
                 <div className="flex items-center gap-2 text-slate-700 dark:text-zinc-200 font-medium">
                   {isDark ? (
-                    <Moon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <Moon className="w-4 h-4 text-slate-400 shrink-0" />
                   ) : (
-                    <Sun className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <Sun className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
-                  <span>Theme Mode</span>
+                  <span className="font-semibold text-xs">Theme Mode</span>
                 </div>
 
-                <div className="flex items-center p-1 rounded-lg bg-slate-200/80 dark:bg-zinc-800 border border-slate-300/60 dark:border-zinc-700/60 h-8 w-full">
+                <div className="flex items-center p-1 rounded-xl bg-slate-200/80 dark:bg-zinc-800 border border-slate-300/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
                   <button
                     type="button"
+                    onPointerDown={() => triggerHapticFeedback(12)}
                     onClick={(e) =>
                       isDark &&
                       ApplicationThemeUtility.current.executeAnimatedThemeToggle(
@@ -130,17 +114,18 @@ export default function ProfileDropdownStaticComponent({
                         toggleTheme
                       )
                     }
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1 h-6 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-all cursor-pointer ${
                       !isDark
-                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs'
                         : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <Sun className="w-3 h-3" />
+                    <Sun className="w-3.5 h-3.5" />
                     <span>Light Mode</span>
                   </button>
                   <button
                     type="button"
+                    onPointerDown={() => triggerHapticFeedback(12)}
                     onClick={(e) =>
                       !isDark &&
                       ApplicationThemeUtility.current.executeAnimatedThemeToggle(
@@ -148,79 +133,35 @@ export default function ProfileDropdownStaticComponent({
                         toggleTheme
                       )
                     }
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1 h-6 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-all cursor-pointer ${
                       isDark
-                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                        ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs'
                         : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <Moon className="w-3 h-3" />
+                    <Moon className="w-3.5 h-3.5" />
                     <span>Dark Mode</span>
                   </button>
                 </div>
               </div>
-
-              {/* Clear LocalStorage Control Block */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsClearModalOpen(true);
-                }}
-                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 transition-all cursor-pointer font-medium text-xs shadow-2xs"
-              >
-                <div className="flex items-center gap-2">
-                  <Trash2 className="w-3.5 h-3.5 shrink-0" />
-                  <span>Clear Local Storage</span>
-                </div>
-                <span className="text-[10px] font-mono font-semibold uppercase">Purge All</span>
-              </button>
             </div>
 
-            {/* 3. Quick Action Links */}
-            <div className="space-y-1 pt-2 border-t border-slate-100 dark:border-zinc-800/80">
-              {onOpenAuditLogs && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    onOpenAuditLogs();
-                  }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800/60 transition-colors font-medium cursor-pointer"
-                >
-                  <Shield className="w-4 h-4 text-slate-400" />
-                  <span>System Audit Logs</span>
-                </button>
-              )}
-            </div>
-
-            {/* 4. Footer: Sign Out */}
+            {/* 3. Footer: Sign Out */}
             <div className="pt-2 border-t border-slate-100 dark:border-zinc-800/80">
               <button
                 type="button"
+                onPointerDown={() => triggerHapticFeedback(12)}
                 onClick={() => {
                   onClose();
                   window.location.reload();
                 }}
-                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer font-medium"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer font-bold text-xs"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>
               </button>
             </div>
           </motion.div>
-
-          {/* Confirmation Modal for Clearing All Documents */}
-          <ConfirmationModalSharedComponent
-            isOpen={isClearModalOpen}
-            onClose={() => setIsClearModalOpen(false)}
-            onConfirm={handleClearAll}
-            title="Clear All Local Documents?"
-            subtitle="Permanent local storage purge"
-            description="Are you sure you want to delete all offer letters and local signatures? This action cannot be undone."
-            confirmText="Clear All Data"
-            cancelText="Keep Documents"
-            variant="danger"
-          />
         </React.Fragment>
       )}
     </AnimatePresence>
