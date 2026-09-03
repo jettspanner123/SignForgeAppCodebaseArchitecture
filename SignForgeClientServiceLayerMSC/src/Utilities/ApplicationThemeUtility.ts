@@ -35,13 +35,38 @@ export default class ApplicationThemeUtility {
     } catch {
       // Ignore storage access errors
     }
-    if (theme === ApplicationThemeCON.DARK) {
+    const isDark = theme === ApplicationThemeCON.DARK;
+    if (isDark) {
       document.documentElement.classList.add('dark');
       document.body.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
       document.body.classList.remove('dark');
     }
+    this.updateThemeColorMeta(isDark);
+  }
+
+  public updateThemeColorMeta(isDark: boolean): void {
+    if (typeof document === 'undefined') return;
+    const themeColor = isDark ? '#000000' : '#ffffff';
+
+    // 1. Standard & Android Chrome theme-color
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.setAttribute('name', 'theme-color');
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.setAttribute('content', themeColor);
+
+    // 2. iOS Safari status bar style
+    let appleStatusBar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (!appleStatusBar) {
+      appleStatusBar = document.createElement('meta');
+      appleStatusBar.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
+      document.head.appendChild(appleStatusBar);
+    }
+    appleStatusBar.setAttribute('content', isDark ? 'black-translucent' : 'default');
   }
 
   public toggleTheme(currentTheme: string): string {

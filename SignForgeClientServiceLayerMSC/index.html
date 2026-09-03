@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="icon" type="image/jpeg" href="/weplm.jpeg" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0C2086" />
+    <meta name="theme-color" content="#ffffff" id="meta-theme-color" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" id="meta-apple-status-bar" />
     <meta name="apple-mobile-web-app-title" content="SignForge" />
     <link rel="apple-touch-icon" href="/weplm.jpeg" />
     <title>SignForge - We.PLM</title>
@@ -15,10 +15,19 @@
       (function () {
         try {
           var saved = localStorage.getItem('signforge_theme_preference');
-          if (saved === 'dark') {
+          var isDark = saved === 'dark';
+          if (isDark) {
             document.documentElement.classList.add('dark');
           } else {
             document.documentElement.classList.remove('dark');
+          }
+          var themeMeta = document.getElementById('meta-theme-color');
+          if (themeMeta) {
+            themeMeta.setAttribute('content', isDark ? '#000000' : '#ffffff');
+          }
+          var appleMeta = document.getElementById('meta-apple-status-bar');
+          if (appleMeta) {
+            appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
           }
         } catch (e) {}
       })();

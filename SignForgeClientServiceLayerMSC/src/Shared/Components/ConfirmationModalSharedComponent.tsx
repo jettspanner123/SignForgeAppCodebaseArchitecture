@@ -44,15 +44,13 @@ export default function ConfirmationModalSharedComponent({
   }, [isOpen]);
 
   const handleCancel = () => {
-    setExitDirection('up');
-    setTimeout(() => onClose(), 0);
+    setExitDirection('down');
+    onClose();
   };
 
   const handleConfirm = async () => {
-    setExitDirection('up');
-    setTimeout(async () => {
-      await onConfirm();
-    }, 0);
+    setExitDirection('down');
+    await onConfirm();
   };
 
   const getConfirmButtonClasses = () => {
@@ -82,29 +80,30 @@ export default function ConfirmationModalSharedComponent({
           {additionalContent && <div>{additionalContent}</div>}
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4 mt-6 border-t border-slate-200 dark:border-zinc-800 shrink-0">
+        <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-3 pt-4 mt-6 border-t border-slate-200 dark:border-zinc-800 shrink-0 pb-2 sm:pb-0">
           <ButtonSharedComponent
             variant="outline"
-            size="sm"
+            size="md"
             onClick={handleCancel}
             disabled={isLoading}
+            className="w-full sm:w-auto justify-center"
           >
             {cancelText}
           </ButtonSharedComponent>
           <ButtonSharedComponent
             type="button"
             variant={variant === 'danger' ? 'danger' : 'primary'}
-            size="sm"
+            size="md"
             disabled={isLoading}
             onClick={handleConfirm}
-            className={getConfirmButtonClasses()}
+            className={`w-full sm:w-auto justify-center ${getConfirmButtonClasses()}`}
             icon={
               isLoading ? (
                 <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
               ) : undefined
             }
           >
-            <span className="!text-white font-medium">{confirmText}</span>
+            <span className="!text-white font-bold">{confirmText}</span>
           </ButtonSharedComponent>
         </div>
       </div>

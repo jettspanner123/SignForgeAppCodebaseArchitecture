@@ -76,7 +76,7 @@ export default function MobileNavigationDrawerStaticComponent({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 w-full bg-white dark:bg-[#0c0c0e] border-t border-slate-200 dark:border-zinc-800 rounded-t-2xl shadow-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
+            className="relative z-10 w-full bg-white dark:bg-[#0c0c0e] border-t border-slate-200 dark:border-zinc-800 rounded-t-2xl shadow-2xl p-5 pb-10 sm:pb-6 space-y-4 max-h-[85vh] overflow-y-auto"
           >
             {/* Header 1:1 AssetSphere */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800/80">

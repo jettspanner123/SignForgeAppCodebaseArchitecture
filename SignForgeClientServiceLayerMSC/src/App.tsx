@@ -204,22 +204,6 @@ export default function App() {
           onClose={() => setShowEmailModalDoc(null)}
         />
       )}
-
-      {/* 3. AssetSphere Enterprise Footer */}
-      <footer className="border-t border-slate-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-black/80 backdrop-blur-sm py-6 text-xs text-slate-500 dark:text-zinc-400 transition-colors">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-serif-headline font-semibold text-slate-900 dark:text-zinc-100">
-              We.SignForge
-            </span>
-            <span className="text-slate-300 dark:text-zinc-700">•</span>
-            <span className="font-mono text-[11px]">AssetSphere MSC Architecture v2.2</span>
-          </div>
-          <div className="font-mono text-[11px] text-slate-400 dark:text-zinc-500">
-            SHA-256 Dual-Signature Cryptographic Verification System
-          </div>
-        </div>
-      </footer>
     </NavigationController>
   );
 }

@@ -24,23 +24,23 @@ export default function HeaderStaticComponent({
   const user = NavigationCON.DEFAULT_USER;
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800/80 transition-colors">
+    <header className="sticky top-0 z-40 w-full bg-white dark:bg-black sm:bg-white/90 sm:dark:bg-black/90 sm:backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand Insignia 1:1 AssetSphere */}
         <div
           onClick={() => onSelectView(ApplicationRouteCON.DOCUMENTS)}
-          className="flex items-center gap-3 cursor-pointer select-none shrink-0"
+          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0"
         >
           <img
             src={weplmLogo}
             alt="We.PLM Logo"
             className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg sm:rounded-sm object-cover shrink-0 shadow-sm border border-slate-200/80 dark:border-zinc-800"
           />
-          <div className="hidden sm:block">
-            <h1 className="text-base font-bold tracking-tight text-slate-900 dark:text-white font-serif-headline leading-none">
+          <div className="flex flex-col justify-center">
+            <h1 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-white font-serif-headline leading-tight">
               {NavigationCON.BRAND_TITLE}
             </h1>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono mt-0.5">
+            <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-zinc-400 font-mono mt-0.5 leading-none">
               {NavigationCON.BRAND_SUBTITLE}
             </p>
           </div>
