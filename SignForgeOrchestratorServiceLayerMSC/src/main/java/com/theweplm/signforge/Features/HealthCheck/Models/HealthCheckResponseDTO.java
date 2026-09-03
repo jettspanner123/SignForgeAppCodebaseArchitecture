@@ -1,34 +1,38 @@
 ﻿package com.theweplm.signforge.Features.HealthCheck.Models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 public class HealthCheckResponseDTO {
+
+    @Builder.Default
     private String overallStatus = HealthStatusType.HEALTHY;
+
     private long totalDurationMs;
+
+    @Builder.Default
     private ComponentHealthDTO database = new ComponentHealthDTO();
+
+    @Builder.Default
     private RuntimeHealthDTO runtime = new RuntimeHealthDTO();
+
+    @Builder.Default
     private List<ComponentHealthDTO> subsystems = new ArrayList<>();
+
+    @Builder.Default
     private Instant timestamp = Instant.now();
-
-    public HealthCheckResponseDTO() {}
-
-    public String getOverallStatus() { return overallStatus; }
-    public void setOverallStatus(String overallStatus) { this.overallStatus = overallStatus; }
-
-    public long getTotalDurationMs() { return totalDurationMs; }
-    public void setTotalDurationMs(long totalDurationMs) { this.totalDurationMs = totalDurationMs; }
-
-    public ComponentHealthDTO getDatabase() { return database; }
-    public void setDatabase(ComponentHealthDTO database) { this.database = database; }
-
-    public RuntimeHealthDTO getRuntime() { return runtime; }
-    public void setRuntime(RuntimeHealthDTO runtime) { this.runtime = runtime; }
-
-    public List<ComponentHealthDTO> getSubsystems() { return subsystems; }
-    public void setSubsystems(List<ComponentHealthDTO> subsystems) { this.subsystems = subsystems; }
-
-    public Instant getTimestamp() { return timestamp; }
-    public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
 }

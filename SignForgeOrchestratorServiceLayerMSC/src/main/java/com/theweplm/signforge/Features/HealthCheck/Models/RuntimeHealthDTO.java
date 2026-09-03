@@ -1,26 +1,29 @@
 ﻿package com.theweplm.signforge.Features.HealthCheck.Models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
 public class RuntimeHealthDTO {
+
+    @Builder.Default
     private String environmentName = "Development";
+
+    @Builder.Default
     private String uptime = "";
+
     private double memoryAllocatedMB;
     private int threadCount;
+
+    @Builder.Default
     private String runtimeVersion = "";
-
-    public RuntimeHealthDTO() {}
-
-    public String getEnvironmentName() { return environmentName; }
-    public void setEnvironmentName(String environmentName) { this.environmentName = environmentName; }
-
-    public String getUptime() { return uptime; }
-    public void setUptime(String uptime) { this.uptime = uptime; }
-
-    public double getMemoryAllocatedMB() { return memoryAllocatedMB; }
-    public void setMemoryAllocatedMB(double memoryAllocatedMB) { this.memoryAllocatedMB = memoryAllocatedMB; }
-
-    public int getThreadCount() { return threadCount; }
-    public void setThreadCount(int threadCount) { this.threadCount = threadCount; }
-
-    public String getRuntimeVersion() { return runtimeVersion; }
-    public void setRuntimeVersion(String runtimeVersion) { this.runtimeVersion = runtimeVersion; }
 }

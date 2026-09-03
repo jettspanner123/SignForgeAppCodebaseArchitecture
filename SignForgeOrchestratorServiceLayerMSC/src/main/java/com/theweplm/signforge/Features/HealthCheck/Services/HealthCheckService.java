@@ -4,67 +4,71 @@ import com.theweplm.signforge.Features.HealthCheck.Models.ComponentHealthDTO;
 import com.theweplm.signforge.Features.HealthCheck.Models.HealthCheckResponseDTO;
 import com.theweplm.signforge.Features.HealthCheck.Models.HealthStatusType;
 import com.theweplm.signforge.Features.HealthCheck.Models.RuntimeHealthDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
+import java.sql.Connection;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class HealthCheckService implements IHealthCheckService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HealthCheckService.class);
     private static final Instant SERVER_START_TIME = Instant.now();
 
     private final ApplicationContext applicationContext;
     private final Environment environment;
-
-    public HealthCheckService(ApplicationContext applicationContext, Environment environment) {
-        this.applicationContext = applicationContext;
-        this.environment = environment;
-    }
+    private final DataSource dataSource;
 
     @Override
     public HealthCheckResponseDTO checkHealth() {
         long startTime = System.currentTimeMillis();
-        HealthCheckResponseDTO response = new HealthCheckResponseDTO();
-        response.setTimestamp(Instant.now());
+        Instant now = Instant.now();
 
-        // 1. Probe In-Memory Database / Data Store
-        ComponentHealthDTO dbHealth = new ComponentHealthDTO();
-        dbHealth.setComponentName("SignForge Repository Store");
-        dbHealth.setCheckedAt(Instant.now());
+        // 1. Probe Database Connectivity & Latency (PostgreSQL Supabase)
+        ComponentHealthDTO dbHealth = ComponentHealthDTO.builder()
+                .componentName("PostgreSQL Supabase Database")
+                .checkedAt(now)
+                .build();
+
         long dbStart = System.currentTimeMillis();
-        try {
-            // Memory store check
+        try (Connection connection = dataSource.getConnection()) {
+            boolean isValid = connection.isValid(2);
             long elapsed = System.currentTimeMillis() - dbStart;
             dbHealth.setLatencyMs(elapsed);
-            dbHealth.setStatus(HealthStatusType.HEALTHY);
-            dbHealth.setDetails("Repository store operational. Latency: " + elapsed + "ms");
+
+            if (isValid) {
+                dbHealth.setStatus(HealthStatusType.HEALTHY);
+                dbHealth.setDetails("Connected successfully. Latency: " + elapsed + "ms");
+            } else {
+                dbHealth.setStatus(HealthStatusType.UNHEALTHY);
+                dbHealth.setDetails("Database connection validation returned false.");
+            }
         } catch (Exception ex) {
             long elapsed = System.currentTimeMillis() - dbStart;
             dbHealth.setLatencyMs(elapsed);
             dbHealth.setStatus(HealthStatusType.UNHEALTHY);
-            dbHealth.setDetails("Store probe error: " + ex.getMessage());
-            LOGGER.error("Health check store probe failed", ex);
+            dbHealth.setDetails("Database connection exception: " + ex.getMessage());
+            log.error("Health check database probe failed", ex);
         }
-        response.setDatabase(dbHealth);
 
         // 2. Gather JVM Runtime & Uptime
         Runtime runtime = Runtime.getRuntime();
         RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 
-        Duration uptimeDuration = Duration.between(SERVER_START_TIME, Instant.now());
+        Duration uptimeDuration = Duration.between(SERVER_START_TIME, now);
         long days = uptimeDuration.toDays();
         long hours = uptimeDuration.toHoursPart();
         long minutes = uptimeDuration.toMinutesPart();
@@ -75,13 +79,13 @@ public class HealthCheckService implements IHealthCheckService {
         String[] activeProfiles = environment.getActiveProfiles();
         String envName = activeProfiles.length > 0 ? String.join(", ", activeProfiles) : "Development";
 
-        RuntimeHealthDTO runtimeDTO = new RuntimeHealthDTO();
-        runtimeDTO.setEnvironmentName(envName);
-        runtimeDTO.setUptime(formattedUptime);
-        runtimeDTO.setMemoryAllocatedMB(memoryAllocatedMB);
-        runtimeDTO.setThreadCount(threadMXBean.getThreadCount());
-        runtimeDTO.setRuntimeVersion(System.getProperty("java.runtime.version", runtimeMXBean.getVmVersion()));
-        response.setRuntime(runtimeDTO);
+        RuntimeHealthDTO runtimeDTO = RuntimeHealthDTO.builder()
+                .environmentName(envName)
+                .uptime(formattedUptime)
+                .memoryAllocatedMB(memoryAllocatedMB)
+                .threadCount(threadMXBean.getThreadCount())
+                .runtimeVersion(System.getProperty("java.runtime.version", runtimeMXBean.getVmVersion()))
+                .build();
 
         // 3. Probe Subsystems & Spring Beans DI
         List<ComponentHealthDTO> subsystems = new ArrayList<>();
@@ -90,30 +94,37 @@ public class HealthCheckService implements IHealthCheckService {
         subsystems.add(probeSubsystem("eSignature Crypto Subsystem"));
         subsystems.add(probeSubsystem("Notification Routing Subsystem"));
         subsystems.add(probeSubsystem("PDF Generator Subsystem"));
-        response.setSubsystems(subsystems);
 
         // 4. Compute Overall Health Status
         long totalDuration = System.currentTimeMillis() - startTime;
-        response.setTotalDurationMs(totalDuration);
-
         boolean hasUnhealthySubsystem = subsystems.stream().anyMatch(s -> HealthStatusType.UNHEALTHY.equals(s.getStatus()));
         boolean hasDegradedSubsystem = subsystems.stream().anyMatch(s -> HealthStatusType.DEGRADED.equals(s.getStatus()));
 
+        String overallStatus;
         if (HealthStatusType.UNHEALTHY.equals(dbHealth.getStatus()) || hasUnhealthySubsystem) {
-            response.setOverallStatus(HealthStatusType.UNHEALTHY);
+            overallStatus = HealthStatusType.UNHEALTHY;
         } else if (HealthStatusType.DEGRADED.equals(dbHealth.getStatus()) || hasDegradedSubsystem) {
-            response.setOverallStatus(HealthStatusType.DEGRADED);
+            overallStatus = HealthStatusType.DEGRADED;
         } else {
-            response.setOverallStatus(HealthStatusType.HEALTHY);
+            overallStatus = HealthStatusType.HEALTHY;
         }
 
-        return response;
+        return HealthCheckResponseDTO.builder()
+                .overallStatus(overallStatus)
+                .totalDurationMs(totalDuration)
+                .database(dbHealth)
+                .runtime(runtimeDTO)
+                .subsystems(subsystems)
+                .timestamp(now)
+                .build();
     }
 
     private ComponentHealthDTO probeSubsystem(String subsystemName) {
-        ComponentHealthDTO comp = new ComponentHealthDTO();
-        comp.setComponentName(subsystemName);
-        comp.setCheckedAt(Instant.now());
+        ComponentHealthDTO comp = ComponentHealthDTO.builder()
+                .componentName(subsystemName)
+                .checkedAt(Instant.now())
+                .build();
+
         long start = System.currentTimeMillis();
         try {
             long elapsed = System.currentTimeMillis() - start;

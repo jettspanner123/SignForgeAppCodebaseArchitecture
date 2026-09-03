@@ -6,6 +6,29 @@
 spring:
   application:
     name: SignForgeOrchestratorServiceLayerMSC
+  datasource:
+    url: ${SIGNFORGE_DATABASE_URL:jdbc:postgresql://db.apzfodnvbvvpxalsxltv.supabase.co:5432/postgres?sslmode=require}
+    username: ${SIGNFORGE_DB_USERNAME:postgres}
+    password: ${SIGNFORGE_DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    open-in-view: false
   jackson:
     serialization:
       indent-output: true

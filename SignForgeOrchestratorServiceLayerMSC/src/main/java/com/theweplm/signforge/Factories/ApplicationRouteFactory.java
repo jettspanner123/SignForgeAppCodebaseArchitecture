@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Factories;
+package com.theweplm.signforge.Factories;
 
 /**
  * Singleton Route Factory defining all application endpoint routes.
@@ -15,11 +15,19 @@ public final class ApplicationRouteFactory {
     private ApplicationRouteFactory() {
     }
 
+    public final AuthenticationRoutes authentication = new AuthenticationRoutes();
     public final HealthCheckRoutes healthCheck = new HealthCheckRoutes();
     public final DocumentationRoutes documentation = new DocumentationRoutes();
     public final OfferLetterRoutes offerLetter = new OfferLetterRoutes();
     public final SignatureRoutes signature = new SignatureRoutes();
     public final CandidateRoutes candidate = new CandidateRoutes();
+
+    public static final class AuthenticationRoutes {
+        public static final String CONTROLLER_URL = "Api/V1/Authentication";
+        public static final String LOGIN = "Login";
+        public static final String REFRESH_TOKEN = "RefreshToken";
+        public static final String ME = "Me";
+    }
 
     public static final class HealthCheckRoutes {
         public static final String CONTROLLER_URL = "Api/V1/HealthCheck";
