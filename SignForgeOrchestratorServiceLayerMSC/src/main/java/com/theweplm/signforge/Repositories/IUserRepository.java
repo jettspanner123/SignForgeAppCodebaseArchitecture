@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Repositories;
+package com.theweplm.signforge.Repositories;
 
 import com.theweplm.signforge.Models.Classes.UserEntityClass;
 import org.springframework.data.jpa.repository.JpaRepository;

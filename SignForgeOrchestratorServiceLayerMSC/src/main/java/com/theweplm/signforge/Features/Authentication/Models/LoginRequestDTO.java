@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.Authentication.Models;
+package com.theweplm.signforge.Features.Authentication.Models;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Validators;
+package com.theweplm.signforge.Validators;
 
 import java.util.regex.Pattern;
 

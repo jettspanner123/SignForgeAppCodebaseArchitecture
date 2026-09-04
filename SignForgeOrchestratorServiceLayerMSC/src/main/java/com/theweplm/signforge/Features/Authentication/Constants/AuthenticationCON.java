@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.Authentication.Constants;
+package com.theweplm.signforge.Features.Authentication.Constants;
 
 public final class AuthenticationCON {
     public static final String DEFAULT_DOMAIN = "theweplm.com";

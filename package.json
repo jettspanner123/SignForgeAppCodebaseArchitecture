@@ -1,0 +1,42 @@
+{
+  "name": "signforgeappcodebasearchitecture",
+  "module": "index.ts",
+  "packageManager": "bun@1.3.14",
+  "private": true,
+  "workspaces": [
+    "SignForgeClientServiceLayerMSC",
+    "SignForgeOrchestratorServiceLayerMSC"
+  ],
+  "scripts": {
+    "start:dev": "turbo dev",
+    "start:build": "turbo build",
+    "start:lint": "turbo lint",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "clean": "turbo clean",
+    "client:dev": "turbo dev --filter=@signforge/client",
+    "client:build": "turbo build --filter=@signforge/client",
+    "client:lint": "turbo lint --filter=@signforge/client",
+    "client:install": "bun install --cwd SignForgeClientServiceLayerMSC",
+    "client install": "bun install --cwd SignForgeClientServiceLayerMSC",
+    "server:dev": "turbo dev --filter=@signforge/server",
+    "server:build": "turbo build --filter=@signforge/server",
+    "server:lint": "turbo lint --filter=@signforge/server",
+    "backend:live": "python SignForgeRunnerScriptsNMSC/BackendEnvironmentSwitcher.py --target=live",
+    "backend live": "python SignForgeRunnerScriptsNMSC/BackendEnvironmentSwitcher.py --target=live",
+    "backend:local": "python SignForgeRunnerScriptsNMSC/BackendEnvironmentSwitcher.py --target=local",
+    "backend local": "python SignForgeRunnerScriptsNMSC/BackendEnvironmentSwitcher.py --target=local",
+    "backend:status": "python SignForgeRunnerScriptsNMSC/BackendEnvironmentSwitcher.py --target=status",
+    "backend status": "python SignForgeRunnerScriptsNMSC/BackendEnvironmentSwitcher.py --target=status",
+    "list:cmd": "python SignForgeRunnerScriptsNMSC/CommandList.py",
+    "list cmd": "python SignForgeRunnerScriptsNMSC/CommandList.py"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "turbo": "^2.4.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@signforge/server",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "python ../SignForgeRunnerScriptsNMSC/BackendRunner.py --action=dev",
+    "build": "python ../SignForgeRunnerScriptsNMSC/BackendRunner.py --action=build",
+    "lint": "python ../SignForgeRunnerScriptsNMSC/BackendRunner.py --action=lint",
+    "clean": "python ../SignForgeRunnerScriptsNMSC/BackendRunner.py --action=clean"
+  }
+}

@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Constants;
+package com.theweplm.signforge.Constants;
 
 /**
  * Database Constants (1:1 AssetSphere Schema Architecture).

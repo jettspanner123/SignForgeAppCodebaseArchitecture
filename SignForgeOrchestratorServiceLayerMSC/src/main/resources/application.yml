@@ -7,8 +7,8 @@ spring:
   application:
     name: SignForgeOrchestratorServiceLayerMSC
   datasource:
-    url: ${SIGNFORGE_DATABASE_URL:jdbc:postgresql://db.apzfodnvbvvpxalsxltv.supabase.co:5432/postgres?sslmode=require}
-    username: ${SIGNFORGE_DB_USERNAME:postgres}
+    url: ${SIGNFORGE_DATABASE_URL:jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require}
+    username: ${SIGNFORGE_DB_USERNAME:postgres.apzfodnvbvvpxalsxltv}
     password: ${SIGNFORGE_DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}
     driver-class-name: org.postgresql.Driver
     hikari:

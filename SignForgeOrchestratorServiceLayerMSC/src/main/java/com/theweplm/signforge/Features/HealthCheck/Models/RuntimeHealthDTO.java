@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.HealthCheck.Models;
+package com.theweplm.signforge.Features.HealthCheck.Models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

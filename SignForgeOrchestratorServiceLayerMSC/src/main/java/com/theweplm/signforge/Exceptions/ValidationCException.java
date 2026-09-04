@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Exceptions;
+package com.theweplm.signforge.Exceptions;
 
 import java.util.Collections;
 import java.util.List;

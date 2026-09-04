@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Models.Classes;
+package com.theweplm.signforge.Models.Classes;
 
 import com.theweplm.signforge.Constants.DatabaseCON;
 import jakarta.persistence.Column;
@@ -21,7 +21,7 @@ import java.util.UUID;
  * Enterprise User Entity Class mapped 1:1 to SF_UsersTBL.
  */
 @Entity
-@Table(name = DatabaseCON.USERS_TABLE, schema = DatabaseCON.DEFAULT_SCHEMA)
+@Table(name = DatabaseCON.USERS_TABLE)
 @Getter
 @Setter
 @NoArgsConstructor

@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.HealthCheck.Models;
+package com.theweplm.signforge.Features.HealthCheck.Models;
 
 public final class HealthStatusType {
     public static final String HEALTHY = "Healthy";

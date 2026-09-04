@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.HealthCheck.Services;
+package com.theweplm.signforge.Features.HealthCheck.Services;
 
 import com.theweplm.signforge.Features.HealthCheck.Models.HealthCheckResponseDTO;
 

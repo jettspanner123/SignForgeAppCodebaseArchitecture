@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.Authentication.Assertion;
+package com.theweplm.signforge.Features.Authentication.Assertion;
 
 import com.theweplm.signforge.Exceptions.ValidationCException;
 import com.theweplm.signforge.Features.Authentication.Models.LoginRequestDTO;

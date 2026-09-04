@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Constants;
+package com.theweplm.signforge.Constants;
 
 public final class UserRoleType {
     public static final String HR_MANAGER = "HR_MANAGER";

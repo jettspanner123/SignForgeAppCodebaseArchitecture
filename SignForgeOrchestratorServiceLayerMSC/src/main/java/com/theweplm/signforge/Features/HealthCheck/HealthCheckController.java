@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.HealthCheck;
+package com.theweplm.signforge.Features.HealthCheck;
 
 import com.theweplm.signforge.Exceptions.ValidationCException;
 import com.theweplm.signforge.Factories.ApplicationRouteFactory;

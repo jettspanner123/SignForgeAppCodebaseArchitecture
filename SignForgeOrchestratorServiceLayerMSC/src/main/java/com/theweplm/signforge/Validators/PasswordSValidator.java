@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Validators;
+package com.theweplm.signforge.Validators;
 
 /**
  * System validator for password length and complexity.

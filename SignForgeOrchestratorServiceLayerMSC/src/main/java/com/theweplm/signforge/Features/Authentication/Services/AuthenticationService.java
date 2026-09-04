@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.Authentication.Services;
+package com.theweplm.signforge.Features.Authentication.Services;
 
 import com.theweplm.signforge.Constants.UserRoleType;
 import com.theweplm.signforge.Exceptions.ValidationCException;

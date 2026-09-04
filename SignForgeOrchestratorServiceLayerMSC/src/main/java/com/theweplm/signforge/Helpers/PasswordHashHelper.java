@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Helpers;
+package com.theweplm.signforge.Helpers;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

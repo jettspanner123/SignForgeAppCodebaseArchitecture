@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.Authentication.Services;
+package com.theweplm.signforge.Features.Authentication.Services;
 
 import com.theweplm.signforge.Features.Authentication.Models.AuthResponseDTO;
 import com.theweplm.signforge.Features.Authentication.Models.LoginRequestDTO;

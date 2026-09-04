@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Middlewares;
+package com.theweplm.signforge.Middlewares;
 
 import com.theweplm.signforge.Exceptions.ValidationCException;
 import com.theweplm.signforge.Models.Classes.ApiResponseClass;

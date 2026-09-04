@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.Authentication;
+package com.theweplm.signforge.Features.Authentication;
 
 import com.theweplm.signforge.Exceptions.ValidationCException;
 import com.theweplm.signforge.Factories.ApplicationRouteFactory;

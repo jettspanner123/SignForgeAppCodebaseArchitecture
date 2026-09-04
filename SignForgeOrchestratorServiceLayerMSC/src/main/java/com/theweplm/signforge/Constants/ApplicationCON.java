@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Constants;
+package com.theweplm.signforge.Constants;
 
 public final class ApplicationCON {
     public static final String APPLICATION_NAME = "SignForge Orchestrator";

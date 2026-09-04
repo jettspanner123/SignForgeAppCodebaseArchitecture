@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Features.HealthCheck.Assertion;
+package com.theweplm.signforge.Features.HealthCheck.Assertion;
 
 import com.theweplm.signforge.Exceptions.ValidationCException;
 

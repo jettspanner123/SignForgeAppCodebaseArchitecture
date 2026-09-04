@@ -1,4 +1,4 @@
-﻿package com.theweplm.signforge.Models.Classes;
+package com.theweplm.signforge.Models.Classes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
