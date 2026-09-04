@@ -127,9 +127,7 @@ export default class LoginScreenService {
     };
 
     // Save session via dedicated LocalStorage Service
-    if (credentials.rememberMe) {
-      ApplicationLocalStorageService.current.setAuthSession(authState);
-    }
+    ApplicationLocalStorageService.current.setAuthSession(authState);
 
     return authState;
   }

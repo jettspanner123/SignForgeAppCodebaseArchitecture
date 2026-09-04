@@ -4,12 +4,15 @@ import {
   Mail,
   Sun,
   Moon,
-  LogOut
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 import ApplicationThemeCON from '../../../../Constants/ApplicationThemeCON';
 import ApplicationThemeUtility from '../../../../Utilities/ApplicationThemeUtility';
 import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
-import NavigationCON from '../../Constants/NavigationCON';
+import useAuthenticationStateStore from '../../../../Store/AuthenticationStateStore';
+import LoginScreenService from '../../../LoginScreen/Services/LoginScreenService';
+import ApplicationRouteCON from '../../../../Constants/ApplicationRouteCON';
 import ApplicationHapticsUtility from '../../../../Utilities/ApplicationHapticsUtility';
 
 export interface ProfileDropdownStaticComponentProps {
@@ -22,10 +25,23 @@ export default function ProfileDropdownStaticComponent({
   isOpen,
   onClose,
 }: ProfileDropdownStaticComponentProps): React.JSX.Element {
-  const { theme, toggleTheme } = useOfferDocumentStore();
+  const { theme, toggleTheme, setCurrentView } = useOfferDocumentStore();
+  const authUser = useAuthenticationStateStore((s) => s.user);
   const isDark = theme === ApplicationThemeCON.DARK;
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const user = NavigationCON.DEFAULT_USER;
+
+  const displayName = authUser?.fullName || `${authUser?.firstName || ''} ${authUser?.lastName || ''}`.trim() || 'Enterprise User';
+  const displayEmail = authUser?.email || 'user@theweplm.com';
+  const displayRole = (authUser?.role || 'OPERATOR').replace(/_/g, ' ');
+  const displayDepartment = authUser?.department ? authUser.department.replace(/_/g, ' ') : 'People Operations';
+  
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'SF';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -47,6 +63,15 @@ export default function ProfileDropdownStaticComponent({
       document.removeEventListener('touchstart', handlePointerDown);
     };
   }, [isOpen, onClose]);
+
+  const handleSignOut = () => {
+    onClose();
+    LoginScreenService.current.clearSession();
+    useAuthenticationStateStore.getState().clearAuth();
+    setCurrentView(ApplicationRouteCON.LOGIN);
+    const targetPath = ApplicationRouteCON.toPath(ApplicationRouteCON.LOGIN);
+    window.history.replaceState(null, '', targetPath);
+  };
 
   return (
     <AnimatePresence>
@@ -70,18 +95,18 @@ export default function ProfileDropdownStaticComponent({
             {/* 1. Header: User Identity */}
             <div className="flex items-center gap-3 pb-3.5 border-b border-slate-100 dark:border-zinc-800/80">
               <div className="w-10 h-10 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 flex items-center justify-center font-bold font-serif-headline text-sm shadow-xs shrink-0">
-                {user.initials}
+                {initials}
               </div>
               <div className="min-w-0 flex-1">
                 <h3 className="font-bold text-slate-900 dark:text-white font-serif-headline text-sm truncate leading-tight">
-                  {user.name}
+                  {displayName}
                 </h3>
                 <p className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5 font-mono">
-                  {user.role} • People Operations
+                  {displayRole} • {displayDepartment}
                 </p>
                 <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-zinc-400 font-mono mt-0.5 truncate">
                   <Mail className="w-3 h-3 shrink-0 text-slate-400" />
-                  <span className="truncate">{user.email}</span>
+                  <span className="truncate">{displayEmail}</span>
                 </div>
               </div>
             </div>
@@ -151,10 +176,7 @@ export default function ProfileDropdownStaticComponent({
               <button
                 type="button"
                 onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
-                onClick={() => {
-                  onClose();
-                  window.location.reload();
-                }}
+                onClick={handleSignOut}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer font-bold text-xs"
               >
                 <LogOut className="w-4 h-4" />

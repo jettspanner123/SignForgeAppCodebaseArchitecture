@@ -23,6 +23,8 @@ import { ExecutiveDispatchModal } from './components/ExecutiveDispatchModal';
 import { SendEmailModal } from './components/SendEmailModal';
 
 import LoginScreenController from './Features/LoginScreen/LoginScreenController';
+import useAuthenticationStateStore from './Store/AuthenticationStateStore';
+import LoginScreenService from './Features/LoginScreen/Services/LoginScreenService';
 
 export default function App() {
   const {
@@ -37,25 +39,49 @@ export default function App() {
     toggleTheme,
   } = useOfferDocumentStore();
 
+  const isAuthenticated = useAuthenticationStateStore((s) => s.isAuthenticated);
+
   const [editingDoc, setEditingDoc] = useState<OfferDocument | null>(null);
   const [showAuditModal, setShowAuditModal] = useState<boolean>(false);
   const [showDispatchModal, setShowDispatchModal] = useState<boolean>(false);
   const [showEmailModalDoc, setShowEmailModalDoc] = useState<OfferDocument | null>(null);
 
-  // HTML5 History API URL Router Sync (Bidirectional & Deep-linking)
+  // HTML5 History API URL Router Sync with Route Protection & Redirection
   useEffect(() => {
     const handlePathSync = () => {
       try {
         const { pathname, hash } = window.location;
         const resolved = ApplicationRouteCON.fromPathname(pathname, hash);
+        const hasSession = isAuthenticated || Boolean(LoginScreenService.current.getSavedSession());
+        const isPublic = ApplicationRouteCON.isPublicRoute(resolved.view, pathname);
 
-        // If arrived via legacy hash, clean it up to standard pathname
-        if (hash && hash.startsWith('#/')) {
-          const targetPath = ApplicationRouteCON.toPath(resolved.view, resolved.docId);
-          window.history.replaceState(null, '', targetPath);
+        if (hasSession) {
+          // Authenticated: If trying to access /login, redirect automatically to /dashboard
+          if (resolved.view === ApplicationRouteCON.LOGIN || pathname === '/login' || pathname === '/signin') {
+            window.history.replaceState(null, '', '/dashboard');
+            setCurrentView(ApplicationRouteCON.DOCUMENTS);
+            return;
+          }
+
+          // If arrived via legacy hash, clean it up to standard pathname
+          if (hash && hash.startsWith('#/')) {
+            const targetPath = ApplicationRouteCON.toPath(resolved.view, resolved.docId);
+            window.history.replaceState(null, '', targetPath);
+          }
+
+          setCurrentView(resolved.view, resolved.docId);
+        } else {
+          // Unauthenticated: Only allow public candidate portal routes
+          if (isPublic) {
+            setCurrentView(resolved.view, resolved.docId);
+          } else {
+            // Redirect all other routes to /login
+            if (pathname !== '/login') {
+              window.history.replaceState(null, '', '/login');
+            }
+            setCurrentView(ApplicationRouteCON.LOGIN);
+          }
         }
-
-        setCurrentView(resolved.view, resolved.docId);
       } catch (err) {
         console.error('Pathname routing error:', err);
       }
@@ -71,7 +97,7 @@ export default function App() {
       window.removeEventListener('popstate', handlePathSync);
       window.removeEventListener('hashchange', handlePathSync);
     };
-  }, [setCurrentView]);
+  }, [setCurrentView, isAuthenticated]);
 
   // Handle direct query parameters (?view=sign&payload=... or ?docId=...)
   useEffect(() => {
@@ -120,12 +146,35 @@ export default function App() {
     setShowAuditModal(true);
   };
 
-  if (currentView === ApplicationRouteCON.LOGIN) {
+  // Route Guard View Filter: Show Login if unauthenticated and not on a public route
+  const isPublicView = ApplicationRouteCON.isPublicRoute(currentView, typeof window !== 'undefined' ? window.location.pathname : undefined);
+  if (!isAuthenticated && !isPublicView) {
     return (
       <LoginScreenController
         currentTheme={theme}
         onToggleTheme={toggleTheme}
-        onLoginSuccess={() => setCurrentView(ApplicationRouteCON.DOCUMENTS)}
+        onLoginSuccess={() => {
+          setCurrentView(ApplicationRouteCON.DOCUMENTS);
+          window.history.replaceState(null, '', '/dashboard');
+        }}
+      />
+    );
+  }
+
+  if (currentView === ApplicationRouteCON.LOGIN) {
+    if (isAuthenticated) {
+      setCurrentView(ApplicationRouteCON.DOCUMENTS);
+      window.history.replaceState(null, '', '/dashboard');
+      return null;
+    }
+    return (
+      <LoginScreenController
+        currentTheme={theme}
+        onToggleTheme={toggleTheme}
+        onLoginSuccess={() => {
+          setCurrentView(ApplicationRouteCON.DOCUMENTS);
+          window.history.replaceState(null, '', '/dashboard');
+        }}
       />
     );
   }

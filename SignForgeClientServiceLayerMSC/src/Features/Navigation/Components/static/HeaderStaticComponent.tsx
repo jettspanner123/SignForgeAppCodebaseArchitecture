@@ -7,6 +7,7 @@ import ProfileDropdownStaticComponent from './ProfileDropdownStaticComponent';
 import MobileNavigationDrawerStaticComponent from './MobileNavigationDrawerStaticComponent';
 import ApplicationHapticsUtility from '../../../../Utilities/ApplicationHapticsUtility';
 import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
+import useAuthenticationStateStore from '../../../../Store/AuthenticationStateStore';
 import PWAService from '../../../../Services/PWAService';
 import weplmLogo from '@/src/Assets/weplm.jpeg';
 
@@ -23,7 +24,16 @@ export default function HeaderStaticComponent({
 }: HeaderStaticComponentProps): React.JSX.Element {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
-  const user = NavigationCON.DEFAULT_USER;
+  const authUser = useAuthenticationStateStore((s) => s.user);
+
+  const displayName = authUser?.fullName || `${authUser?.firstName || ''} ${authUser?.lastName || ''}`.trim() || 'Enterprise User';
+  const userInitials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'SF';
   const isStandalone = typeof window !== 'undefined' && PWAService.current.isStandalone();
   const isMainTab =
     currentView === ApplicationRouteCON.DOCUMENTS ||
@@ -138,10 +148,10 @@ export default function HeaderStaticComponent({
               onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="h-10 w-10 sm:h-9 sm:w-9 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 text-slate-700 dark:text-zinc-300 hairline-border hover:bg-slate-200 dark:hover:bg-zinc-700/80 transition-colors cursor-pointer relative flex items-center justify-center select-none"
-              title={`${user.name} - Profile & Settings`}
+              title={`${displayName} - Profile & Settings`}
             >
               <div className="w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 flex items-center justify-center font-bold text-xs sm:text-[10px] font-mono">
-                {user.initials}
+                {userInitials}
               </div>
             </button>
 
