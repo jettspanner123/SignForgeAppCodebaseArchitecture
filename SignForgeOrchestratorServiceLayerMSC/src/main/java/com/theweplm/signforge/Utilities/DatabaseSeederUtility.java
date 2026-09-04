@@ -6,6 +6,7 @@ import com.theweplm.signforge.Repositories.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "signforge.database.seed", havingValue = "true", matchIfMissing = false)
 public class DatabaseSeederUtility implements CommandLineRunner {
 
     private final IUserRepository userRepository;

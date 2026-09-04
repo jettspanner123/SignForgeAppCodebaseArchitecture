@@ -86,15 +86,15 @@ class BackendEnvironmentSwitcher:
             self.TARGET_LOCAL: EnvironmentTargetClass(
                 Key="local",
                 Name="Localhost Development Orchestrator",
-                BaseUrl="http://localhost:8080/api/v1",
-                Description="Local Spring Boot 3 / Java daemon running on port 8080 with context /api/v1",
+                BaseUrl="http://localhost:8080",
+                Description="Local Spring Boot 3 / Java daemon running on port 8080 with endpoints at /Api/V1/*",
                 BadgeColor=TerminalThemeClass.ACCENT_CYAN,
             ),
             self.TARGET_LIVE: EnvironmentTargetClass(
                 Key="live",
                 Name="SignForge Enterprise Cloud API",
-                BaseUrl="https://signforge.theweplm.com/api/v1",
-                Description="Production Cloud Orchestrator API Gateway",
+                BaseUrl="https://signforge.theweplm.com",
+                Description="Production Cloud Orchestrator API Gateway with endpoints at /Api/V1/*",
                 BadgeColor=TerminalThemeClass.ACCENT_EMERALD,
             ),
         }
@@ -113,32 +113,26 @@ class BackendEnvironmentSwitcher:
             with open(self.EnvFilePath, "r", encoding="utf-8") as f:
                 for line in f:
                     clean_line = line.strip()
-                    if clean_line.startswith("VITE_BACKEND_API_BASE_URL="):
+                    if clean_line.startswith("SIGNFORGE_BACKEND_BASE_URL="):
                         val = clean_line.split("=", 1)[1].strip().strip('"').strip("'")
-                        return val.rstrip("/")
+                        val = val.replace("http://", "").replace("https://", "").rstrip("/")
+                        if val == "localhost:8080" or "localhost" in val:
+                            return f"http://{val}"
+                        return f"https://{val}"
         except Exception:
             pass
 
         return self.Targets[self.TARGET_LOCAL].BaseUrl
 
     def WriteBaseUrl(self, NewBaseUrl: str) -> None:
-        lines: list[str] = []
-        found: bool = False
-
-        if self.EnvFilePath.exists():
-            try:
-                with open(self.EnvFilePath, "r", encoding="utf-8") as f:
-                    for line in f:
-                        if line.strip().startswith("VITE_BACKEND_API_BASE_URL="):
-                            lines.append(f"VITE_BACKEND_API_BASE_URL={NewBaseUrl}\n")
-                            found = True
-                        else:
-                            lines.append(line)
-            except Exception:
-                pass
-
-        if not found:
-            lines.append(f"VITE_BACKEND_API_BASE_URL={NewBaseUrl}\n")
+        clean_target = NewBaseUrl.replace("http://", "").replace("https://", "").rstrip("/")
+        lines: list[str] = [
+            "# SignForge Client Service Layer Environment Configuration\n",
+            f"SIGNFORGE_BACKEND_BASE_URL={clean_target}\n",
+            f"VITE_SIGNFORGE_BACKEND_BASE_URL={NewBaseUrl}\n",
+            f"VITE_BACKEND_API_BASE_URL={NewBaseUrl}\n",
+            f"VITE_API_BASE_URL={NewBaseUrl}\n",
+        ]
 
         with open(self.EnvFilePath, "w", encoding="utf-8") as f:
             f.writelines(lines)

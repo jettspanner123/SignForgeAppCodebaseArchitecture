@@ -104,6 +104,24 @@ class BackendRunner:
 
     def PrepareEnvironment(self) -> dict:
         env = os.environ.copy()
+
+        # 1. Load variables from SignForgeOrchestratorServiceLayerMSC/.env if present
+        env_file = self.ServerDirectory / ".env"
+        if env_file.exists():
+            try:
+                with open(env_file, "r", encoding="utf-8") as f:
+                    for line in f:
+                        clean_line = line.strip()
+                        if clean_line and not clean_line.startswith("#") and "=" in clean_line:
+                            key, val = clean_line.split("=", 1)
+                            key = key.strip()
+                            val = val.strip().strip('"').strip("'")
+                            if key:
+                                env[key] = val
+            except Exception as e:
+                print(f"\033[38;2;245;158;11m[SignForge Runner Warning]\033[0m Could not parse .env file: {e}")
+
+        # 2. Discover JDK 21 LTS
         java_home = self.DiscoverJavaHome()
         if java_home:
             env["JAVA_HOME"] = java_home
@@ -112,6 +130,7 @@ class BackendRunner:
             # Put discovered JDK at the front of PATH
             env["PATH"] = f"{bin_dir}{os.pathsep}{current_path}"
 
+        # 3. Discover Maven
         mvn_path = self.DiscoverMaven()
         if mvn_path:
             mvn_bin_dir = str(Path(mvn_path).parent)

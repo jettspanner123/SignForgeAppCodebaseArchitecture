@@ -1,4 +1,4 @@
-﻿export interface NetworkAPIEndpoints {
+export interface NetworkAPIEndpoints {
   healthCheck: {
     status: string;
     ping: string;
@@ -43,23 +43,35 @@ export default class ApplicationNetworkAPIConfiguration {
   private readonly defaultTimeoutMs: number = 30000;
 
   public getBaseUrl(): string {
-    const envUrl =
+    const rawEnvUrl =
       typeof import.meta !== 'undefined' && import.meta.env
-        ? (import.meta.env.VITE_BACKEND_API_BASE_URL as string | undefined)
+        ? ((import.meta.env.SIGNFORGE_BACKEND_BASE_URL ||
+            import.meta.env.VITE_SIGNFORGE_BACKEND_BASE_URL ||
+            import.meta.env.VITE_BACKEND_API_BASE_URL ||
+            import.meta.env.VITE_API_BASE_URL) as string | undefined)
         : undefined;
 
-    const processEnvUrl =
+    const rawProcessEnvUrl =
       typeof process !== 'undefined' && process.env
-        ? (process.env.VITE_BACKEND_API_BASE_URL as string | undefined)
+        ? ((process.env.SIGNFORGE_BACKEND_BASE_URL ||
+            process.env.VITE_SIGNFORGE_BACKEND_BASE_URL ||
+            process.env.VITE_BACKEND_API_BASE_URL ||
+            process.env.VITE_API_BASE_URL) as string | undefined)
         : undefined;
 
-    const configuredUrl = envUrl || processEnvUrl;
-    if (configuredUrl) {
-      return configuredUrl.replace(/\/+$/, '');
+    const configuredValue = (rawEnvUrl || rawProcessEnvUrl || 'localhost:8080').trim();
+
+    // Normalize URL: ensure protocol scheme is present and trailing slashes are removed
+    let normalized = configuredValue.replace(/\/+$/, '');
+    if (!/^https?:\/\//i.test(normalized)) {
+      if (normalized.startsWith('localhost') || normalized.startsWith('127.0.0.1')) {
+        normalized = `http://${normalized}`;
+      } else {
+        normalized = `https://${normalized}`;
+      }
     }
 
-    // Default local Spring Boot backend address
-    return 'http://localhost:8080/api/v1';
+    return normalized;
   }
 
   public getConfiguration(): ApplicationNetworkAPIConfigurationDetails {

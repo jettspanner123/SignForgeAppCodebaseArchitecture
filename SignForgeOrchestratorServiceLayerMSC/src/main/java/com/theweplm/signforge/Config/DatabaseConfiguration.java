@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -12,14 +11,19 @@ import org.springframework.context.annotation.Primary;
 import javax.sql.DataSource;
 import java.sql.Connection;
 
+/**
+ * Enterprise PostgreSQL Database Configuration.
+ * Strict Zero-Fallback Policy: connects exclusively to the configured PostgreSQL / Supabase instance.
+ * Fails fast with a fatal exception on startup if the database is unreachable or secrets are missing.
+ */
 @Slf4j
 @Configuration
 public class DatabaseConfiguration {
 
-    @Value("${spring.datasource.url:}")
+    @Value("${spring.datasource.url}")
     private String dbUrl;
 
-    @Value("${spring.datasource.username:postgres}")
+    @Value("${spring.datasource.username}")
     private String dbUsername;
 
     @Value("${spring.datasource.password:}")
@@ -28,37 +32,45 @@ public class DatabaseConfiguration {
     @Bean
     @Primary
     public DataSource dataSource() {
-        if (dbUrl != null && !dbUrl.isBlank() && dbPassword != null && !dbPassword.isBlank()) {
-            try {
-                log.info("Attempting connection to PostgreSQL datasource: {}", dbUrl);
-                HikariConfig config = new HikariConfig();
-                config.setJdbcUrl(dbUrl);
-                config.setUsername(dbUsername);
-                config.setPassword(dbPassword);
-                config.setDriverClassName("org.postgresql.Driver");
-                config.setMaximumPoolSize(10);
-                config.setMinimumIdle(2);
-                config.setConnectionTimeout(5000);
-                config.setValidationTimeout(3000);
+        log.info("[SignForge DB] Initializing live PostgreSQL datasource: {}", dbUrl);
 
-                HikariDataSource ds = new HikariDataSource(config);
-                try (Connection conn = ds.getConnection()) {
-                    log.info("Successfully connected to PostgreSQL datasource: {}", conn.getMetaData().getDatabaseProductName());
-                    return ds;
-                }
-            } catch (Exception ex) {
-                log.warn("Could not establish live PostgreSQL connection ({}). Falling back to in-memory H2 database.", ex.getMessage());
-            }
+        if (dbUrl == null || dbUrl.isBlank()) {
+            String errorMsg = "[FATAL] Missing SIGNFORGE_DATABASE_URL environment variable in SignForgeOrchestratorServiceLayerMSC/.env.";
+            log.error(errorMsg);
+            throw new IllegalStateException(errorMsg);
         }
 
-        log.info("Starting in-memory fallback H2 database (SignForgeInMemoryDb)...");
-        HikariConfig h2Config = new HikariConfig();
-        h2Config.setJdbcUrl("jdbc:h2:mem:SignForgeInMemoryDb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL");
-        h2Config.setDriverClassName("org.h2.Driver");
-        h2Config.setUsername("sa");
-        h2Config.setPassword("");
-        h2Config.setMaximumPoolSize(5);
+        try {
+            HikariConfig config = new HikariConfig();
+            config.setPoolName("SignForgeEnterpriseHikariPool");
+            config.setJdbcUrl(dbUrl);
+            config.setUsername(dbUsername);
+            config.setPassword(dbPassword != null ? dbPassword : "");
+            config.setDriverClassName("org.postgresql.Driver");
+            
+            // Connection pool optimization
+            config.setMaximumPoolSize(10);
+            config.setMinimumIdle(2);
+            config.setConnectionTimeout(10000);
+            config.setValidationTimeout(5000);
+            config.setIdleTimeout(30000);
+            config.setMaxLifetime(1200000);
 
-        return new HikariDataSource(h2Config);
+            HikariDataSource ds = new HikariDataSource(config);
+
+            // Strict Startup Fail-Fast Validation: probe live connection immediately
+            try (Connection conn = ds.getConnection()) {
+                String productName = conn.getMetaData().getDatabaseProductName();
+                String productVersion = conn.getMetaData().getDatabaseProductVersion();
+                log.info("[SignForge DB] Successfully established live connection to {} (Version: {})", productName, productVersion);
+            }
+
+            return ds;
+        } catch (Exception ex) {
+            String errorMsg = String.format("[FATAL] Could not connect to PostgreSQL Database at %s. Error: %s. Zero-fallback policy active — terminating startup.", dbUrl, ex.getMessage());
+            log.error(errorMsg, ex);
+            throw new IllegalStateException(errorMsg, ex);
+        }
     }
 }
+

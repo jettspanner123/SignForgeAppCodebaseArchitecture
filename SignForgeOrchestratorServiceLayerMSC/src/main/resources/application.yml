@@ -1,7 +1,5 @@
 server:
-  port: 8080
-  servlet:
-    context-path: /api/v1
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
@@ -9,22 +7,22 @@ spring:
   datasource:
     url: ${SIGNFORGE_DATABASE_URL:jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require}
     username: ${SIGNFORGE_DB_USERNAME:postgres.apzfodnvbvvpxalsxltv}
-    password: ${SIGNFORGE_DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}
+    password: ${SIGNFORGE_DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
       idle-timeout: 30000
-      connection-timeout: 20000
+      connection-timeout: 10000
       max-lifetime: 1200000
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         show_sql: false
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         jdbc:
           lob:
             non_contextual_creation: true
@@ -45,6 +43,12 @@ management:
       show-details: always
 
 signforge:
+  database:
+    seed: ${SIGNFORGE_DATABASE_SEED:false}
+  jwt:
+    secret: ${SIGNFORGE_JWT_SECRET:SignForgeSuperEnterpriseSecretKey2026SecureLongJwtTokenSigningKey!}
+    issuer: ${SIGNFORGE_JWT_ISSUER:SignForgeOrchestrator}
+    audience: ${SIGNFORGE_JWT_AUDIENCE:SignForgeClient}
   security:
     cors:
       allowed-origins:
@@ -60,3 +64,4 @@ signforge:
         - OPTIONS
       allowed-headers: "*"
       allow-credentials: true
+

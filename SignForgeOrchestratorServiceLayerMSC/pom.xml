@@ -72,11 +72,11 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- H2 In-Memory Database Fallback Driver -->
+		<!-- Dotenv Java Environment Variables Loader -->
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
+			<groupId>io.github.cdimascio</groupId>
+			<artifactId>dotenv-java</artifactId>
+			<version>3.1.0</version>
 		</dependency>
 
 		<!-- Spring Boot Test Starter -->
