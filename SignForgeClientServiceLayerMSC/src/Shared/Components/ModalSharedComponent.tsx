@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 
@@ -32,7 +33,7 @@ export default function ModalSharedComponent({
   exitDirection: exitDirectionProp = 'down',
   headerCloseDirection = 'down',
   zIndex = 50,
-}: ModalSharedComponentProps): React.JSX.Element {
+}: ModalSharedComponentProps): React.JSX.Element | null {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const dialogCardRef = useRef<HTMLDivElement>(null);
   const [internalExitDirection, setInternalExitDirection] = useState<'down' | 'up'>(exitDirectionProp);
@@ -133,7 +134,9 @@ export default function ModalSharedComponent({
     },
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence custom={activeExitDirection}>
       {isOpen && (
         <div
@@ -147,7 +150,7 @@ export default function ModalSharedComponent({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
             onClick={handleBackdropClick}
-            className="fixed inset-0 bg-slate-950/75 dark:bg-black/80 sm:bg-slate-900/60 sm:dark:bg-black/60 backdrop-blur-none sm:backdrop-blur-sm w-[100dvw] h-[100dvh]"
+            className="fixed inset-0 bg-slate-950/80 dark:bg-black/85 sm:bg-slate-900/60 sm:dark:bg-black/60 backdrop-blur-none sm:backdrop-blur-md w-[100dvw] h-[100dvh]"
           />
 
           <motion.div
@@ -194,6 +197,7 @@ export default function ModalSharedComponent({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

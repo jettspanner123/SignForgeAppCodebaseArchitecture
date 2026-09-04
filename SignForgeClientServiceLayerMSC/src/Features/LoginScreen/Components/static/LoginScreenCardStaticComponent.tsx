@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Sun, Moon } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Sun, Moon, Sparkles } from 'lucide-react';
 import ButtonSharedComponent from '../../../../Shared/Components/ButtonSharedComponent';
 import LoginScreenCON from '../../Constants/LoginScreenCON';
 import { LoginCredentials, LoginFormErrors } from '../../Models/LoginScreenModel';
@@ -13,6 +13,8 @@ export interface LoginScreenCardStaticComponentProps {
   errors: LoginFormErrors;
   isLoading: boolean;
   isMicrosoftLoading: boolean;
+  isDevelopmentMode?: boolean;
+  onQuickDevLogin?: () => void;
   currentTheme: string;
   onToggleTheme: () => void;
   onFieldChange: (field: keyof LoginCredentials, value: string | boolean) => void;
@@ -26,6 +28,8 @@ export default function LoginScreenCardStaticComponent({
   errors,
   isLoading,
   isMicrosoftLoading,
+  isDevelopmentMode,
+  onQuickDevLogin,
   currentTheme,
   onToggleTheme,
   onFieldChange,
@@ -133,6 +137,42 @@ export default function LoginScreenCardStaticComponent({
           {LoginScreenCON.DIVIDER_TEXT}
         </span>
       </div>
+
+      {/* Quick Dev Login as HR (Development Mode Only) */}
+      {isDevelopmentMode && onQuickDevLogin && (
+        <div className="mb-5">
+          <button
+            type="button"
+            onClick={() => {
+              ApplicationHapticsUtility.current.triggerHapticFeedback(12);
+              onQuickDevLogin();
+            }}
+            disabled={isLoading || isMicrosoftLoading}
+            className="w-full !h-12 sm:!h-10 flex items-center justify-between px-3.5 rounded-xl border border-amber-500/30 dark:border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/15 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 text-amber-900 dark:text-amber-200 transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 sm:w-6 sm:h-6 rounded-lg bg-amber-500/20 dark:bg-amber-400/20 flex items-center justify-center shrink-0 text-amber-600 dark:text-amber-400">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <div className="text-left min-w-0">
+                <div className="text-xs font-bold font-serif-headline text-amber-900 dark:text-amber-100 flex items-center gap-1.5 leading-tight">
+                  <span>Quick Dev Login</span>
+                  <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-amber-500/20 dark:bg-amber-400/20 text-amber-700 dark:text-amber-300">
+                    HR
+                  </span>
+                </div>
+                <div className="text-[10px] text-amber-700/80 dark:text-amber-300/80 font-mono truncate mt-0.5">
+                  hr@theweplm.com
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-300 group-hover:translate-x-0.5 transition-transform shrink-0 font-mono">
+              <span>Sign In</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* Form */}
       <form onSubmit={onSubmit} className="space-y-4 text-left">

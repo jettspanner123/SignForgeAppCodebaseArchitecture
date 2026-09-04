@@ -24,16 +24,29 @@ export default function HeaderStaticComponent({
 }: HeaderStaticComponentProps): React.JSX.Element {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
-  const authUser = useAuthenticationStateStore((s) => s.user);
+  const user = useAuthenticationStateStore((s) => s.user);
 
-  const displayName = authUser?.fullName || `${authUser?.firstName || ''} ${authUser?.lastName || ''}`.trim() || 'Enterprise User';
-  const userInitials = displayName
-    .split(' ')
-    .filter(Boolean)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) || 'SF';
+  const displayName =
+    user?.fullName ||
+    `${user?.firstName || ''} ${user?.lastName || ''}`.trim() ||
+    'Enterprise User';
+  const displayEmail = user?.email || '';
+
+  const getInitials = (name: string, email: string): string => {
+    if (name && name.trim() && name !== 'Enterprise User') {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length >= 2 && parts[0] && parts[1]) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+    if (email && email.trim()) {
+      return email.slice(0, 2).toUpperCase();
+    }
+    return 'SF';
+  };
+
+  const userInitials = getInitials(displayName, displayEmail);
   const isStandalone = typeof window !== 'undefined' && PWAService.current.isStandalone();
   const isMainTab =
     currentView === ApplicationRouteCON.DOCUMENTS ||

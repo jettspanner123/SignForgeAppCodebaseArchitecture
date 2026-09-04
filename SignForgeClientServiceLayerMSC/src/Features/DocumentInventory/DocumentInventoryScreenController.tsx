@@ -20,7 +20,11 @@ import {
   List,
   Maximize2,
   WrapText,
-  Send
+  Send,
+  Activity,
+  TrendingUp,
+  Sparkles,
+  Zap
 } from 'lucide-react';
 import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
 import { OfferDocument } from '../../Types';
@@ -222,76 +226,134 @@ export default function DocumentInventoryScreenController({
         </div>
       </div>
 
-      {/* 2. Top KPI Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        {/* Total Documents */}
-        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-slate-300/90 dark:border-zinc-800 p-4 shadow-sm dark:shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 mb-2">
-            <span className="text-xs font-medium">Total Pipeline</span>
-            <FileText className="w-4 h-4 text-slate-400" />
+      {/* 2. Top KPI Metric Cards (Harmonized Tonal Navy/Slate Executive Cards) */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Card 1: Total Pipeline (Hidden on Mobile/PWA Mobile) */}
+        <div className="hidden sm:block rounded-2xl p-4 sm:p-5 relative overflow-hidden bg-gradient-to-br from-indigo-500/10 via-slate-500/5 to-transparent dark:from-indigo-950/30 dark:via-[#0e101a] dark:to-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
+          {/* Header: Title & Icon Badge */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 font-mono">
+              Total Pipeline
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-[#0C2086] dark:bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+              <Layers className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-2xl font-bold font-serif-headline text-slate-900 dark:text-zinc-100">
-            {metrics.total}
+
+          {/* Metric Numeral & Percentage/Drafts Badge */}
+          <div className="mt-3 flex items-baseline justify-between gap-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-slate-900 dark:text-zinc-50">
+              {metrics.total}
+            </div>
+            <span className="text-[11px] font-mono font-bold text-indigo-900 dark:text-indigo-200 bg-indigo-100/80 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800/60 px-2 py-0.5 rounded-md">
+              {metrics.drafts > 0 ? `${metrics.drafts} drafts` : '100% active'}
+            </span>
           </div>
-          <p className="text-[11px] font-mono text-slate-400 dark:text-zinc-500 mt-1">
-            Registered offer letters
-          </p>
+
+          {/* Footer Status Strip */}
+          <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-zinc-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-zinc-400">
+            <span>Overall Registry</span>
+            <span className="flex items-center gap-1.5 font-semibold text-indigo-800 dark:text-indigo-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+              Live Pipeline
+            </span>
+          </div>
         </div>
 
-        {/* Pending Candidate Signature */}
-        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-amber-300/90 dark:border-amber-900/60 p-4 shadow-sm dark:shadow-2xs">
-          <div className="flex items-center justify-between text-amber-600 dark:text-amber-400 mb-2">
-            <span className="text-xs font-medium">Candidate Action</span>
-            <Clock className="w-4 h-4" />
+        {/* Card 2: Awaiting Candidate (Visible on Mobile & Desktop) */}
+        <div className="rounded-2xl p-3.5 sm:p-5 relative overflow-hidden bg-gradient-to-br from-slate-500/10 via-indigo-500/5 to-transparent dark:from-slate-900/30 dark:via-[#0e1018] dark:to-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
+          {/* Header: Title & Icon Badge */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 font-mono truncate">
+              Awaiting Candidate
+            </span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-700 dark:bg-slate-700 text-white flex items-center justify-center shadow-xs shrink-0">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
           </div>
-          <div className="text-2xl font-bold font-serif-headline text-amber-600 dark:text-amber-400">
-            {metrics.pendingCandidate}
+
+          {/* Metric Numeral & Percentage Badge */}
+          <div className="mt-2.5 sm:mt-3 flex items-baseline justify-between gap-1 sm:gap-2">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold font-mono tracking-tight text-slate-800 dark:text-slate-100">
+              {metrics.pendingCandidate}
+            </div>
+            <span className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 px-1.5 sm:px-2 py-0.5 rounded-md">
+              {metrics.total > 0 ? `${Math.round((metrics.pendingCandidate / metrics.total) * 100)}%` : '0%'}
+            </span>
           </div>
-          <p className="text-[11px] font-mono text-slate-400 dark:text-zinc-500 mt-1">
-            Awaiting eSignature
-          </p>
+
+          {/* Footer Status Strip */}
+          <div className="mt-2.5 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-zinc-800/80 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-500 dark:text-zinc-400">
+            <span className="truncate">Action Req.</span>
+            <span className="flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300 shrink-0">
+              <Clock className="w-3 h-3 text-slate-500 hidden sm:inline" />
+              Sent
+            </span>
+          </div>
         </div>
 
-        {/* Pending Countersign */}
-        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-blue-300/90 dark:border-blue-900/60 p-4 shadow-sm dark:shadow-2xs">
-          <div className="flex items-center justify-between text-[#0C2086] dark:text-blue-400 mb-2">
-            <span className="text-xs font-medium">HR Countersign</span>
-            <FileSignature className="w-4 h-4" />
+        {/* Card 3: Pending HR Countersign (Visible on Mobile & Desktop) */}
+        <div className="rounded-2xl p-3.5 sm:p-5 relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent dark:from-blue-950/30 dark:via-[#0c1322] dark:to-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
+          {/* Header: Title & Icon Badge */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 font-mono truncate">
+              HR Countersign
+            </span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#1332BD] dark:bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
+              <FileSignature className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
           </div>
-          <div className="text-2xl font-bold font-serif-headline text-[#0C2086] dark:text-blue-400">
-            {metrics.pendingCountersign}
+
+          {/* Metric Numeral & Percentage Badge */}
+          <div className="mt-2.5 sm:mt-3 flex items-baseline justify-between gap-1 sm:gap-2">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold font-mono tracking-tight text-[#0C2086] dark:text-blue-300">
+              {metrics.pendingCountersign}
+            </div>
+            <span className="text-[10px] sm:text-[11px] font-mono font-bold text-blue-900 dark:text-blue-200 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-800/60 px-1.5 sm:px-2 py-0.5 rounded-md">
+              {metrics.total > 0 ? `${Math.round((metrics.pendingCountersign / metrics.total) * 100)}%` : '0%'}
+            </span>
           </div>
-          <p className="text-[11px] font-mono text-slate-400 dark:text-zinc-500 mt-1">
-            Signed by candidate
-          </p>
+
+          {/* Footer Status Strip */}
+          <div className="mt-2.5 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-zinc-800/80 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-500 dark:text-zinc-400">
+            <span className="truncate">Queue</span>
+            <span className="flex items-center gap-1 font-semibold text-[#0C2086] dark:text-blue-300 shrink-0">
+              <FileSignature className="w-3 h-3 text-blue-600 dark:text-blue-400 hidden sm:inline" />
+              Signed
+            </span>
+          </div>
         </div>
 
-        {/* Fully Executed */}
-        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-emerald-300/90 dark:border-emerald-900/60 p-4 shadow-sm dark:shadow-2xs">
-          <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 mb-2">
-            <span className="text-xs font-medium">Fully Executed</span>
-            <CheckCircle2 className="w-4 h-4" />
+        {/* Card 4: Fully Executed (Hidden on Mobile/PWA Mobile) */}
+        <div className="hidden sm:block rounded-2xl p-4 sm:p-5 relative overflow-hidden bg-gradient-to-br from-indigo-600/10 via-slate-600/5 to-transparent dark:from-slate-900/40 dark:via-[#0d121c] dark:to-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
+          {/* Header: Title & Icon Badge */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 font-mono">
+              Fully Executed
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-indigo-900 dark:bg-indigo-700 text-white flex items-center justify-center shadow-xs">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-2xl font-bold font-serif-headline text-emerald-600 dark:text-emerald-400">
-            {metrics.fullyExecuted}
-          </div>
-          <p className="text-[11px] font-mono text-slate-400 dark:text-zinc-500 mt-1">
-            Dual signature complete
-          </p>
-        </div>
 
-        {/* Drafts */}
-        <div className="rounded-xl bg-white dark:bg-[#0d0d10] border border-slate-300/90 dark:border-zinc-800 p-4 shadow-sm dark:shadow-2xs col-span-2 sm:col-span-1">
-          <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 mb-2">
-            <span className="text-xs font-medium">Drafts / In Prep</span>
-            <UserCheck className="w-4 h-4 text-slate-400" />
+          {/* Metric Numeral & Percentage Badge */}
+          <div className="mt-3 flex items-baseline justify-between gap-2">
+            <div className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-slate-900 dark:text-zinc-50">
+              {metrics.fullyExecuted}
+            </div>
+            <span className="text-[11px] font-mono font-bold text-indigo-900 dark:text-indigo-200 bg-indigo-100/70 dark:bg-indigo-950/50 border border-indigo-200/60 dark:border-indigo-800/60 px-2 py-0.5 rounded-md">
+              {metrics.total > 0 ? `${Math.round((metrics.fullyExecuted / metrics.total) * 100)}%` : '0%'}
+            </span>
           </div>
-          <div className="text-2xl font-bold font-serif-headline text-slate-900 dark:text-zinc-100">
-            {metrics.drafts}
+
+          {/* Footer Status Strip */}
+          <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-zinc-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-zinc-400">
+            <span>Cryptographic Seal</span>
+            <span className="flex items-center gap-1 font-semibold text-indigo-800 dark:text-indigo-300">
+              <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+              Dual Signed
+            </span>
           </div>
-          <p className="text-[11px] font-mono text-slate-400 dark:text-zinc-500 mt-1">
-            Unsent offer packages
-          </p>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import LoginScreenCON from './Constants/LoginScreenCON';
 import { LoginCredentials, LoginFormErrors, LoginAuthState } from './Models/LoginScreenModel';
 import LoginScreenService from './Services/LoginScreenService';
 import TanstackQueryClientService from '../../Services/TanstackQueryClientService';
+import ENValidator from '../../Utilities/ENValidator';
 
 export interface LoginScreenControllerProps {
   currentTheme: string;
@@ -26,6 +27,18 @@ export default function LoginScreenController({
 
   const [errors, setErrors] = useState<LoginFormErrors>({});
 
+  let isDevelopmentMode = false;
+  try {
+    const envMode =
+      ENValidator.current.getOptionalValue('SIGNFORGE_CLIENT_ENV_MODE') ||
+      ENValidator.current.getOptionalValue('VITE_SIGNFORGE_CLIENT_ENV_MODE') ||
+      import.meta.env.MODE ||
+      '';
+    isDevelopmentMode = envMode.toLowerCase() === 'development';
+  } catch {
+    isDevelopmentMode = false;
+  }
+
   const loginMutation = TanstackQueryClientService.current.authentication.loginMutation({
     onSuccess: (authState) => {
       onLoginSuccess(authState);
@@ -43,6 +56,15 @@ export default function LoginScreenController({
       setErrors({ general: err.message });
     },
   });
+
+  const handleQuickDevLogin = () => {
+    setErrors({});
+    loginMutation.mutate({
+      email: 'hr@theweplm.com',
+      password: 'SignForge@2026',
+      rememberMe: true,
+    });
+  };
 
   const handleFieldChange = (field: keyof LoginCredentials, value: string | boolean) => {
     setCredentials((prev) => ({
@@ -89,6 +111,8 @@ export default function LoginScreenController({
           errors={errors}
           isLoading={loginMutation.isPending}
           isMicrosoftLoading={microsoftLoginMutation.isPending}
+          isDevelopmentMode={isDevelopmentMode}
+          onQuickDevLogin={handleQuickDevLogin}
           currentTheme={currentTheme}
           onToggleTheme={onToggleTheme}
           onFieldChange={handleFieldChange}
