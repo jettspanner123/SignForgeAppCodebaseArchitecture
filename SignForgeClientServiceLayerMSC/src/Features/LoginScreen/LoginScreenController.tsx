@@ -1,8 +1,9 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import LoginScreenCardStaticComponent from './Components/static/LoginScreenCardStaticComponent';
 import LoginScreenCON from './Constants/LoginScreenCON';
 import { LoginCredentials, LoginFormErrors, LoginAuthState } from './Models/LoginScreenModel';
 import LoginScreenService from './Services/LoginScreenService';
+import TanstackQueryClientService from '../../Services/TanstackQueryClientService';
 
 export interface LoginScreenControllerProps {
   currentTheme: string;
@@ -24,8 +25,24 @@ export default function LoginScreenController({
   });
 
   const [errors, setErrors] = useState<LoginFormErrors>({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isMicrosoftLoading, setIsMicrosoftLoading] = useState<boolean>(false);
+
+  const loginMutation = TanstackQueryClientService.current.authentication.loginMutation({
+    onSuccess: (authState) => {
+      onLoginSuccess(authState);
+    },
+    onError: (err: Error) => {
+      setErrors({ general: err.message });
+    },
+  });
+
+  const microsoftLoginMutation = TanstackQueryClientService.current.authentication.microsoftLoginMutation({
+    onSuccess: (authState) => {
+      onLoginSuccess(authState);
+    },
+    onError: (err: Error) => {
+      setErrors({ general: err.message });
+    },
+  });
 
   const handleFieldChange = (field: keyof LoginCredentials, value: string | boolean) => {
     setCredentials((prev) => ({
@@ -41,7 +58,7 @@ export default function LoginScreenController({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = LoginScreenService.current.validate(credentials);
 
@@ -50,37 +67,13 @@ export default function LoginScreenController({
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const authState = await LoginScreenService.current.authenticateSimulated(credentials);
-      onLoginSuccess(authState);
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : 'Authentication failed. Please verify your credentials and try again.';
-      setErrors({ general: errorMessage });
-    } finally {
-      setIsLoading(false);
-    }
+    setErrors({});
+    loginMutation.mutate(credentials);
   };
 
-  const handleMicrosoftLogin = async () => {
-    setIsMicrosoftLoading(true);
-    try {
-      const authState = await LoginScreenService.current.authenticateSimulated({
-        email: 'priya.sharma@theweplm.com',
-        password: 'sso_authenticated',
-        rememberMe: true,
-      });
-      onLoginSuccess(authState);
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Microsoft Single Sign-On failed.';
-      setErrors({ general: errorMessage });
-    } finally {
-      setIsMicrosoftLoading(false);
-    }
+  const handleMicrosoftLogin = () => {
+    setErrors({});
+    microsoftLoginMutation.mutate();
   };
 
   return (
@@ -94,8 +87,8 @@ export default function LoginScreenController({
         <LoginScreenCardStaticComponent
           credentials={credentials}
           errors={errors}
-          isLoading={isLoading}
-          isMicrosoftLoading={isMicrosoftLoading}
+          isLoading={loginMutation.isPending}
+          isMicrosoftLoading={microsoftLoginMutation.isPending}
           currentTheme={currentTheme}
           onToggleTheme={onToggleTheme}
           onFieldChange={handleFieldChange}

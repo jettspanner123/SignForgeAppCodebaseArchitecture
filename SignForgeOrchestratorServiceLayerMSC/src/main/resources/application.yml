@@ -1,4 +1,4 @@
-﻿server:
+server:
   port: 8080
   servlet:
     context-path: /api/v1
@@ -30,6 +30,7 @@ spring:
             non_contextual_creation: true
     open-in-view: false
   jackson:
+    property-naming-strategy: UPPER_CAMEL_CASE
     serialization:
       indent-output: true
       write-dates-as-timestamps: false

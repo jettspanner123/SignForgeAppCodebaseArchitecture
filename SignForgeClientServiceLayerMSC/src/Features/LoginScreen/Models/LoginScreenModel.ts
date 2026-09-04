@@ -1,4 +1,4 @@
-﻿export interface LoginCredentials {
+export interface LoginCredentials {
   email: string;
   password: string;
   rememberMe: boolean;
@@ -33,28 +33,28 @@ export interface LoginAuthState {
 }
 
 export interface BackendUserProfileDTO {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  role: string;
-  department?: string | null;
-  avatarUrl?: string | null;
-  lastLoginAt?: string | null;
+  Id: string;
+  Email: string;
+  FirstName: string;
+  LastName: string;
+  FullName?: string;
+  Role: string;
+  Department?: string | null;
+  AvatarUrl?: string | null;
+  LastLoginAt?: string | null;
 }
 
 export interface BackendAuthResponseDTO {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: string;
-  user: BackendUserProfileDTO;
+  AccessToken: string;
+  RefreshToken: string;
+  ExpiresAt: string;
+  User: BackendUserProfileDTO;
 }
 
 export interface BackendApiResponseEnvelope<T> {
-  data: T | null;
-  success: boolean;
-  message: string;
-  errors: string[] | null;
-  statusCode: number;
+  Data: T | null;
+  Success: boolean;
+  Message: string;
+  Errors: string[] | null;
+  StatusCode: number;
 }
