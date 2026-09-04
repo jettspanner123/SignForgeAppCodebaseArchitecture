@@ -88,15 +88,23 @@ export default function DocumentInventoryScreenController({
   }
   const displayDocForDelete = docToDelete || lastDocToDeleteRef.current;
 
+  // Active Documents Source (Live Query response prioritised with Store fallback)
+  const activeDocs = useMemo(() => {
+    if (dashboardData?.offers && dashboardData.offers.length > 0) {
+      return dashboardData.offers;
+    }
+    return documents;
+  }, [dashboardData, documents]);
+
   // Status Filter Options for CustomSelectSharedComponent 1:1 AssetSphere
   const statusOptions: SelectOption[] = [
-    { value: 'ALL', label: `All Documents (${documents.length})` },
-    { value: 'DRAFT', label: `Drafts (${documents.filter((d) => d.status === 'DRAFT').length})` },
-    { value: 'SENT', label: `Pending Candidate (${documents.filter((d) => d.status === 'SENT' || d.status === 'OUT_FOR_CANDIDATE_SIGN').length})` },
-    { value: 'CANDIDATE_SIGNED', label: `Pending Countersign (${documents.filter((d) => d.status === 'CANDIDATE_SIGNED').length})` },
-    { value: 'HR_COUNTERSIGNED', label: `Fully Executed (${documents.filter((d) => d.status === 'HR_COUNTERSIGNED' || d.status === 'FULLY_EXECUTED').length})` },
-    { value: 'EXPIRED', label: `Expired (${documents.filter((d) => d.status === 'EXPIRED').length})` },
-    { value: 'VOID', label: `Void (${documents.filter((d) => d.status === 'VOID').length})` },
+    { value: 'ALL', label: `All Documents (${activeDocs.length})` },
+    { value: 'DRAFT', label: `Drafts (${activeDocs.filter((d) => d.status === 'DRAFT').length})` },
+    { value: 'SENT', label: `Pending Candidate (${activeDocs.filter((d) => d.status === 'SENT' || d.status === 'OUT_FOR_CANDIDATE_SIGN' || d.status === 'AWAITING_CANDIDATE').length})` },
+    { value: 'CANDIDATE_SIGNED', label: `Pending Countersign (${activeDocs.filter((d) => d.status === 'CANDIDATE_SIGNED' || d.status === 'AWAITING_COUNTERSIGN').length})` },
+    { value: 'HR_COUNTERSIGNED', label: `Fully Executed (${activeDocs.filter((d) => d.status === 'HR_COUNTERSIGNED' || d.status === 'FULLY_EXECUTED').length})` },
+    { value: 'EXPIRED', label: `Expired (${activeDocs.filter((d) => d.status === 'EXPIRED').length})` },
+    { value: 'VOID', label: `Void (${activeDocs.filter((d) => d.status === 'VOID' || d.status === 'CANCELLED').length})` },
   ];
 
   // KPI Metrics Calculations
@@ -111,31 +119,49 @@ export default function DocumentInventoryScreenController({
         others: dashboardData.metrics.cancelled + dashboardData.metrics.expired,
       };
     }
-    const total = documents.length;
-    const pendingCandidate = documents.filter((d) => d.status === 'SENT' || d.status === 'OUT_FOR_CANDIDATE_SIGN').length;
-    const pendingCountersign = documents.filter((d) => d.status === 'CANDIDATE_SIGNED').length;
-    const fullyExecuted = documents.filter((d) => d.status === 'HR_COUNTERSIGNED' || d.status === 'FULLY_EXECUTED').length;
-    const drafts = documents.filter((d) => d.status === 'DRAFT').length;
-    const others = documents.filter((d) => d.status === 'EXPIRED' || d.status === 'VOID').length;
+    const total = activeDocs.length;
+    const pendingCandidate = activeDocs.filter((d) => d.status === 'SENT' || d.status === 'OUT_FOR_CANDIDATE_SIGN' || d.status === 'AWAITING_CANDIDATE').length;
+    const pendingCountersign = activeDocs.filter((d) => d.status === 'CANDIDATE_SIGNED' || d.status === 'AWAITING_COUNTERSIGN').length;
+    const fullyExecuted = activeDocs.filter((d) => d.status === 'HR_COUNTERSIGNED' || d.status === 'FULLY_EXECUTED').length;
+    const drafts = activeDocs.filter((d) => d.status === 'DRAFT').length;
+    const others = activeDocs.filter((d) => d.status === 'EXPIRED' || d.status === 'VOID' || d.status === 'CANCELLED').length;
 
     return { total, pendingCandidate, pendingCountersign, fullyExecuted, drafts, others };
-  }, [dashboardData, documents]);
+  }, [dashboardData, activeDocs]);
 
   // Filtered Documents
   const filteredDocuments = useMemo(() => {
-    return documents.filter((doc) => {
-      // 1. Status Filter
-      if (activeStatusFilter !== 'ALL' && doc.status !== activeStatusFilter) {
-        return false;
+    return activeDocs.filter((doc) => {
+      // 1. Status Filter with Normalized Multi-Status Matching
+      if (activeStatusFilter !== 'ALL') {
+        if (activeStatusFilter === 'SENT' || activeStatusFilter === 'OUT_FOR_CANDIDATE_SIGN') {
+          if (doc.status !== 'SENT' && doc.status !== 'OUT_FOR_CANDIDATE_SIGN' && doc.status !== 'AWAITING_CANDIDATE') {
+            return false;
+          }
+        } else if (activeStatusFilter === 'CANDIDATE_SIGNED' || activeStatusFilter === 'AWAITING_COUNTERSIGN') {
+          if (doc.status !== 'CANDIDATE_SIGNED' && doc.status !== 'AWAITING_COUNTERSIGN') {
+            return false;
+          }
+        } else if (activeStatusFilter === 'HR_COUNTERSIGNED' || activeStatusFilter === 'FULLY_EXECUTED') {
+          if (doc.status !== 'HR_COUNTERSIGNED' && doc.status !== 'FULLY_EXECUTED') {
+            return false;
+          }
+        } else if (activeStatusFilter === 'VOID' || activeStatusFilter === 'CANCELLED') {
+          if (doc.status !== 'VOID' && doc.status !== 'CANCELLED') {
+            return false;
+          }
+        } else if (doc.status !== activeStatusFilter) {
+          return false;
+        }
       }
 
-      // 2. Search Query
+      // 2. Search Query with Safe Null Guards
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
-        const candidateName = doc.offerDetails.candidateName.toLowerCase();
-        const candidateEmail = doc.offerDetails.candidateEmail.toLowerCase();
-        const role = (doc.offerDetails.roleTitle || doc.offerDetails.jobTitle || 'Position').toLowerCase();
-        const department = doc.offerDetails.department.toLowerCase();
+        const candidateName = (doc.offerDetails?.candidateName || doc.title || '').toLowerCase();
+        const candidateEmail = (doc.offerDetails?.candidateEmail || doc.candidateEmail || '').toLowerCase();
+        const role = (doc.offerDetails?.roleTitle || doc.offerDetails?.jobTitle || 'Position').toLowerCase();
+        const department = (doc.offerDetails?.department || '').toLowerCase();
         const docNum = (doc.documentNumber || doc.docNumber || 'DOC-000').toLowerCase();
 
         return (
@@ -149,7 +175,7 @@ export default function DocumentInventoryScreenController({
 
       return true;
     });
-  }, [documents, activeStatusFilter, searchQuery]);
+  }, [activeDocs, activeStatusFilter, searchQuery]);
 
   const handleOpenCandidatePortal = (doc: OfferDocument) => {
     setSelectedDocId(doc.id);

@@ -16,9 +16,13 @@ export default function SplashScreenController({
     TanstackQueryClientService.current.dashboardInfoGrab.useDashboardInfoQuery();
 
   useEffect(() => {
-    // When backend query settles (either loaded or errored/fallback), notify parent immediately
+    // When backend query settles (either loaded or errored/fallback), hold splash screen for 2 seconds before dismissing
     if (!isLoading && (isFetched || isError)) {
-      onReady();
+      const timer = setTimeout(() => {
+        onReady();
+      }, SplashScreenCON.MINIMUM_DISPLAY_DURATION_MS);
+
+      return () => clearTimeout(timer);
     }
   }, [isLoading, isFetched, isError, onReady]);
 

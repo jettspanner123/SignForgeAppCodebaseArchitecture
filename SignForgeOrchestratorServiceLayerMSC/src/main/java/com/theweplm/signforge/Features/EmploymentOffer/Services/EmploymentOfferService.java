@@ -90,8 +90,9 @@ public class EmploymentOfferService implements IEmploymentOfferService {
     @Override
     @Transactional(readOnly = true)
     public List<EmploymentOfferResponseDTO> getAllEmploymentOffers() {
-        return employmentOfferRepository.findAllByStatusNotOrderByCreatedAtDesc(EmploymentOfferCON.STATUS_CANCELLED)
+        return employmentOfferRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
+                .filter(o -> o.getStatus() == null || !EmploymentOfferCON.STATUS_CANCELLED.equalsIgnoreCase(o.getStatus()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
