@@ -10,12 +10,12 @@ import {
   UserCheck
 } from 'lucide-react';
 import { SignatureType, SignatureData } from '../Types';
-import { generateSHA256, getSimulatedIP } from '../utils/crypto';
+import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
 import { motion } from 'motion/react';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
-import { triggerHapticFeedback } from '../utils/haptics';
+import ApplicationHapticsUtility from '../Utilities/ApplicationHapticsUtility';
 
 interface SignatureCanvasProps {
   isOpen: boolean;
@@ -227,12 +227,12 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
     }
 
     const timestamp = new Date().toISOString();
-    const ipAddress = getSimulatedIP();
+    const ipAddress = ApplicationCryptoUtility.current.getSimulatedIP();
     const userAgent = navigator.userAgent;
 
     // Generate SHA-256 for audit signature log
-    const hashPayload = `${sigValue}-${signerEmail}-${timestamp}-${ipAddress}`;
-    const sha256Hash = await generateSHA256(hashPayload);
+    const hashPayload = `${sigValue}-${signerName}-${signerEmail}-${timestamp}-${ipAddress}`;
+    const sha256Hash = await ApplicationCryptoUtility.current.generateSHA256(hashPayload);
 
     const sigData: SignatureData = {
       type: activeTab,
@@ -307,7 +307,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
         <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
           <button
             type="button"
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={() => setActiveTab('DRAW')}
             className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
               activeTab === 'DRAW' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
@@ -332,7 +332,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
 
           <button
             type="button"
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={() => setActiveTab('TYPE')}
             className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
               activeTab === 'TYPE' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
@@ -357,7 +357,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
 
           <button
             type="button"
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={() => setActiveTab('UPLOAD')}
             className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
               activeTab === 'UPLOAD' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''

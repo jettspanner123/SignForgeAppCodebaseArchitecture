@@ -10,7 +10,7 @@ import ApplicationThemeCON from '../../../../Constants/ApplicationThemeCON';
 import ApplicationThemeUtility from '../../../../Utilities/ApplicationThemeUtility';
 import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
 import NavigationCON from '../../Constants/NavigationCON';
-import { triggerHapticFeedback } from '../../../../utils/haptics';
+import ApplicationHapticsUtility from '../../../../Utilities/ApplicationHapticsUtility';
 
 export interface ProfileDropdownStaticComponentProps {
   isOpen: boolean;
@@ -106,7 +106,7 @@ export default function ProfileDropdownStaticComponent({
                 <div className="flex items-center p-1 rounded-xl bg-slate-200/80 dark:bg-zinc-800 border border-slate-300/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
                   <button
                     type="button"
-                    onPointerDown={() => triggerHapticFeedback(12)}
+                    onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={(e) =>
                       isDark &&
                       ApplicationThemeUtility.current.executeAnimatedThemeToggle(
@@ -125,7 +125,7 @@ export default function ProfileDropdownStaticComponent({
                   </button>
                   <button
                     type="button"
-                    onPointerDown={() => triggerHapticFeedback(12)}
+                    onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={(e) =>
                       !isDark &&
                       ApplicationThemeUtility.current.executeAnimatedThemeToggle(
@@ -150,7 +150,7 @@ export default function ProfileDropdownStaticComponent({
             <div className="pt-2 border-t border-slate-100 dark:border-zinc-800/80">
               <button
                 type="button"
-                onPointerDown={() => triggerHapticFeedback(12)}
+                onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                 onClick={() => {
                   onClose();
                   window.location.reload();

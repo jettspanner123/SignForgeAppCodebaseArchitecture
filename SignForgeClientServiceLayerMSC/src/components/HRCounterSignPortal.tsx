@@ -16,10 +16,10 @@ import {
 } from 'lucide-react';
 import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
-import { generateSHA256, getSimulatedIP } from '../utils/crypto';
+import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
 import { ExecutiveDispatchModal } from './ExecutiveDispatchModal';
-import { downloadExecutedPDF } from '../utils/pdfGenerator';
-import { triggerHapticFeedback } from '../utils/haptics';
+import ApplicationPDFGeneratorUtility from '../Utilities/ApplicationPDFGeneratorUtility';
+import ApplicationHapticsUtility from '../Utilities/ApplicationHapticsUtility';
 import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
@@ -53,7 +53,7 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
-    const result = await downloadExecutedPDF(document);
+    const result = await ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(document);
     setIsDownloading(false);
 
     if (result.success && result.blobUrl && result.fileName) {
@@ -69,9 +69,9 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
 
   const handleApplyHRSignature = async (sigData: SignatureData) => {
     const now = new Date().toISOString();
-    const ip = getSimulatedIP();
+    const ip = ApplicationCryptoUtility.current.getSimulatedIP();
 
-    const finalChecksum = await generateSHA256(
+    const finalChecksum = await ApplicationCryptoUtility.current.generateSHA256(
       `FULLY_EXECUTED-${document.id}-${document.candidateSignature?.sha256Hash}-${sigData.sha256Hash}`
     );
 
@@ -142,7 +142,7 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
         <div className="grid grid-cols-2 gap-3 w-full sm:flex sm:items-center sm:w-auto sm:shrink-0">
           {isFullyExecuted ? (
             <button
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setShowDispatchModal(true)}
               className="col-span-1 flex items-center justify-center space-x-2 px-4 py-2.5 !h-11 sm:!h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-xs shadow-sm transition-colors cursor-pointer w-full sm:w-auto"
             >
@@ -154,7 +154,7 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
               id="hr-countersign-btn"
               label="Counter Sign"
               icon={<ShieldCheck className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setIsSignModalOpen(true)}
               className="col-span-1 w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
             />
@@ -169,7 +169,7 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
             variant="outline"
             size="sm"
             disabled={isDownloading}
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={handleDownloadPdf}
             icon={<Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-600 dark:text-zinc-400" />}
             className="col-span-1 w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"

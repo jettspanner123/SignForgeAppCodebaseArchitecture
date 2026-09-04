@@ -11,11 +11,11 @@ import {
   UserCheck
 } from 'lucide-react';
 import { OfferDocument } from '../Types';
-import { getCandidateShareLink } from '../utils/urlEncoder';
+import ApplicationUrlEncoderUtility from '../Utilities/ApplicationUrlEncoderUtility';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
-import { triggerHapticFeedback } from '../utils/haptics';
+import ApplicationHapticsUtility from '../Utilities/ApplicationHapticsUtility';
 
 interface SendEmailModalProps {
   document: OfferDocument;
@@ -33,7 +33,7 @@ export const SendEmailModal: React.FC<SendEmailModalProps> = ({ document, onClos
   const companyName = document.companyName || 'We.PLM Global Technologies (P) Ltd.';
 
   // Construct direct candidate eSign link with embedded DataObjects payload
-  const directLink = getCandidateShareLink(document);
+  const directLink = ApplicationUrlEncoderUtility.current.getCandidateShareLink(document);
 
   // Construct mailto link for 1-click live mail dispatch
   const mailSubject = encodeURIComponent(`Employment Offer Letter — ${jobTitle} at ${companyName} (${document.documentNumber})`);
@@ -134,7 +134,7 @@ ${companyName}
               />
               <button
                 type="button"
-                onPointerDown={() => triggerHapticFeedback(12)}
+                onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                 onClick={handleCopyLink}
                 className="w-full sm:w-auto px-4 py-2.5 sm:py-2 !h-11 sm:!h-9 bg-[#0C2086] hover:bg-[#0a1b70] text-white font-bold text-sm sm:text-xs rounded-xl sm:rounded-lg shadow-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
               >

@@ -22,10 +22,10 @@ import {
 } from 'lucide-react';
 import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
-import { downloadExecutedPDF } from '../utils/pdfGenerator';
-import { triggerHapticFeedback } from '../utils/haptics';
+import ApplicationPDFGeneratorUtility from '../Utilities/ApplicationPDFGeneratorUtility';
+import ApplicationHapticsUtility from '../Utilities/ApplicationHapticsUtility';
 import PDFGeneratorService from '../Services/PDFGeneratorService';
-import { generateSHA256, getSimulatedIP } from '../utils/crypto';
+import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
 import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
@@ -87,9 +87,9 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
 
   const handleApplySignature = async (sigData: SignatureData) => {
     const now = new Date().toISOString();
-    const ip = getSimulatedIP();
-
-    const auditChecksum = await generateSHA256(`CANDIDATE_SIGNED-${document.id}-${sigData.sha256Hash}`);
+    const ip = ApplicationCryptoUtility.current.getSimulatedIP();
+    const signatureId = `sig-${Date.now()}`;
+    const auditChecksum = await ApplicationCryptoUtility.current.generateSHA256(`CANDIDATE_SIGNED-${document.id}-${sigData.sha256Hash}`);
 
     const newAuditItem = {
       id: `audit-${Date.now()}`,
@@ -118,7 +118,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
   const handleRejectOffer = async () => {
     if (!rejectReason.trim()) return;
     const now = new Date().toISOString();
-    const ip = getSimulatedIP();
+    const ip = ApplicationCryptoUtility.current.getSimulatedIP();
     const isDecline = rejectTab === 'DECLINE';
 
     const updatedDoc: OfferDocument = {
@@ -135,7 +135,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
           actorRole: 'Candidate',
           ipAddress: ip,
           details: `${isDecline ? 'Reason' : 'Revision Details'}: ${rejectReason}`,
-          checksum: await generateSHA256(`${isDecline ? 'REJECTED' : 'REVISION'}-${document.id}`)
+          checksum: await ApplicationCryptoUtility.current.generateSHA256(`${isDecline ? 'REJECTED' : 'REVISION'}-${document.id}`)
         },
         ...document.auditTrail
       ]
@@ -183,7 +183,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
             <PrimaryActionButtonSharedComponent
               label="Review & Sign Offer"
               icon={<PenTool className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setIsSignModalOpen(true)}
               className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
             />
@@ -193,7 +193,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
             variant="outline"
             size="sm"
             disabled={isDownloading}
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={handleDownloadPdf}
             icon={<Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-600 dark:text-zinc-400" />}
             className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
@@ -295,7 +295,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
             <ButtonSharedComponent
               variant="outline"
               size="sm"
-              onClick={() => downloadExecutedPDF(document)}
+              onClick={() => ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(document)}
               icon={<Download className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
             >
               Download PDF
@@ -475,7 +475,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
           <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
             <button
               type="button"
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setRejectTab('DECLINE')}
               className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
                 rejectTab === 'DECLINE' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
@@ -500,7 +500,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
 
             <button
               type="button"
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setRejectTab('REVISION')}
               className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
                 rejectTab === 'REVISION' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''

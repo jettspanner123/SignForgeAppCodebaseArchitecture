@@ -17,7 +17,7 @@ import {
   Info
 } from 'lucide-react';
 import { OfferDocument, OfferDetails } from '../Types';
-import { generateUUID, generateDocNumber, getSimulatedIP, generateSHA256 } from '../utils/crypto';
+import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 
 interface UploadPdfEditorProps {
@@ -151,11 +151,11 @@ export const UploadPdfEditor: React.FC<UploadPdfEditorProps> = ({
     }
 
     setIsSubmitting(true);
-    const docId = generateUUID();
+    const docId = ApplicationCryptoUtility.current.generateUUID();
     const docPrefix = documentType === 'JOINING_LETTER' ? 'JOIN' : 'OFF';
-    const docNum = generateDocNumber(docPrefix);
+    const docNum = ApplicationCryptoUtility.current.generateDocNumber(docPrefix);
     const now = new Date().toISOString();
-    const ip = getSimulatedIP();
+    const ip = ApplicationCryptoUtility.current.getSimulatedIP();
 
     const offerDetails: OfferDetails = {
       candidateName,
@@ -175,7 +175,7 @@ export const UploadPdfEditor: React.FC<UploadPdfEditorProps> = ({
       directorEmail
     };
 
-    const initialChecksum = await generateSHA256(`${docNum}-${candidateName}-UPLOADED-PDF-${now}`);
+    const initialChecksum = await ApplicationCryptoUtility.current.generateSHA256(`${docNum}-${candidateName}-UPLOADED-PDF-${now}`);
 
     const docTitle = documentType === 'JOINING_LETTER' 
       ? `Uploaded Joining Letter — ${jobTitle} (${candidateName})`
@@ -279,7 +279,7 @@ export const UploadPdfEditor: React.FC<UploadPdfEditorProps> = ({
       ],
       auditTrail: [
         {
-          id: generateUUID(),
+          id: ApplicationCryptoUtility.current.generateUUID(),
           timestamp: now,
           action: `External PDF ${documentType === 'JOINING_LETTER' ? 'Joining Letter' : 'Offer Letter'} Uploaded`,
           actor: 'HR Admin (admin@theweplm.com)',
@@ -289,7 +289,7 @@ export const UploadPdfEditor: React.FC<UploadPdfEditorProps> = ({
           checksum: initialChecksum
         },
         ...(signatureCount === 3 ? [{
-          id: generateUUID(),
+          id: ApplicationCryptoUtility.current.generateUUID(),
           timestamp: now,
           action: 'Director Authorization Seal Applied',
           actor: `${directorName} (${directorEmail})`,
@@ -299,7 +299,7 @@ export const UploadPdfEditor: React.FC<UploadPdfEditorProps> = ({
           checksum: initialChecksum
         }] : []),
         {
-          id: generateUUID(),
+          id: ApplicationCryptoUtility.current.generateUUID(),
           timestamp: now,
           action: 'Issued PDF & Routed for Signatures',
           actor: 'SignCorp eSign Engine',

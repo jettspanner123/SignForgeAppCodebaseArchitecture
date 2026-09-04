@@ -5,7 +5,7 @@ import NavigationCON from '../../Constants/NavigationCON';
 import ApplicationRouteCON from '../../../../Constants/ApplicationRouteCON';
 import ProfileDropdownStaticComponent from './ProfileDropdownStaticComponent';
 import MobileNavigationDrawerStaticComponent from './MobileNavigationDrawerStaticComponent';
-import { triggerHapticFeedback } from '../../../../utils/haptics';
+import ApplicationHapticsUtility from '../../../../Utilities/ApplicationHapticsUtility';
 import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
 import PWAService from '../../../../Services/PWAService';
 import weplmLogo from '@/src/Assets/weplm.jpeg';
@@ -71,7 +71,7 @@ export default function HeaderStaticComponent({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={goBack}
                   aria-label="Go back to previous page"
                   title="Go Back"
@@ -135,7 +135,7 @@ export default function HeaderStaticComponent({
           <div className="relative">
             <button
               type="button"
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="h-10 w-10 sm:h-9 sm:w-9 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 text-slate-700 dark:text-zinc-300 hairline-border hover:bg-slate-200 dark:hover:bg-zinc-700/80 transition-colors cursor-pointer relative flex items-center justify-center select-none"
               title={`${user.name} - Profile & Settings`}
@@ -156,7 +156,7 @@ export default function HeaderStaticComponent({
           {/* Mobile Menu Button (<768px) */}
           <button
             type="button"
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={() => setIsMobileDrawerOpen(true)}
             aria-label="Open Navigation Menu"
             className="md:hidden h-10 w-10 sm:h-9 sm:w-9 rounded-xl sm:rounded-lg flex items-center justify-center p-2 text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer"

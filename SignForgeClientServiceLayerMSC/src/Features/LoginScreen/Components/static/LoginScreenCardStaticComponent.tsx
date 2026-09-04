@@ -1,10 +1,10 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Sun, Moon } from 'lucide-react';
 import ButtonSharedComponent from '../../../../Shared/Components/ButtonSharedComponent';
 import LoginScreenCON from '../../Constants/LoginScreenCON';
 import { LoginCredentials, LoginFormErrors } from '../../Models/LoginScreenModel';
 import weplmLogo from '@/src/Assets/weplm.jpeg';
-import { triggerHapticFeedback } from '../../../../utils/haptics';
+import ApplicationHapticsUtility from '../../../../Utilities/ApplicationHapticsUtility';
 import ApplicationThemeUtility from '../../../../Utilities/ApplicationThemeUtility';
 import ApplicationThemeCON from '../../../../Constants/ApplicationThemeCON';
 
@@ -63,7 +63,7 @@ export default function LoginScreenCardStaticComponent({
         <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 h-11 sm:h-9 w-full">
           <button
             type="button"
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={(e) =>
               isDark &&
               ApplicationThemeUtility.current.executeAnimatedThemeToggle(
@@ -82,7 +82,7 @@ export default function LoginScreenCardStaticComponent({
           </button>
           <button
             type="button"
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={(e) =>
               !isDark &&
               ApplicationThemeUtility.current.executeAnimatedThemeToggle(
@@ -107,7 +107,7 @@ export default function LoginScreenCardStaticComponent({
         <button
           type="button"
           onClick={() => {
-            triggerHapticFeedback(10);
+            ApplicationHapticsUtility.current.triggerHapticFeedback(10);
             onMicrosoftLogin();
           }}
           disabled={isLoading || isMicrosoftLoading}
@@ -231,7 +231,7 @@ export default function LoginScreenCardStaticComponent({
             size="md"
             type="submit"
             disabled={isLoading || isMicrosoftLoading}
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             className="w-full justify-center !h-11 sm:!h-9 !bg-[#0C2086] hover:!bg-[#081765] !text-white border-none shadow-md font-bold text-sm sm:text-xs rounded-xl cursor-pointer"
             icon={<ArrowRight className="w-4 h-4 !text-white" />}
           >

@@ -24,8 +24,8 @@ import {
   Link as LinkIcon
 } from 'lucide-react';
 import { OfferDocument, DocumentStatus } from '../Types';
-import { downloadExecutedPDF } from '../utils/pdfGenerator';
-import { formatTimestamp } from '../utils/crypto';
+import ApplicationPDFGeneratorUtility from '../Utilities/ApplicationPDFGeneratorUtility';
+import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
 
 interface DocumentListProps {
   documents: OfferDocument[];
@@ -58,7 +58,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
   const handleDownloadPdf = async (doc: OfferDocument) => {
     setDownloadingDocId(doc.id);
-    const result = await downloadExecutedPDF(doc);
+    const result = await ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(doc);
     setDownloadingDocId(null);
 
     if (result.success && result.blobUrl && result.fileName) {
@@ -273,7 +273,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                   <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-1 flex items-center justify-between">
                     <span>{doc.offerDetails.jobTitle}</span>
                     <span className="text-[11px] text-slate-400 dark:text-slate-500 font-normal">
-                      {formatTimestamp(doc.createdAt).split(',')[0]}
+                      {ApplicationCryptoUtility.current.formatTimestamp(doc.createdAt).split(',')[0]}
                     </span>
                   </p>
                 </div>

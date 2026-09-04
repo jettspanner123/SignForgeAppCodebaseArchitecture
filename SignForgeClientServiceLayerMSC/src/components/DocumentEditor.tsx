@@ -17,12 +17,12 @@ import {
   Award
 } from 'lucide-react';
 import { OfferDocument, OfferDetails } from '../Types';
-import { generateUUID, generateDocNumber, getSimulatedIP, generateSHA256 } from '../utils/crypto';
+import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
 import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
 import InputSharedComponent from '../Shared/Components/InputSharedComponent';
-import { triggerHapticFeedback } from '../utils/haptics';
+import ApplicationHapticsUtility from '../Utilities/ApplicationHapticsUtility';
 import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
 import DocumentEditorFormModeEnumModel from '../Models/DocumentEditorFormModeEnumModel';
 import OfferLetterInteractiveStateInterfaceModel from '../Models/OfferLetterInteractiveStateInterfaceModel';
@@ -169,12 +169,12 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
     setIsSubmitting(true);
 
     const now = new Date().toISOString();
-    const ip = getSimulatedIP();
-    const initialChecksum = await generateSHA256(`${candidateName}-${jobTitle}-${annualSalary}-${now}`);
+    const ip = ApplicationCryptoUtility.current.getSimulatedIP();
+    const initialChecksum = await ApplicationCryptoUtility.current.generateSHA256(`${candidateName}-${jobTitle}-${annualSalary}-${now}`);
 
     const newDoc: OfferDocument = {
-      id: initialDocument?.id || generateUUID(),
-      documentNumber: initialDocument?.documentNumber || generateDocNumber('WE-PLM-2026'),
+      id: initialDocument?.id || ApplicationCryptoUtility.current.generateUUID(),
+      documentNumber: initialDocument?.documentNumber || ApplicationCryptoUtility.current.generateDocNumber('WE-PLM-2026'),
       documentType: documentType,
       signatureCount: signatureCount,
       companyName: companyName.trim() || 'We.PLM Global Technologies (P) Ltd.',
@@ -280,7 +280,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
       ],
       auditTrail: [
         {
-          id: generateUUID(),
+          id: ApplicationCryptoUtility.current.generateUUID(),
           timestamp: now,
           action: `${documentType === 'JOINING_LETTER' ? 'Joining Letter' : 'Offer Letter'} Created (${signatureCount} eSignatures)`,
           actor: 'HR Admin (admin@signcorp.com)',
@@ -290,7 +290,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           checksum: initialChecksum
         },
         ...(signatureCount === 3 ? [{
-          id: generateUUID(),
+          id: ApplicationCryptoUtility.current.generateUUID(),
           timestamp: now,
           action: 'Director Pre-Authorization Applied',
           actor: `${directorName} (${directorEmail})`,
@@ -300,7 +300,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           checksum: initialChecksum
         }] : []),
         {
-          id: generateUUID(),
+          id: ApplicationCryptoUtility.current.generateUUID(),
           timestamp: now,
           action: 'Issued & Sent to Candidate',
           actor: 'HR Admin System',
@@ -430,7 +430,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
             <button
               type="button"
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setFormMode(DocumentEditorFormModeEnumModel.STANDARD)}
               className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
               title="Standard Form Mode"
@@ -453,7 +453,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
             </button>
             <button
               type="button"
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setFormMode(DocumentEditorFormModeEnumModel.INTERACTIVE)}
               className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
               title="Interactive Form Mode"
@@ -479,7 +479,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           {!isEditing && onSwitchToUpload && (
             <PrimaryActionButtonSharedComponent
               label="Upload PDF Instead"
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={onSwitchToUpload}
               icon={<Upload className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
               className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
@@ -505,7 +505,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                 <div className="flex items-center p-1 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9">
                   <button
                     type="button"
-                    onPointerDown={() => triggerHapticFeedback(12)}
+                    onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={() => handleDocTypeChange('OFFER_LETTER')}
                     className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
@@ -527,7 +527,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                   </button>
                   <button
                     type="button"
-                    onPointerDown={() => triggerHapticFeedback(12)}
+                    onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={() => handleDocTypeChange('JOINING_LETTER')}
                     className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
@@ -553,7 +553,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                 <div className="flex items-center p-1 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9">
                   <button
                     type="button"
-                    onPointerDown={() => triggerHapticFeedback(12)}
+                    onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={() => setSignatureCount(2)}
                     className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
@@ -576,7 +576,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                   </button>
                   <button
                     type="button"
-                    onPointerDown={() => triggerHapticFeedback(12)}
+                    onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={() => setSignatureCount(3)}
                     className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
@@ -605,7 +605,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                 <span className="text-[11px] font-semibold text-slate-400 mr-1">Quick Jump:</span>
                 <button
                   type="button"
-                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => document.getElementById('offer-letter-page-1')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                   className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
                 >
@@ -613,7 +613,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                 </button>
                 <button
                   type="button"
-                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => document.getElementById('offer-letter-page-2')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                   className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
                 >
@@ -621,7 +621,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                 </button>
                 <button
                   type="button"
-                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => document.getElementById('offer-letter-page-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                   className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 transition-colors cursor-pointer text-xs font-semibold"
                 >
@@ -671,7 +671,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
                           <button
                             type="button"
-                            onPointerDown={() => triggerHapticFeedback(12)}
+                            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                             onClick={() => handleDocTypeChange('OFFER_LETTER')}
                             className="relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                           >
@@ -695,7 +695,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
                           <button
                             type="button"
-                            onPointerDown={() => triggerHapticFeedback(12)}
+                            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                             onClick={() => handleDocTypeChange('JOINING_LETTER')}
                             className="relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                           >
@@ -727,7 +727,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
                           <button
                             type="button"
-                            onPointerDown={() => triggerHapticFeedback(12)}
+                            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                             onClick={() => setSignatureCount(2)}
                             className="relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                           >
@@ -751,7 +751,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
                           <button
                             type="button"
-                            onPointerDown={() => triggerHapticFeedback(12)}
+                            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                             onClick={() => setSignatureCount(3)}
                             className="relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                           >
@@ -1028,7 +1028,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                     <PrimaryActionButtonSharedComponent
                       type="button"
                       size="md"
-                      onPointerDown={() => triggerHapticFeedback(12)}
+                      onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                       onClick={() => handleIssueOffer()}
                       label={isEditing ? 'Update Offer' : 'Issue Offer'}
                       icon={<Send className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
@@ -1103,7 +1103,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
               <PrimaryActionButtonSharedComponent
                 type="button"
                 size="md"
-                onPointerDown={() => triggerHapticFeedback(12)}
+                onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                 onClick={() => handleIssueOffer()}
                 label={isEditing ? 'Update Offer' : 'Issue Offer & Dispatch'}
                 icon={<Send className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}

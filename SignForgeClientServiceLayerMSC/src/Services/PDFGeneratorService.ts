@@ -1,7 +1,7 @@
 import { PDFDocument } from 'pdf-lib';
 import html2canvas from 'html2canvas-pro';
 import { OfferDocument } from '../Types';
-import { downloadExecutedPDF } from '../utils/pdfGenerator';
+import ApplicationPDFGeneratorUtility from '../Utilities/ApplicationPDFGeneratorUtility';
 
 export default class PDFGeneratorService {
   public static current = new PDFGeneratorService();
@@ -18,7 +18,7 @@ export default class PDFGeneratorService {
     try {
       // 1. If it's an uploaded custom PDF, delegate to stamp overlay handler
       if (doc.isUploadedPdf && doc.pdfUrl) {
-        return await downloadExecutedPDF(doc);
+        return await ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(doc);
       }
 
       // 2. Locate the 3 Offer Letter DOM Pages
@@ -29,7 +29,7 @@ export default class PDFGeneratorService {
       if (!page1El || !page2El || !page3El) {
         // If elements are not mounted in current DOM, fallback to vector pdf-lib generation
         console.warn('DOM page elements not found, falling back to vector generator');
-        return await downloadExecutedPDF(doc);
+        return await ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(doc);
       }
 
       const pageElements = [page1El, page2El, page3El];

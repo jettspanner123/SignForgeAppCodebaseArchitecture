@@ -14,8 +14,8 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { OfferDocument } from '../Types';
-import { downloadExecutedPDF } from '../utils/pdfGenerator';
-import { formatTimestamp } from '../utils/crypto';
+import ApplicationPDFGeneratorUtility from '../Utilities/ApplicationPDFGeneratorUtility';
+import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
 
 interface AuditTrailModalProps {
   document: OfferDocument;
@@ -28,7 +28,7 @@ export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({ document, onCl
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
-    const result = await downloadExecutedPDF(document);
+    const result = await ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(document);
     setIsDownloading(false);
 
     if (result.success && result.blobUrl && result.fileName) {
@@ -142,7 +142,7 @@ export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({ document, onCl
                   {document.auditTrail.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-4 py-3 font-mono text-slate-500 dark:text-slate-400 text-[11px] whitespace-nowrap">
-                        {formatTimestamp(item.timestamp)}
+                        {ApplicationCryptoUtility.current.formatTimestamp(item.timestamp)}
                       </td>
                       <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">
                         {item.action}

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, Check, Search } from 'lucide-react';
-import { triggerHapticFeedback } from '../../utils/haptics';
+import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 
 export interface SelectOption {
   value: string;
@@ -99,7 +99,7 @@ export default function CustomSelectSharedComponent({
 
       <button
         type="button"
-        onPointerDown={() => triggerHapticFeedback(12)}
+        onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
         onClick={() => setIsOpen(!isOpen)}
         className={`${className.includes('w-') ? 'w-full' : ''} ${heightClass} rounded-xl sm:rounded-lg bg-white dark:bg-[#0a0a0c] text-slate-900 dark:text-zinc-100 border border-slate-200/80 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 transition-colors focus:outline-none flex items-center justify-between gap-2 cursor-pointer select-none ${triggerClassName || ''}`}
       >

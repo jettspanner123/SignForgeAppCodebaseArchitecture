@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, Check, Search, Plus, Sparkles } from 'lucide-react';
-import { triggerHapticFeedback } from '../../utils/haptics';
+import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 
 export interface CreatableSelectOption {
   value: string;
@@ -127,7 +127,7 @@ export default function CreatableCustomSelectSharedComponent({
         <button
           type="button"
           disabled={disabled}
-          onPointerDown={() => triggerHapticFeedback(12)}
+          onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={`w-full flex items-center justify-between rounded-xl bg-white dark:bg-zinc-900/80 border border-slate-300 dark:border-zinc-700/80 text-slate-900 dark:text-zinc-100 hover:border-slate-400 dark:hover:border-zinc-600 transition-all shadow-2xs cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#0C2086]/50 ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''

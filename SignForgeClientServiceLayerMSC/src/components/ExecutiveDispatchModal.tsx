@@ -13,8 +13,8 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { OfferDocument } from '../Types';
-import { downloadExecutedPDF } from '../utils/pdfGenerator';
-import { formatTimestamp } from '../utils/crypto';
+import ApplicationPDFGeneratorUtility from '../Utilities/ApplicationPDFGeneratorUtility';
+import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
 
 interface ExecutiveDispatchModalProps {
   document: OfferDocument;
@@ -32,7 +32,7 @@ export const ExecutiveDispatchModal: React.FC<ExecutiveDispatchModalProps> = ({
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
-    const result = await downloadExecutedPDF(document);
+    const result = await ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(document);
     setIsDownloading(false);
 
     if (result.success && result.blobUrl && result.fileName) {
@@ -53,13 +53,13 @@ export const ExecutiveDispatchModal: React.FC<ExecutiveDispatchModalProps> = ({
   }, []);
 
   const logs = [
-    `[${formatTimestamp()}] INIT SMTP TLS Connection -> mail.signcorp.internal:587`,
-    `[${formatTimestamp()}] AUTH LOGIN SUCCESS (TLS 1.3 AES-256-GCM)`,
-    `[${formatTimestamp()}] GENERATED PDF PAYLOAD: ${document.documentNumber}_EXECUTED.pdf (${(Math.random() * 2 + 1).toFixed(2)} MB)`,
-    `[${formatTimestamp()}] CALCULATED SHA-256: ${document.sha256Checksum || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b'}`,
-    `[${formatTimestamp()}] DISPATCHING RECIPIENT #1 -> ${hrHead.name} <${hrHead.email}> [DELIVERED 250 OK]`,
-    `[${formatTimestamp()}] DISPATCHING RECIPIENT #2 -> ${cto.name} <${cto.email}> [DELIVERED 250 OK]`,
-    `[${formatTimestamp()}] AUDIT RECORD PERSISTED IN SECURE ENGINE GUID: ${document.id}`
+    `[${ApplicationCryptoUtility.current.formatTimestamp()}] INIT SMTP TLS Connection -> mail.signcorp.internal:587`,
+    `[${ApplicationCryptoUtility.current.formatTimestamp()}] AUTH LOGIN SUCCESS (TLS 1.3 AES-256-GCM)`,
+    `[${ApplicationCryptoUtility.current.formatTimestamp()}] GENERATED PDF PAYLOAD: ${document.documentNumber}_EXECUTED.pdf (${(Math.random() * 2 + 1).toFixed(2)} MB)`,
+    `[${ApplicationCryptoUtility.current.formatTimestamp()}] CALCULATED SHA-256: ${document.sha256Checksum || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b'}`,
+    `[${ApplicationCryptoUtility.current.formatTimestamp()}] DISPATCHING RECIPIENT #1 -> ${hrHead.name} <${hrHead.email}> [DELIVERED 250 OK]`,
+    `[${ApplicationCryptoUtility.current.formatTimestamp()}] DISPATCHING RECIPIENT #2 -> ${cto.name} <${cto.email}> [DELIVERED 250 OK]`,
+    `[${ApplicationCryptoUtility.current.formatTimestamp()}] AUDIT RECORD PERSISTED IN SECURE ENGINE GUID: ${document.id}`
   ];
 
   return (
@@ -208,7 +208,7 @@ export const ExecutiveDispatchModal: React.FC<ExecutiveDispatchModalProps> = ({
                       </div>
                     </div>
                     <button
-                      onClick={() => downloadExecutedPDF(document)}
+                      onClick={() => ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(document)}
                       className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-xs font-semibold rounded text-slate-700 border border-slate-200"
                     >
                       Download
@@ -257,7 +257,7 @@ export const ExecutiveDispatchModal: React.FC<ExecutiveDispatchModalProps> = ({
                       </div>
                     </div>
                     <button
-                      onClick={() => downloadExecutedPDF(document)}
+                      onClick={() => ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(document)}
                       className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-xs font-semibold rounded text-slate-700 border border-slate-200"
                     >
                       Download

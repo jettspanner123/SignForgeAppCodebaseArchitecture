@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Loader2 } from 'lucide-react';
-import { triggerHapticFeedback } from '../../utils/haptics';
+import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 
 export interface ButtonSharedComponentProps {
   children: React.ReactNode;
@@ -77,7 +77,7 @@ export default function ButtonSharedComponent({
       type={type}
       onClick={onClick}
       onPointerDown={(e) => {
-        triggerHapticFeedback(12);
+        ApplicationHapticsUtility.current.triggerHapticFeedback(12);
         onPointerDown?.(e);
       }}
       disabled={isButtonDisabled}

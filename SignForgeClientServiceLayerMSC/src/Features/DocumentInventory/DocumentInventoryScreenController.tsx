@@ -33,9 +33,9 @@ import EmptyStateSharedComponent from '../../Shared/Components/EmptyStateSharedC
 import CustomSelectSharedComponent, { SelectOption } from '../../Shared/Components/CustomSelectSharedComponent';
 import ConfirmationModalSharedComponent from '../../Shared/Components/ConfirmationModalSharedComponent';
 import CardSharedComponent from '../../Shared/Components/CardSharedComponent';
-import { downloadExecutedPDF } from '../../utils/pdfGenerator';
-import { formatTimestamp } from '../../utils/crypto';
-import { triggerHapticFeedback } from '../../utils/haptics';
+import ApplicationPDFGeneratorUtility from '../../Utilities/ApplicationPDFGeneratorUtility';
+import ApplicationCryptoUtility from '../../Utilities/ApplicationCryptoUtility';
+import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 
 export interface DocumentInventoryScreenControllerProps {
   onOpenAuditModalForDoc: (doc: OfferDocument) => void;
@@ -141,7 +141,7 @@ export default function DocumentInventoryScreenController({
 
   const handleDownloadPdf = async (doc: OfferDocument) => {
     setDownloadingDocId(doc.id);
-    const result = await downloadExecutedPDF(doc);
+    const result = await ApplicationPDFGeneratorUtility.current.downloadExecutedPDF(doc);
     setDownloadingDocId(null);
 
     if (result.success && result.blobUrl && result.fileName) {
@@ -174,7 +174,7 @@ export default function DocumentInventoryScreenController({
       `"${doc.offerDetails?.department || 'N/A'}"`,
       `"${doc.offerDetails?.annualSalary || 'N/A'}"`,
       doc.status,
-      formatTimestamp(doc.createdAt),
+      ApplicationCryptoUtility.current.formatTimestamp(doc.createdAt),
     ]);
     const csvContent = 'DataObjects:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
@@ -204,14 +204,14 @@ export default function DocumentInventoryScreenController({
             variant="outline"
             size="sm"
             leftIcon={<FileCode2 className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-600 dark:text-zinc-400" />}
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={() => setCurrentView(ApplicationRouteCON.UPLOAD_PDF)}
             className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 sm:px-3.5 text-sm sm:text-xs font-bold"
           >
             Upload PDF
           </ButtonSharedComponent>
           <PrimaryActionButtonSharedComponent
-            onPointerDown={() => triggerHapticFeedback(12)}
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
             onClick={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
             icon={<Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}
             className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 sm:px-3.5 text-sm sm:text-xs font-bold"
@@ -316,7 +316,7 @@ export default function DocumentInventoryScreenController({
             <ButtonSharedComponent
               variant="outline"
               size="sm"
-              onPointerDown={() => triggerHapticFeedback(12)}
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={handleExportCSV}
               icon={<Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-500 dark:text-zinc-400" />}
               className="w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
@@ -347,7 +347,7 @@ export default function DocumentInventoryScreenController({
               <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
                 <button
                   type="button"
-                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => setGridColumns(2)}
                   className="flex-1 sm:flex-initial relative flex items-center justify-center px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Show 2 Items Per Row"
@@ -369,7 +369,7 @@ export default function DocumentInventoryScreenController({
                 </button>
                 <button
                   type="button"
-                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => setGridColumns(3)}
                   className="flex-1 sm:flex-initial relative flex items-center justify-center px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Show 3 Items Per Row"
@@ -397,7 +397,7 @@ export default function DocumentInventoryScreenController({
               <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
                 <button
                   type="button"
-                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => setIsSingleLineMode(true)}
                   className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Single-Line Table Mode"
@@ -420,7 +420,7 @@ export default function DocumentInventoryScreenController({
                 </button>
                 <button
                   type="button"
-                  onPointerDown={() => triggerHapticFeedback(12)}
+                  onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => setIsSingleLineMode(false)}
                   className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Wrap Text Table Mode"
@@ -448,7 +448,7 @@ export default function DocumentInventoryScreenController({
             <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
               <button
                 type="button"
-                onPointerDown={() => triggerHapticFeedback(12)}
+                onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                 onClick={() => setViewMode('table')}
                 className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                 title="Table View"
@@ -471,7 +471,7 @@ export default function DocumentInventoryScreenController({
               </button>
               <button
                 type="button"
-                onPointerDown={() => triggerHapticFeedback(12)}
+                onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                 onClick={() => setViewMode('grid')}
                 className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                 title="Grid View"
@@ -582,7 +582,7 @@ export default function DocumentInventoryScreenController({
 
                       {/* Timestamps */}
                       <td className="py-3 px-4 text-[11px] font-mono text-slate-400 dark:text-zinc-500 whitespace-nowrap">
-                        <div>{formatTimestamp(doc.createdAt)}</div>
+                        <div>{ApplicationCryptoUtility.current.formatTimestamp(doc.createdAt)}</div>
                       </td>
 
                       {/* Actions */}
@@ -717,7 +717,7 @@ export default function DocumentInventoryScreenController({
                   </div>
                   <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
                     <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Created</span>
-                    <span className="font-mono text-[11px]">{formatTimestamp(doc.createdAt)}</span>
+                    <span className="font-mono text-[11px]">{ApplicationCryptoUtility.current.formatTimestamp(doc.createdAt)}</span>
                   </div>
                 </div>
 

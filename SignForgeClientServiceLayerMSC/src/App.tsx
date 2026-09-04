@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOfferDocumentStore } from './Store/OfferDocumentStore';
 import { OfferDocument } from './Types';
 import ApplicationRouteCON from './Constants/ApplicationRouteCON';
-import { decodeOfferFromUrl } from './utils/urlEncoder';
+import ApplicationUrlEncoderUtility from './Utilities/ApplicationUrlEncoderUtility';
 
 // Navigation Feature Controller Shell
 import NavigationController from './Features/Navigation/NavigationController';
@@ -82,7 +82,7 @@ export default function App() {
       const viewParam = searchParams.get('view');
 
       if (dataParam) {
-        const decodedDoc = decodeOfferFromUrl(dataParam);
+        const decodedDoc = ApplicationUrlEncoderUtility.current.decodeOfferFromUrl(dataParam);
         if (decodedDoc) {
           addDocument(decodedDoc);
           setSelectedDocId(decodedDoc.id);
