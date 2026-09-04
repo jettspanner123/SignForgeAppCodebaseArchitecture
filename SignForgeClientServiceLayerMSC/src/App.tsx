@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOfferDocumentStore } from './Store/OfferDocumentStore';
 import { OfferDocument } from './Types';
+import TanstackQueryClientService from './Services/TanstackQueryClientService';
 import ApplicationRouteCON from './Constants/ApplicationRouteCON';
 import ApplicationUrlEncoderUtility from './Utilities/ApplicationUrlEncoderUtility';
 
@@ -9,6 +10,7 @@ import NavigationController from './Features/Navigation/NavigationController';
 
 // Feature Controllers
 import DocumentInventoryScreenController from './Features/DocumentInventory/DocumentInventoryScreenController';
+import SplashScreenController from './Features/SplashScreen/SplashScreenController';
 
 // Sub-Screens & Portals
 import { DocumentEditor } from './components/DocumentEditor';
@@ -41,7 +43,12 @@ export default function App() {
 
   const isAuthenticated = useAuthenticationStateStore((s) => s.isAuthenticated);
 
+  // TanStack Query: Live Backend Persistence & Cache Invalidation
+  TanstackQueryClientService.current.dashboardInfoGrab.useDashboardInfoQuery();
+  const createOfferMutation = TanstackQueryClientService.current.employmentOffer.useCreateEmploymentOfferMutation();
+
   const [editingDoc, setEditingDoc] = useState<OfferDocument | null>(null);
+  const [isSplashReady, setIsSplashReady] = useState<boolean>(false);
   const [showAuditModal, setShowAuditModal] = useState<boolean>(false);
   const [showDispatchModal, setShowDispatchModal] = useState<boolean>(false);
   const [showEmailModalDoc, setShowEmailModalDoc] = useState<OfferDocument | null>(null);
@@ -136,7 +143,7 @@ export default function App() {
   const activeDoc = documents.find((d) => d.id === selectedDocId) || documents[0] || null;
 
   const handleSaveOffer = (savedDoc: OfferDocument) => {
-    addDocument(savedDoc);
+    createOfferMutation.mutate(savedDoc);
     setEditingDoc(null);
     setCurrentView(ApplicationRouteCON.DOCUMENTS);
   };
@@ -148,6 +155,11 @@ export default function App() {
 
   // Route Guard View Filter: Show Login if unauthenticated and not on a public route
   const isPublicView = ApplicationRouteCON.isPublicRoute(currentView, typeof window !== 'undefined' ? window.location.pathname : undefined);
+
+  if (!isSplashReady && !isPublicView) {
+    return <SplashScreenController onReady={() => setIsSplashReady(true)} />;
+  }
+
   if (!isAuthenticated && !isPublicView) {
     return (
       <LoginScreenController

@@ -16,6 +16,7 @@ public final class DatabaseCON {
     public static final String AUDIT_LOGS_TABLE = "\"SF_AuditLogsTBL\"";
     public static final String CONFIGURATION_CONSTANTS_TABLE = "\"SF_ConfigurationConstantTBL\"";
     public static final String NOTIFICATIONS_TABLE = "\"SF_NotificationTBL\"";
+    public static final String EMPLOYMENT_OFFERS_TABLE = "\"SF_EmploymentOffersTBL\"";
 
     private DatabaseCON() {}
 }

@@ -41,6 +41,9 @@ public class SignForgeCorsConfiguration implements WebMvcConfigurer {
         }
         config.addAllowedOriginPattern("http://localhost:[*]");
         config.addAllowedOriginPattern("http://127.0.0.1:[*]");
+        config.addAllowedOriginPattern("http://192.168.*:[*]");
+        config.addAllowedOriginPattern("http://10.*:[*]");
+        config.addAllowedOriginPattern("http://172.*:[*]");
         config.addAllowedOriginPattern("https://*.theweplm.com");
         config.addAllowedOriginPattern("https://*.vercel.app");
 
@@ -62,6 +65,9 @@ public class SignForgeCorsConfiguration implements WebMvcConfigurer {
                 .allowedOriginPatterns(
                         "http://localhost:*",
                         "http://127.0.0.1:*",
+                        "http://192.168.*:*",
+                        "http://10.*:*",
+                        "http://172.*:*",
                         "https://*.theweplm.com",
                         "https://*.vercel.app"
                 )

@@ -40,6 +40,8 @@ import CardSharedComponent from '../../Shared/Components/CardSharedComponent';
 import ApplicationPDFGeneratorUtility from '../../Utilities/ApplicationPDFGeneratorUtility';
 import ApplicationCryptoUtility from '../../Utilities/ApplicationCryptoUtility';
 import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
+import TanstackQueryClientService from '../../Services/TanstackQueryClientService';
+import DocumentInventorySkeletonStaticComponent from './Components/static/DocumentInventorySkeletonStaticComponent';
 
 export interface DocumentInventoryScreenControllerProps {
   onOpenAuditModalForDoc: (doc: OfferDocument) => void;
@@ -70,6 +72,12 @@ export default function DocumentInventoryScreenController({
     setInventorySingleLineMode: setIsSingleLineMode,
   } = useOfferDocumentStore();
 
+  // TanStack Query: Live Backend Dashboard Data & Auto-Sync
+  const { data: dashboardData, isLoading: isDashboardLoading } =
+    TanstackQueryClientService.current.dashboardInfoGrab.useDashboardInfoQuery();
+  const deleteOfferMutation =
+    TanstackQueryClientService.current.employmentOffer.useDeleteEmploymentOfferMutation();
+
   const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
   const [docToDelete, setDocToDelete] = useState<OfferDocument | null>(null);
   const [copiedDocId, setCopiedDocId] = useState<string | null>(null);
@@ -93,15 +101,25 @@ export default function DocumentInventoryScreenController({
 
   // KPI Metrics Calculations
   const metrics = useMemo(() => {
+    if (dashboardData?.metrics) {
+      return {
+        total: dashboardData.metrics.totalPipeline,
+        pendingCandidate: dashboardData.metrics.awaitingCandidate,
+        pendingCountersign: dashboardData.metrics.awaitingCountersign,
+        fullyExecuted: dashboardData.metrics.fullyExecuted,
+        drafts: dashboardData.metrics.drafts,
+        others: dashboardData.metrics.cancelled + dashboardData.metrics.expired,
+      };
+    }
     const total = documents.length;
-    const pendingCandidate = documents.filter((d) => d.status === 'SENT').length;
+    const pendingCandidate = documents.filter((d) => d.status === 'SENT' || d.status === 'OUT_FOR_CANDIDATE_SIGN').length;
     const pendingCountersign = documents.filter((d) => d.status === 'CANDIDATE_SIGNED').length;
-    const fullyExecuted = documents.filter((d) => d.status === 'HR_COUNTERSIGNED').length;
+    const fullyExecuted = documents.filter((d) => d.status === 'HR_COUNTERSIGNED' || d.status === 'FULLY_EXECUTED').length;
     const drafts = documents.filter((d) => d.status === 'DRAFT').length;
     const others = documents.filter((d) => d.status === 'EXPIRED' || d.status === 'VOID').length;
 
     return { total, pendingCandidate, pendingCountersign, fullyExecuted, drafts, others };
-  }, [documents]);
+  }, [dashboardData, documents]);
 
   // Filtered Documents
   const filteredDocuments = useMemo(() => {
@@ -190,6 +208,14 @@ export default function DocumentInventoryScreenController({
     document.body.removeChild(link);
   };
 
+  if (isDashboardLoading && documents.length === 0) {
+    return (
+      <div className="space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+        <DocumentInventorySkeletonStaticComponent viewMode={viewMode} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       {/* 1. Editorial Header */}
@@ -229,13 +255,13 @@ export default function DocumentInventoryScreenController({
       {/* 2. Top KPI Metric Cards (Harmonized Tonal Navy/Slate Executive Cards) */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Total Pipeline (Hidden on Mobile/PWA Mobile) */}
-        <div className="hidden sm:block rounded-2xl p-4 sm:p-5 relative overflow-hidden bg-gradient-to-br from-indigo-500/10 via-slate-500/5 to-transparent dark:from-indigo-950/30 dark:via-[#0e101a] dark:to-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
+        <div className="hidden sm:block rounded-2xl p-4 sm:p-5 relative overflow-hidden bg-gradient-to-br from-indigo-500/10 via-slate-500/5 to-transparent dark:bg-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
           {/* Header: Title & Icon Badge */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 font-mono">
               Total Pipeline
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#0C2086] dark:bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-[#0C2086] text-white dark:bg-zinc-800/90 dark:text-zinc-200 flex items-center justify-center shadow-xs">
               <Layers className="w-4 h-4" />
             </div>
           </div>
@@ -245,7 +271,7 @@ export default function DocumentInventoryScreenController({
             <div className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-slate-900 dark:text-zinc-50">
               {metrics.total}
             </div>
-            <span className="text-[11px] font-mono font-bold text-indigo-900 dark:text-indigo-200 bg-indigo-100/80 dark:bg-indigo-950/60 border border-indigo-200/60 dark:border-indigo-800/60 px-2 py-0.5 rounded-md">
+            <span className="text-[11px] font-mono font-bold text-indigo-900 dark:text-zinc-300 bg-indigo-100/80 dark:bg-zinc-800/80 border border-indigo-200/60 dark:border-zinc-700/60 px-2 py-0.5 rounded-md">
               {metrics.drafts > 0 ? `${metrics.drafts} drafts` : '100% active'}
             </span>
           </div>
@@ -253,31 +279,31 @@ export default function DocumentInventoryScreenController({
           {/* Footer Status Strip */}
           <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-zinc-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-zinc-400">
             <span>Overall Registry</span>
-            <span className="flex items-center gap-1.5 font-semibold text-indigo-800 dark:text-indigo-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+            <span className="flex items-center gap-1.5 font-semibold text-indigo-800 dark:text-zinc-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-zinc-400" />
               Live Pipeline
             </span>
           </div>
         </div>
 
         {/* Card 2: Awaiting Candidate (Visible on Mobile & Desktop) */}
-        <div className="rounded-2xl p-3.5 sm:p-5 relative overflow-hidden bg-gradient-to-br from-slate-500/10 via-indigo-500/5 to-transparent dark:from-slate-900/30 dark:via-[#0e1018] dark:to-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
+        <div className="rounded-2xl p-3.5 sm:p-5 relative overflow-hidden bg-gradient-to-br from-slate-500/10 via-indigo-500/5 to-transparent dark:bg-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
           {/* Header: Title & Icon Badge */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 font-mono truncate">
               Awaiting Candidate
             </span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-700 dark:bg-slate-700 text-white flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-700 text-white dark:bg-zinc-800/90 dark:text-zinc-200 flex items-center justify-center shadow-xs shrink-0">
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
 
           {/* Metric Numeral & Percentage Badge */}
           <div className="mt-2.5 sm:mt-3 flex items-baseline justify-between gap-1 sm:gap-2">
-            <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold font-mono tracking-tight text-slate-800 dark:text-slate-100">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold font-mono tracking-tight text-slate-800 dark:text-zinc-50">
               {metrics.pendingCandidate}
             </div>
-            <span className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 px-1.5 sm:px-2 py-0.5 rounded-md">
+            <span className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-800 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/60 px-1.5 sm:px-2 py-0.5 rounded-md">
               {metrics.total > 0 ? `${Math.round((metrics.pendingCandidate / metrics.total) * 100)}%` : '0%'}
             </span>
           </div>
@@ -285,31 +311,31 @@ export default function DocumentInventoryScreenController({
           {/* Footer Status Strip */}
           <div className="mt-2.5 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-zinc-800/80 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-500 dark:text-zinc-400">
             <span className="truncate">Action Req.</span>
-            <span className="flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300 shrink-0">
-              <Clock className="w-3 h-3 text-slate-500 hidden sm:inline" />
+            <span className="flex items-center gap-1 font-semibold text-slate-700 dark:text-zinc-300 shrink-0">
+              <Clock className="w-3 h-3 text-slate-500 dark:text-zinc-400 hidden sm:inline" />
               Sent
             </span>
           </div>
         </div>
 
         {/* Card 3: Pending HR Countersign (Visible on Mobile & Desktop) */}
-        <div className="rounded-2xl p-3.5 sm:p-5 relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent dark:from-blue-950/30 dark:via-[#0c1322] dark:to-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
+        <div className="rounded-2xl p-3.5 sm:p-5 relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent dark:bg-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
           {/* Header: Title & Icon Badge */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 font-mono truncate">
               HR Countersign
             </span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#1332BD] dark:bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#1332BD] text-white dark:bg-zinc-800/90 dark:text-zinc-200 flex items-center justify-center shadow-xs shrink-0">
               <FileSignature className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
 
           {/* Metric Numeral & Percentage Badge */}
           <div className="mt-2.5 sm:mt-3 flex items-baseline justify-between gap-1 sm:gap-2">
-            <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold font-mono tracking-tight text-[#0C2086] dark:text-blue-300">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold font-mono tracking-tight text-[#0C2086] dark:text-zinc-50">
               {metrics.pendingCountersign}
             </div>
-            <span className="text-[10px] sm:text-[11px] font-mono font-bold text-blue-900 dark:text-blue-200 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-800/60 px-1.5 sm:px-2 py-0.5 rounded-md">
+            <span className="text-[10px] sm:text-[11px] font-mono font-bold text-blue-900 dark:text-zinc-300 bg-blue-50 dark:bg-zinc-800/80 border border-blue-200/60 dark:border-zinc-700/60 px-1.5 sm:px-2 py-0.5 rounded-md">
               {metrics.total > 0 ? `${Math.round((metrics.pendingCountersign / metrics.total) * 100)}%` : '0%'}
             </span>
           </div>
@@ -317,21 +343,21 @@ export default function DocumentInventoryScreenController({
           {/* Footer Status Strip */}
           <div className="mt-2.5 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-zinc-800/80 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-500 dark:text-zinc-400">
             <span className="truncate">Queue</span>
-            <span className="flex items-center gap-1 font-semibold text-[#0C2086] dark:text-blue-300 shrink-0">
-              <FileSignature className="w-3 h-3 text-blue-600 dark:text-blue-400 hidden sm:inline" />
+            <span className="flex items-center gap-1 font-semibold text-[#0C2086] dark:text-zinc-300 shrink-0">
+              <FileSignature className="w-3 h-3 text-blue-600 dark:text-zinc-400 hidden sm:inline" />
               Signed
             </span>
           </div>
         </div>
 
         {/* Card 4: Fully Executed (Hidden on Mobile/PWA Mobile) */}
-        <div className="hidden sm:block rounded-2xl p-4 sm:p-5 relative overflow-hidden bg-gradient-to-br from-indigo-600/10 via-slate-600/5 to-transparent dark:from-slate-900/40 dark:via-[#0d121c] dark:to-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
+        <div className="hidden sm:block rounded-2xl p-4 sm:p-5 relative overflow-hidden bg-gradient-to-br from-indigo-600/10 via-slate-600/5 to-transparent dark:bg-[#0d0d10] border border-slate-200/70 dark:border-zinc-800/80 shadow-xs">
           {/* Header: Title & Icon Badge */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 font-mono">
               Fully Executed
             </span>
-            <div className="w-8 h-8 rounded-lg bg-indigo-900 dark:bg-indigo-700 text-white flex items-center justify-center shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-indigo-900 text-white dark:bg-zinc-800/90 dark:text-zinc-200 flex items-center justify-center shadow-xs">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
@@ -341,7 +367,7 @@ export default function DocumentInventoryScreenController({
             <div className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-slate-900 dark:text-zinc-50">
               {metrics.fullyExecuted}
             </div>
-            <span className="text-[11px] font-mono font-bold text-indigo-900 dark:text-indigo-200 bg-indigo-100/70 dark:bg-indigo-950/50 border border-indigo-200/60 dark:border-indigo-800/60 px-2 py-0.5 rounded-md">
+            <span className="text-[11px] font-mono font-bold text-indigo-900 dark:text-zinc-300 bg-indigo-100/70 dark:bg-zinc-800/80 border border-indigo-200/60 dark:border-zinc-700/60 px-2 py-0.5 rounded-md">
               {metrics.total > 0 ? `${Math.round((metrics.fullyExecuted / metrics.total) * 100)}%` : '0%'}
             </span>
           </div>
@@ -349,8 +375,8 @@ export default function DocumentInventoryScreenController({
           {/* Footer Status Strip */}
           <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-zinc-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-zinc-400">
             <span>Cryptographic Seal</span>
-            <span className="flex items-center gap-1 font-semibold text-indigo-800 dark:text-indigo-300">
-              <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+            <span className="flex items-center gap-1 font-semibold text-indigo-800 dark:text-zinc-300">
+              <Sparkles className="w-3 h-3 text-indigo-600 dark:text-zinc-400" />
               Dual Signed
             </span>
           </div>
@@ -402,22 +428,22 @@ export default function DocumentInventoryScreenController({
             />
           </div>
 
-          {/* View Switchers Container (Separate Rows on Mobile, Side-by-Side on Desktop) */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+          {/* View Switchers Container: Hidden on Mobile/PWA Mobile (< sm), Side-by-Side on Desktop */}
+          <div className="hidden sm:flex flex-row items-center gap-2.5 w-auto">
             {/* Row A: Sub-View Options (Grid Density / Single-Line Mode) */}
             {viewMode === 'grid' && (
-              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
+              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9 w-auto">
                 <button
                   type="button"
                   onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => setGridColumns(2)}
-                  className="flex-1 sm:flex-initial relative flex items-center justify-center px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                  className="relative flex items-center justify-center px-3.5 py-1.5 h-7 rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Show 2 Items Per Row"
                 >
                   {gridColumns === 2 && (
                     <motion.div
                       layoutId="activeGridDensityPill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -433,13 +459,13 @@ export default function DocumentInventoryScreenController({
                   type="button"
                   onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => setGridColumns(3)}
-                  className="flex-1 sm:flex-initial relative flex items-center justify-center px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                  className="relative flex items-center justify-center px-3.5 py-1.5 h-7 rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Show 3 Items Per Row"
                 >
                   {gridColumns === 3 && (
                     <motion.div
                       layoutId="activeGridDensityPill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -456,18 +482,18 @@ export default function DocumentInventoryScreenController({
 
             {/* Table Single-Line Segmented Control */}
             {viewMode === 'table' && (
-              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
+              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9 w-auto">
                 <button
                   type="button"
                   onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => setIsSingleLineMode(true)}
-                  className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                  className="relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 h-7 rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Single-Line Table Mode"
                 >
                   {isSingleLineMode && (
                     <motion.div
                       layoutId="activeTableSingleLinePill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -484,13 +510,13 @@ export default function DocumentInventoryScreenController({
                   type="button"
                   onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                   onClick={() => setIsSingleLineMode(false)}
-                  className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                  className="relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 h-7 rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   title="Wrap Text Table Mode"
                 >
                   {!isSingleLineMode && (
                     <motion.div
                       layoutId="activeTableSingleLinePill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
+                      className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
@@ -507,18 +533,18 @@ export default function DocumentInventoryScreenController({
             )}
 
             {/* Row B: View Mode Segmented Control (Table, Grid) */}
-            <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full sm:w-auto">
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-9 w-auto">
               <button
                 type="button"
                 onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                 onClick={() => setViewMode('table')}
-                className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                className="relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 h-7 rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                 title="Table View"
               >
                 {viewMode === 'table' && (
                   <motion.div
                     layoutId="activeInventoryViewModePill"
-                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
+                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
@@ -535,13 +561,13 @@ export default function DocumentInventoryScreenController({
                 type="button"
                 onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                 onClick={() => setViewMode('grid')}
-                className="flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                className="relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 h-7 rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                 title="Grid View"
               >
                 {viewMode === 'grid' && (
                   <motion.div
                     layoutId="activeInventoryViewModePill"
-                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
+                    className="absolute inset-0 bg-white dark:bg-zinc-700 rounded-md shadow-xs"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
@@ -559,7 +585,7 @@ export default function DocumentInventoryScreenController({
         </div>
       </CardSharedComponent>
 
-      {/* 4. Document Presentation (Table View vs Grid Cards) */}
+      {/* 4. Document Presentation (Mobile: Always Grid Cards; Desktop: Table vs Grid) */}
       {filteredDocuments.length === 0 ? (
         <EmptyStateSharedComponent
           icon={<Layers className="w-6 h-6" />}
@@ -570,290 +596,303 @@ export default function DocumentInventoryScreenController({
               : 'No documents match the selected status filter.'
           }
         />
-      ) : viewMode === 'table' ? (
-        /* TABLE VIEW 1:1 AssetSphere */
-        <CardSharedComponent className="p-0 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#121215] text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
-                  <th className="py-3 px-4">Document Details</th>
-                  <th className="py-3 px-4">Candidate & Contact</th>
-                  <th className="py-3 px-4">Role & Department</th>
-                  <th className="py-3 px-4">Compensation</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Timestamps</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200/80 dark:divide-zinc-800/60 text-xs">
-                {filteredDocuments.map((doc) => {
-                  const isReadyForCountersign = doc.status === 'CANDIDATE_SIGNED';
-                  const isPendingCandidate = doc.status === 'SENT';
-                  const isFullyExecuted = doc.status === 'HR_COUNTERSIGNED';
-
-                  return (
-                    <tr
-                      key={doc.id}
-                      className="hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition-colors group"
-                    >
-                      {/* Document Details */}
-                      <td className="py-3 px-4">
-                        <div className="font-semibold text-slate-900 dark:text-zinc-100 truncate font-mono">
-                          {doc.documentNumber}
-                        </div>
-                        <div className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5">
-                          {doc.title}
-                        </div>
-                      </td>
-
-                      {/* Candidate & Contact */}
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-slate-800 dark:text-zinc-200">
-                          {doc.offerDetails?.candidateName || 'N/A'}
-                        </div>
-                        {!isSingleLineMode && (
-                          <div className="text-[11px] text-slate-400 dark:text-zinc-500 flex items-center gap-1 mt-0.5 font-mono">
-                            <Mail className="w-3 h-3 text-slate-400" />
-                            <span className="truncate">{doc.offerDetails?.candidateEmail || 'N/A'}</span>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Role & Department */}
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-slate-800 dark:text-zinc-200 truncate">
-                          {doc.offerDetails?.jobTitle || doc.offerDetails?.roleTitle || 'N/A'}
-                        </div>
-                        {!isSingleLineMode && (
-                          <div className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5">
-                            {doc.offerDetails?.department || 'Operations'} • {doc.offerDetails?.location || doc.offerDetails?.workLocation || 'Bengaluru'}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Compensation */}
-                      <td className="py-3 px-4 font-mono font-semibold text-slate-900 dark:text-zinc-100">
-                        {doc.offerDetails?.annualSalary || 'Confidential'}
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3 px-4">
-                        <BadgeSharedComponent status={doc.status} size="sm" />
-                      </td>
-
-                      {/* Timestamps */}
-                      <td className="py-3 px-4 text-[11px] font-mono text-slate-400 dark:text-zinc-500 whitespace-nowrap">
-                        <div>{ApplicationCryptoUtility.current.formatTimestamp(doc.createdAt)}</div>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {isReadyForCountersign && (
-                            <ButtonSharedComponent
-                              variant="primary"
-                              size="sm"
-                              leftIcon={<FileSignature className="w-3.5 h-3.5 !text-white" />}
-                              onClick={() => handleOpenCountersignPortal(doc)}
-                            >
-                              Countersign
-                            </ButtonSharedComponent>
-                          )}
-
-                          {isPendingCandidate && (
-                            <ButtonSharedComponent
-                              variant="secondary"
-                              size="sm"
-                              leftIcon={<ExternalLink className="w-3.5 h-3.5" />}
-                              onClick={() => handleOpenCandidatePortal(doc)}
-                            >
-                              Sign Portal
-                            </ButtonSharedComponent>
-                          )}
-
-                          {isFullyExecuted && (
-                            <button
-                              type="button"
-                              onClick={() => handleDownloadPdf(doc)}
-                              title="Download Certified PDF"
-                              className="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-900/60 cursor-pointer transition-colors"
-                            >
-                              <Download className="w-4 h-4" />
-                            </button>
-                          )}
-
-                          <button
-                            type="button"
-                            onClick={() => onOpenSendEmailModal(doc)}
-                            title="Dispatch Email to Candidate"
-                            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 cursor-pointer transition-colors"
-                          >
-                            <Mail className="w-4 h-4" />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => onOpenAuditModalForDoc(doc)}
-                            title="View Cryptographic Audit Trail"
-                            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 cursor-pointer transition-colors"
-                          >
-                            <ShieldCheck className="w-4 h-4" />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => setDocToDelete(doc)}
-                            title="Delete Document"
-                            className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-300 cursor-pointer transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Table Footer Summary */}
-          <div className="px-4 py-3 bg-slate-50 dark:bg-[#121215] border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
-            <span>
-              Showing <strong className="font-mono text-slate-700 dark:text-zinc-200">{filteredDocuments.length}</strong> of{' '}
-              <strong className="font-mono text-slate-700 dark:text-zinc-200">{documents.length}</strong> offer documents
-            </span>
-            <span className="font-mono text-[11px]">
-              SignForge Cryptographic Audit Ledger Active
-            </span>
-          </div>
-        </CardSharedComponent>
       ) : (
-        /* GRID CARD VIEW 1:1 AssetSphere */
-        <div className={`grid gap-4 ${gridColumns === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-          {filteredDocuments.map((doc) => {
-            const isReadyForCountersign = doc.status === 'CANDIDATE_SIGNED';
-            const isPendingCandidate = doc.status === 'SENT';
+        <div className="space-y-4">
+          {/* Table View: Active on Desktop (sm:) only when viewMode === 'table' */}
+          {viewMode === 'table' && (
+            <div className="hidden sm:block">
+              {/* TABLE VIEW 1:1 AssetSphere */}
+              <CardSharedComponent className="p-0 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#121215] text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                        <th className="py-3 px-4">Document Details</th>
+                        <th className="py-3 px-4">Candidate & Contact</th>
+                        <th className="py-3 px-4">Role & Department</th>
+                        <th className="py-3 px-4">Compensation</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4">Timestamps</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200/80 dark:divide-zinc-800/60 text-xs">
+                      {filteredDocuments.map((doc) => {
+                        const isReadyForCountersign = doc.status === 'CANDIDATE_SIGNED';
+                        const isPendingCandidate = doc.status === 'SENT';
+                        const isFullyExecuted = doc.status === 'HR_COUNTERSIGNED';
 
-            return (
-              <CardSharedComponent
-                key={doc.id}
-                hoverable
-                className="p-5 flex flex-col justify-between space-y-4 group"
-              >
-                {/* Top: Document # & Status */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
-                      <span className="font-mono text-xs font-bold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-slate-300 dark:border-zinc-700 inline-block w-fit">
-                        {doc.documentNumber}
-                      </span>
-                      {/* Mobile: Badge placed on next line below Document ID */}
-                      <div className="sm:hidden w-fit">
-                        <BadgeSharedComponent status={doc.status} size="sm" />
-                      </div>
-                    </div>
-                    <h3 className="font-serif-headline font-bold text-base text-slate-900 dark:text-zinc-100 mt-2 truncate">
-                      {doc.offerDetails?.candidateName || 'N/A'}
-                    </h3>
-                    <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium truncate mt-0.5">
-                      {doc.offerDetails?.jobTitle || doc.offerDetails?.roleTitle || 'N/A'}
-                    </p>
-                  </div>
-                  {/* Desktop: Badge on top-right */}
-                  <div className="hidden sm:block shrink-0">
-                    <BadgeSharedComponent status={doc.status} size="sm" />
-                  </div>
+                        return (
+                          <tr
+                            key={doc.id}
+                            className="hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition-colors group"
+                          >
+                            {/* Document Details */}
+                            <td className="py-3 px-4">
+                              <div className="font-semibold text-slate-900 dark:text-zinc-100 truncate font-mono">
+                                {doc.documentNumber}
+                              </div>
+                              <div className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5">
+                                {doc.title}
+                              </div>
+                            </td>
+
+                            {/* Candidate & Contact */}
+                            <td className="py-3 px-4">
+                              <div className="font-medium text-slate-800 dark:text-zinc-200">
+                                {doc.offerDetails?.candidateName || 'N/A'}
+                              </div>
+                              {!isSingleLineMode && (
+                                <div className="text-[11px] text-slate-400 dark:text-zinc-500 flex items-center gap-1 mt-0.5 font-mono">
+                                  <Mail className="w-3 h-3 text-slate-400" />
+                                  <span className="truncate">{doc.offerDetails?.candidateEmail || 'N/A'}</span>
+                                </div>
+                              )}
+                            </td>
+
+                            {/* Role & Department */}
+                            <td className="py-3 px-4">
+                              <div className="font-medium text-slate-800 dark:text-zinc-200 truncate">
+                                {doc.offerDetails?.jobTitle || doc.offerDetails?.roleTitle || 'N/A'}
+                              </div>
+                              {!isSingleLineMode && (
+                                <div className="text-[11px] text-slate-400 dark:text-zinc-500 truncate mt-0.5">
+                                  {doc.offerDetails?.department || 'Operations'} • {doc.offerDetails?.location || doc.offerDetails?.workLocation || 'Bengaluru'}
+                                </div>
+                              )}
+                            </td>
+
+                            {/* Compensation */}
+                            <td className="py-3 px-4 font-mono font-semibold text-slate-900 dark:text-zinc-100">
+                              {doc.offerDetails?.annualSalary || 'Confidential'}
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-3 px-4">
+                              <BadgeSharedComponent status={doc.status} size="sm" />
+                            </td>
+
+                            {/* Timestamps */}
+                            <td className="py-3 px-4 text-[11px] font-mono text-slate-400 dark:text-zinc-500 whitespace-nowrap">
+                              <div>{ApplicationCryptoUtility.current.formatTimestamp(doc.createdAt)}</div>
+                            </td>
+
+                            {/* Actions */}
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                {isReadyForCountersign && (
+                                  <ButtonSharedComponent
+                                    variant="primary"
+                                    size="sm"
+                                    leftIcon={<FileSignature className="w-3.5 h-3.5 !text-white" />}
+                                    onClick={() => handleOpenCountersignPortal(doc)}
+                                  >
+                                    Countersign
+                                  </ButtonSharedComponent>
+                                )}
+
+                                {isPendingCandidate && (
+                                  <ButtonSharedComponent
+                                    variant="secondary"
+                                    size="sm"
+                                    leftIcon={<ExternalLink className="w-3.5 h-3.5" />}
+                                    onClick={() => handleOpenCandidatePortal(doc)}
+                                  >
+                                    Sign Portal
+                                  </ButtonSharedComponent>
+                                )}
+
+                                {isFullyExecuted && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDownloadPdf(doc)}
+                                    title="Download Certified PDF"
+                                    className="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-900/60 cursor-pointer transition-colors"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                  </button>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() => onOpenSendEmailModal(doc)}
+                                  title="Dispatch Email to Candidate"
+                                  className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 cursor-pointer transition-colors"
+                                >
+                                  <Mail className="w-4 h-4" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => onOpenAuditModalForDoc(doc)}
+                                  title="View Cryptographic Audit Trail"
+                                  className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 cursor-pointer transition-colors"
+                                >
+                                  <ShieldCheck className="w-4 h-4" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setDocToDelete(doc)}
+                                  title="Delete Document"
+                                  className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-300 cursor-pointer transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
 
-                {/* Middle: Details Grid */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
-                    <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Compensation</span>
-                    <span className="font-mono font-bold text-slate-900 dark:text-zinc-100">{doc.offerDetails?.annualSalary || 'Confidential'}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
-                    <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Department</span>
-                    <span>{doc.offerDetails?.department || 'Operations'}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
-                    <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Created</span>
-                    <span className="font-mono text-[11px]">{ApplicationCryptoUtility.current.formatTimestamp(doc.createdAt)}</span>
-                  </div>
-                </div>
-
-                {/* Bottom Actions Cluster */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2.5 border-t border-slate-200 dark:border-zinc-800/80">
-                  {/* Row 1: 4-Column Equal Icon Actions Grid on Mobile */}
-                  <div className="grid grid-cols-4 gap-2 w-full sm:flex sm:items-center sm:gap-1 sm:w-auto">
-                    <button
-                      type="button"
-                      onClick={() => onOpenAuditModalForDoc(doc)}
-                      title="Audit Trail Logs"
-                      className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
-                    >
-                      <ShieldCheck className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      disabled={downloadingDocId === doc.id}
-                      onClick={() => handleDownloadPdf(doc)}
-                      title="Download PDF"
-                      className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-900/60 transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onOpenSendEmailModal(doc)}
-                      title="Dispatch Email"
-                      className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
-                    >
-                      <Mail className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDocToDelete(doc)}
-                      title="Delete Document"
-                      className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-300 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Row 2: Full-Width Workflow Button on Mobile */}
-                  {(isReadyForCountersign || isPendingCandidate) && (
-                    <div className="w-full sm:w-auto">
-                      {isReadyForCountersign && (
-                        <ButtonSharedComponent
-                          variant="primary"
-                          size="sm"
-                          leftIcon={<FileSignature className="w-3.5 h-3.5 !text-white" />}
-                          onClick={() => handleOpenCountersignPortal(doc)}
-                          className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
-                        >
-                          Countersign
-                        </ButtonSharedComponent>
-                      )}
-
-                      {isPendingCandidate && (
-                        <ButtonSharedComponent
-                          variant="secondary"
-                          size="sm"
-                          leftIcon={<ExternalLink className="w-3.5 h-3.5" />}
-                          onClick={() => handleOpenCandidatePortal(doc)}
-                          className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
-                        >
-                          Sign Portal
-                        </ButtonSharedComponent>
-                      )}
-                    </div>
-                  )}
+                {/* Table Footer Summary */}
+                <div className="px-4 py-3 bg-slate-50 dark:bg-[#121215] border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
+                  <span>
+                    Showing <strong className="font-mono text-slate-700 dark:text-zinc-200">{filteredDocuments.length}</strong> of{' '}
+                    <strong className="font-mono text-slate-700 dark:text-zinc-200">{documents.length}</strong> offer documents
+                  </span>
+                  <span className="font-mono text-[11px]">
+                    SignForge Cryptographic Audit Ledger Active
+                  </span>
                 </div>
               </CardSharedComponent>
-            );
-          })}
+            </div>
+          )}
+
+          {/* Grid Card View: Rendered on Mobile (Always) & Desktop (when viewMode === 'grid') */}
+          <div
+            className={
+              viewMode === 'table'
+                ? 'block sm:hidden grid grid-cols-1 gap-4'
+                : `grid gap-4 ${gridColumns === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`
+            }
+          >
+            {filteredDocuments.map((doc) => {
+              const isReadyForCountersign = doc.status === 'CANDIDATE_SIGNED';
+              const isPendingCandidate = doc.status === 'SENT';
+
+              return (
+                <CardSharedComponent
+                  key={doc.id}
+                  hoverable
+                  className="p-5 flex flex-col justify-between space-y-4 group"
+                >
+                  {/* Top: Document # & Status */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                        <span className="font-mono text-xs font-bold text-slate-800 dark:text-zinc-200 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-slate-300 dark:border-zinc-700 inline-block w-fit">
+                          {doc.documentNumber}
+                        </span>
+                        {/* Mobile: Badge placed on next line below Document ID */}
+                        <div className="sm:hidden w-fit">
+                          <BadgeSharedComponent status={doc.status} size="sm" />
+                        </div>
+                      </div>
+                      <h3 className="font-serif-headline font-bold text-base text-slate-900 dark:text-zinc-100 mt-2 truncate">
+                        {doc.offerDetails?.candidateName || 'N/A'}
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium truncate mt-0.5">
+                        {doc.offerDetails?.jobTitle || doc.offerDetails?.roleTitle || 'N/A'}
+                      </p>
+                    </div>
+                    {/* Desktop: Badge on top-right */}
+                    <div className="hidden sm:block shrink-0">
+                      <BadgeSharedComponent status={doc.status} size="sm" />
+                    </div>
+                  </div>
+
+                  {/* Middle: Details Grid */}
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
+                      <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Compensation</span>
+                      <span className="font-mono font-bold text-slate-900 dark:text-zinc-100">{doc.offerDetails?.annualSalary || 'Confidential'}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
+                      <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Department</span>
+                      <span>{doc.offerDetails?.department || 'Operations'}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
+                      <span className="text-slate-400 dark:text-zinc-500 font-mono text-[11px]">Created</span>
+                      <span className="font-mono text-[11px]">{ApplicationCryptoUtility.current.formatTimestamp(doc.createdAt)}</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Actions Cluster */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2.5 border-t border-slate-200 dark:border-zinc-800/80">
+                    {/* Row 1: 4-Column Equal Icon Actions Grid on Mobile */}
+                    <div className="grid grid-cols-4 gap-2 w-full sm:flex sm:items-center sm:gap-1 sm:w-auto">
+                      <button
+                        type="button"
+                        onClick={() => onOpenAuditModalForDoc(doc)}
+                        title="Audit Trail Logs"
+                        className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
+                      >
+                        <ShieldCheck className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={downloadingDocId === doc.id}
+                        onClick={() => handleDownloadPdf(doc)}
+                        title="Download PDF"
+                        className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-900/60 transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onOpenSendEmailModal(doc)}
+                        title="Dispatch Email"
+                        className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-800 transition-colors cursor-pointer"
+                      >
+                        <Mail className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDocToDelete(doc)}
+                        title="Delete Document"
+                        className="w-full sm:w-auto h-10 sm:h-auto py-2 sm:p-1.5 flex items-center justify-center rounded-xl sm:rounded-lg text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-transparent hover:border-rose-300 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Row 2: Full-Width Workflow Button on Mobile */}
+                    {(isReadyForCountersign || isPendingCandidate) && (
+                      <div className="w-full sm:w-auto">
+                        {isReadyForCountersign && (
+                          <ButtonSharedComponent
+                            variant="primary"
+                            size="sm"
+                            leftIcon={<FileSignature className="w-3.5 h-3.5 !text-white" />}
+                            onClick={() => handleOpenCountersignPortal(doc)}
+                            className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+                          >
+                            Countersign
+                          </ButtonSharedComponent>
+                        )}
+
+                        {isPendingCandidate && (
+                          <ButtonSharedComponent
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={<ExternalLink className="w-3.5 h-3.5" />}
+                            onClick={() => handleOpenCandidatePortal(doc)}
+                            className="w-full sm:w-auto justify-center !h-10 sm:!h-9 px-4 text-xs font-semibold"
+                          >
+                            Sign Portal
+                          </ButtonSharedComponent>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </CardSharedComponent>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -863,7 +902,7 @@ export default function DocumentInventoryScreenController({
         onClose={() => setDocToDelete(null)}
         onConfirm={() => {
           if (docToDelete) {
-            deleteDocument(docToDelete.id);
+            deleteOfferMutation.mutate(docToDelete.id);
             setDocToDelete(null);
           }
         }}

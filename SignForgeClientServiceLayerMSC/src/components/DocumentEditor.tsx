@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { OfferDocument, OfferDetails } from '../Types';
 import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
+import ApplicationUrlEncoderUtility from '../Utilities/ApplicationUrlEncoderUtility';
 import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
@@ -311,6 +312,15 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
         }
       ]
     };
+
+    // Attach generated candidate portal URL
+    newDoc.generatedCandidateUrl = ApplicationUrlEncoderUtility.current.getCandidateShareLink(newDoc);
+
+    // Extract rendered HTML preview from DOM if available
+    const paperElement = document.getElementById('offer-letter-paper') || document.querySelector('.offer-letter-paper-container');
+    if (paperElement) {
+      newDoc.offerLetterHtml = paperElement.innerHTML;
+    }
 
     setTimeout(() => {
       onSaveAndSend(newDoc);

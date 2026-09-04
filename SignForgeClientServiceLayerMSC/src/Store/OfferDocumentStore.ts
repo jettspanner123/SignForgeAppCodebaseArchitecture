@@ -46,6 +46,7 @@ interface OfferDocumentState {
   setInventoryViewMode: (mode: 'table' | 'grid') => void;
   setInventoryGridColumns: (cols: 2 | 3) => void;
   setInventorySingleLineMode: (val: boolean) => void;
+  setDocuments: (docs: OfferDocument[]) => void;
   addDocument: (doc: OfferDocument) => void;
   updateDocument: (doc: OfferDocument) => void;
   deleteDocument: (id: string) => void;
@@ -100,6 +101,11 @@ export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
   setInventorySingleLineMode: (val) => {
     UserPreferencesUtility.current.setInventorySingleLine(val);
     set({ inventorySingleLineMode: val });
+  },
+
+  setDocuments: (docs) => {
+    saveDocuments(docs);
+    set({ documents: docs });
   },
 
   addDocument: (doc) => {

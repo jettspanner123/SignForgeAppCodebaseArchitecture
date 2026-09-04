@@ -19,6 +19,8 @@ public final class ApplicationRouteFactory {
     public final HealthCheckRoutes healthCheck = new HealthCheckRoutes();
     public final DocumentationRoutes documentation = new DocumentationRoutes();
     public final OfferLetterRoutes offerLetter = new OfferLetterRoutes();
+    public final EmploymentOfferRoutes employmentOffer = new EmploymentOfferRoutes();
+    public final DashboardInfoGrabRoutes dashboardInfoGrab = new DashboardInfoGrabRoutes();
     public final SignatureRoutes signature = new SignatureRoutes();
     public final CandidateRoutes candidate = new CandidateRoutes();
 
@@ -47,6 +49,23 @@ public final class ApplicationRouteFactory {
         public static final String CREATE = "";
         public static final String UPDATE = "{id}";
         public static final String DELETE = "{id}";
+    }
+
+    public static final class EmploymentOfferRoutes {
+        public static final String CONTROLLER_URL = "Api/V1/EmploymentOffer";
+        public static final String GET_ALL = "GetAll";
+        public static final String GET_BY_ID = "{id}";
+        public static final String CREATE = "Create";
+        public static final String CANDIDATE_SIGN = "CandidateSign";
+        public static final String COUNTER_SIGN = "CounterSign";
+        public static final String THIRD_PARTY_SIGN = "ThirdPartySign";
+        public static final String DELETE = "{id}";
+    }
+
+    public static final class DashboardInfoGrabRoutes {
+        public static final String CONTROLLER_URL = "Api/V1/DashboardInfoGrab";
+        public static final String GET_DASHBOARD_DATA = "";
+        public static final String SUMMARY = "Summary";
     }
 
     public static final class SignatureRoutes {

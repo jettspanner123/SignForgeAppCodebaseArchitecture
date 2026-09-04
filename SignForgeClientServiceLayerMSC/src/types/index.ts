@@ -121,6 +121,10 @@ export interface OfferDocument {
   pdfFileName?: string;
   pdfFileSize?: number;
   notes?: string;
+  offerLetterHtml?: string;
+  generatedCandidateUrl?: string;
+  generatedCountersignUrl?: string;
+  generatedThirdPartyUrl?: string;
   candidate?: any;
   hrSigner?: any;
   compensation?: any;
