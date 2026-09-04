@@ -36,7 +36,7 @@ function truncateText(text: string, font: any, size: number, maxWidth: number): 
 }
 
 /**
- * Converts a typed signature string (with font name) into a transparent PNG data URL on a hidden HTML canvas.
+ * Converts a typed signature string (with font name) into a transparent PNG DataObjects URL on a hidden HTML canvas.
  */
 function renderTypedSignatureToPNG(text: string, fontName: string = 'Dancing Script'): string {
   const canvas = document.createElement('canvas');

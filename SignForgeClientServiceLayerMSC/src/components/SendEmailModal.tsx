@@ -32,7 +32,7 @@ export const SendEmailModal: React.FC<SendEmailModalProps> = ({ document, onClos
   const jobTitle = document.offerDetails.jobTitle || 'Position';
   const companyName = document.companyName || 'We.PLM Global Technologies (P) Ltd.';
 
-  // Construct direct candidate eSign link with embedded data payload
+  // Construct direct candidate eSign link with embedded DataObjects payload
   const directLink = getCandidateShareLink(document);
 
   // Construct mailto link for 1-click live mail dispatch

@@ -18,7 +18,7 @@ export default class OfferDocumentsService {
       console.error('Failed to load documents from storage:', e);
     }
     
-    // Seed initial high-fidelity data if empty
+    // Seed initial high-fidelity DataObjects if empty
     const initial = MockDataSeederService.current.getInitialOfferDocuments();
     this.saveDocuments(initial);
     return initial;

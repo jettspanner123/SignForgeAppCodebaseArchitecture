@@ -110,7 +110,7 @@ export function decodeOfferFromUrl(encodedStr: string): OfferDocument | null {
 }
 
 /**
- * Generates a direct candidate eSign URL containing embedded compact offer data payload.
+ * Generates a direct candidate eSign URL containing embedded compact offer DataObjects payload.
  */
 export function getCandidateShareLink(doc: OfferDocument): string {
   let origin = '';
@@ -119,7 +119,7 @@ export function getCandidateShareLink(doc: OfferDocument): string {
     const winOrigin = window.location.origin;
     if (winOrigin && winOrigin !== 'null' && !winOrigin.startsWith('null')) {
       origin = winOrigin;
-    } else if (window.location.href && !window.location.href.startsWith('about:') && !window.location.href.startsWith('data:')) {
+    } else if (window.location.href && !window.location.href.startsWith('about:') && !window.location.href.startsWith('DataObjects:')) {
       const cleanHref = window.location.href.split('?')[0].split('#')[0];
       try {
         const parsed = new URL(cleanHref);

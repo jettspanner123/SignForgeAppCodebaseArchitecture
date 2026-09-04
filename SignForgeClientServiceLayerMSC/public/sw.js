@@ -31,7 +31,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - Stale-While-Revalidate for static assets, Network-First for HTML/Navigation
+// Fetch event - Stale-While-Revalidate for static Assets, Network-First for HTML/Navigation
 self.addEventListener('fetch', (event) => {
   const request = event.request;
 

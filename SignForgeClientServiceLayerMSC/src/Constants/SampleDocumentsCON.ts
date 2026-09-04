@@ -31,7 +31,7 @@ export const SAMPLE_DOCUMENTS: OfferDocument[] = [
     },
     candidateSignature: {
       signedBy: 'Vikramaditya Sengupta',
-      value: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50"><text x="10" y="35" font-family="Brush Script MT, cursive" font-size="28" fill="%230C2086">V. Sengupta</text></svg>',
+      value: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50"><text x="10" y="35" font-family="Brush Script MT, cursive" font-size="28" fill="%230C2086">V. Sengupta</text></svg>',
       timestamp: new Date(Date.now() - 3600 * 1000 * 4).toISOString(),
       ipAddress: '103.24.120.45'
     },
@@ -120,13 +120,13 @@ export const SAMPLE_DOCUMENTS: OfferDocument[] = [
     },
     candidateSignature: {
       signedBy: 'Rohan Jayasimha',
-      value: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50"><text x="10" y="35" font-family="Brush Script MT, cursive" font-size="28" fill="%230C2086">R. Jayasimha</text></svg>',
+      value: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50"><text x="10" y="35" font-family="Brush Script MT, cursive" font-size="28" fill="%230C2086">R. Jayasimha</text></svg>',
       timestamp: new Date(Date.now() - 3600 * 1000 * 24 * 6).toISOString(),
       ipAddress: '49.207.180.99'
     },
     hrSignature: {
       signedBy: 'Pooja Sharma',
-      value: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50"><text x="10" y="35" font-family="Brush Script MT, cursive" font-size="28" fill="%230C2086">Pooja S.</text></svg>',
+      value: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50"><text x="10" y="35" font-family="Brush Script MT, cursive" font-size="28" fill="%230C2086">Pooja S.</text></svg>',
       timestamp: new Date(Date.now() - 3600 * 1000 * 24 * 5).toISOString(),
       ipAddress: '192.168.1.100'
     },

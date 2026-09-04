@@ -1,7 +1,7 @@
 import React from 'react';
 import { UserCheck } from 'lucide-react';
 import NavigationCON from '../../Constants/NavigationCON';
-import weplmLogo from '../../../../assets/weplm.jpeg';
+import weplmLogo from '@/src/Assets/weplm.jpeg';
 
 export default function CandidateHeaderStaticComponent(): React.JSX.Element {
   return (

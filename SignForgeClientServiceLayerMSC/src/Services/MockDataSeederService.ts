@@ -118,8 +118,8 @@ export default class MockDataSeederService {
         sha256Checksum: '4a6b2c8d1e3f9a7b5c8d2e1f4a6b8c0d3e5f7a9b1c2d4e6f8a0b2c4d6e8f0a2b',
         candidateSignature: {
           type: 'DRAW',
-          value: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Rhea Sengupta</text></svg>',
-          signatureImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Rhea Sengupta</text></svg>',
+          value: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Rhea Sengupta</text></svg>',
+          signatureImage: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Rhea Sengupta</text></svg>',
           signedAt: '2025-03-23T11:45:00.000Z',
           timestamp: '2025-03-23T11:45:00.000Z',
           ipAddress: '49.36.182.11',
@@ -196,8 +196,8 @@ export default class MockDataSeederService {
         sha256Checksum: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
         candidateSignature: {
           type: 'DRAW',
-          value: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Ananya Roy</text></svg>',
-          signatureImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Ananya Roy</text></svg>',
+          value: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Ananya Roy</text></svg>',
+          signatureImage: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Ananya Roy</text></svg>',
           signedAt: '2025-03-19T14:10:00.000Z',
           timestamp: '2025-03-19T14:10:00.000Z',
           ipAddress: '115.240.90.12',
@@ -210,8 +210,8 @@ export default class MockDataSeederService {
         },
         hrSignature: {
           type: 'DRAW',
-          value: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Pooja Sharma</text></svg>',
-          signatureImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Pooja Sharma</text></svg>',
+          value: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Pooja Sharma</text></svg>',
+          signatureImage: 'DataObjects:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-family="cursive" font-size="28" fill="%230C2086">Pooja Sharma</text></svg>',
           signedAt: '2025-03-20T16:20:00.000Z',
           timestamp: '2025-03-20T16:20:00.000Z',
           ipAddress: '103.21.124.55',

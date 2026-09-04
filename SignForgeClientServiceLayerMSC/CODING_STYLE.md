@@ -160,7 +160,7 @@ export default class ApplicationAudioFeedbackService {
     if (typeof window === 'undefined') return;
     try {
       if (!this.audioInstance) {
-        this.audioInstance = new Audio('/assets/NotificationSound.mp3');
+        this.audioInstance = new Audio('/Assets/NotificationSound.mp3');
       }
       this.audioInstance.currentTime = 0;
       this.audioInstance.play().catch(() => {});
@@ -189,7 +189,7 @@ ApplicationAudioFeedbackService.current.playNotificationSound();
 // Definition (src/Constants/ApplicationRouteCON.ts)
 export default class ApplicationRouteCON {
   public static readonly DASHBOARD: string = '/';
-  public static readonly ASSET_INVENTORY: string = '/assets';
+  public static readonly ASSET_INVENTORY: string = '/Assets';
   public static readonly EMPLOYEES_DIRECTORY: string = '/employees';
   public static readonly SOFTWARE_LICENSES: string = '/software-saas';
   public static readonly DEVICE_SERVICE_REQUESTS: string = '/service-requests';

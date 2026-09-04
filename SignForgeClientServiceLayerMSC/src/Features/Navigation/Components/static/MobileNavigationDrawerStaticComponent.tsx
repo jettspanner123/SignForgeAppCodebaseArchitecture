@@ -5,7 +5,7 @@ import { X, Download, Smartphone } from 'lucide-react';
 import NavigationCON from '../../Constants/NavigationCON';
 import PrimaryActionButtonSharedComponent from '../../../../Shared/Components/PrimaryActionButtonSharedComponent';
 import PWAService from '../../../../Services/PWAService';
-import weplmLogo from '../../../../assets/weplm.jpeg';
+import weplmLogo from '@/src/Assets/weplm.jpeg';
 
 export interface MobileNavigationDrawerStaticComponentProps {
   isOpen: boolean;

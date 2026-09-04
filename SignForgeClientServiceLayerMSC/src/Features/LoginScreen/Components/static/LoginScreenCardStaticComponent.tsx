@@ -3,7 +3,7 @@ import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Sun, Moon } from 'luc
 import ButtonSharedComponent from '../../../../Shared/Components/ButtonSharedComponent';
 import LoginScreenCON from '../../Constants/LoginScreenCON';
 import { LoginCredentials, LoginFormErrors } from '../../Models/LoginScreenModel';
-import weplmLogo from '../../../../assets/weplm.jpeg';
+import weplmLogo from '@/src/Assets/weplm.jpeg';
 import { triggerHapticFeedback } from '../../../../utils/haptics';
 import ApplicationThemeUtility from '../../../../Utilities/ApplicationThemeUtility';
 import ApplicationThemeCON from '../../../../Constants/ApplicationThemeCON';

@@ -8,7 +8,7 @@ import MobileNavigationDrawerStaticComponent from './MobileNavigationDrawerStati
 import { triggerHapticFeedback } from '../../../../utils/haptics';
 import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
 import PWAService from '../../../../Services/PWAService';
-import weplmLogo from '../../../../assets/weplm.jpeg';
+import weplmLogo from '@/src/Assets/weplm.jpeg';
 
 export interface HeaderStaticComponentProps {
   currentView: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import weplmImage from '../assets/weplm.jpeg';
+import weplmImage from '@/src/Assets/weplm.jpeg';
 
 interface WePlmLogoProps {
   className?: string;
