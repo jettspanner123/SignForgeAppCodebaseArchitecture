@@ -11,10 +11,8 @@ import NavigationController from './Features/Navigation/NavigationController';
 // Feature Controllers
 import DocumentInventoryScreenController from './Features/DocumentInventory/DocumentInventoryScreenController';
 import SplashScreenController from './Features/SplashScreen/SplashScreenController';
-
-// Sub-Screens & Portals
+import UploadPDFScreenController from './Features/UploadPDF/UploadPDFScreenController';
 import { DocumentEditor } from './components/DocumentEditor';
-import { UploadPdfEditor } from './components/UploadPdfEditor';
 import { CandidatePortal } from './components/CandidatePortal';
 import { HRCounterSignPortal } from './components/HRCounterSignPortal';
 import { VercelHostingGuide } from './components/VercelHostingGuide';
@@ -222,7 +220,7 @@ export default function App() {
 
         {/* Custom PDF Upload Editor */}
         {currentView === ApplicationRouteCON.UPLOAD_PDF && (
-          <UploadPdfEditor
+          <UploadPDFScreenController
             onSaveAndSend={handleSaveOffer}
             onCancel={() => setCurrentView(ApplicationRouteCON.DOCUMENTS)}
             onSwitchToTemplate={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
