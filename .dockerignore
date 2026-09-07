@@ -1,0 +1,10 @@
+SignForgeClientServiceLayerMSC/
+SignForgeAgentDocumentationNMCS/
+SignForgeDatabaseLayer/
+.git/
+.gitignore
+.idea/
+.vscode/
+*.log
+**/target/
+**/.env
