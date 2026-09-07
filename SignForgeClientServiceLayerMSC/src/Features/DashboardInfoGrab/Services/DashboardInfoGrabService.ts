@@ -58,6 +58,8 @@ export interface BackendDashboardInfoGrabDTO {
   recentActivities?: BackendDashboardActivityDTO[];
   Offers?: BackendEmploymentOfferDTO[];
   offers?: BackendEmploymentOfferDTO[];
+  ConfigurationConstants?: Record<string, string>;
+  configurationConstants?: Record<string, string>;
 }
 
 export default class DashboardInfoGrabService {
@@ -124,11 +126,13 @@ export default class DashboardInfoGrabService {
 
     const rawOffers = data.Offers || data.offers || [];
     const typedOffers = rawOffers.map((offerDto) => EmploymentOfferService.current.mapDtoToOfferDocument(offerDto));
+    const configConstants = data.ConfigurationConstants || data.configurationConstants || {};
 
     return {
       metrics: typedMetrics,
       recentActivities: typedActivities,
       offers: typedOffers,
+      configurationConstants: configConstants,
     };
   }
 }

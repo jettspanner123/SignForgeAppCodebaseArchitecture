@@ -90,26 +90,26 @@ export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({ document, onCl
 
           {/* Executive Contact Status Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold text-emerald-800">
-                <span>HR Head Routing: {document.executives.hrHead.name}</span>
-                <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 font-bold">
-                  {document.executives.hrHead.status === 'SENT_SUCCESSFULLY' ? 'NOTIFIED & SENT' : 'PENDING COUNTERSIGN'}
+            <div className="bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-emerald-800 dark:text-emerald-400">
+                <span>HR Head Routing: {document.executives?.hrHead?.name || 'HR Head'}</span>
+                <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 font-bold">
+                  {document.executives?.hrHead?.status === 'SENT_SUCCESSFULLY' ? 'NOTIFIED & SENT' : 'PENDING COUNTERSIGN'}
                 </span>
               </div>
-              <p className="text-xs text-slate-700 font-medium">Email: {document.executives.hrHead.email}</p>
-              <p className="text-[10px] text-slate-500">Auto-Dispatches PDF payload immediately upon final HR signature.</p>
+              <p className="text-xs text-slate-700 dark:text-zinc-300 font-medium">Email: {document.executives?.hrHead?.email || document.hrHeadEmail || 'hr@theweplm.com'}</p>
+              <p className="text-[10px] text-slate-500 dark:text-zinc-400">Auto-Dispatches PDF payload immediately upon final HR signature.</p>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold text-blue-800">
-                <span>CTO Routing: {document.executives.cto.name}</span>
-                <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200 font-bold">
-                  {document.executives.cto.status === 'SENT_SUCCESSFULLY' ? 'NOTIFIED & SENT' : 'PENDING COUNTERSIGN'}
+            <div className="bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-blue-800 dark:text-blue-400">
+                <span>CTO Routing: {document.executives?.cto?.name || 'CTO'}</span>
+                <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 font-bold">
+                  {document.executives?.cto?.status === 'SENT_SUCCESSFULLY' ? 'NOTIFIED & SENT' : 'PENDING COUNTERSIGN'}
                 </span>
               </div>
-              <p className="text-xs text-slate-700 font-medium">Email: {document.executives.cto.email}</p>
-              <p className="text-[10px] text-slate-500">Auto-Dispatches PDF payload immediately upon final HR signature.</p>
+              <p className="text-xs text-slate-700 dark:text-zinc-300 font-medium">Email: {document.executives?.cto?.email || document.ctoEmail || 'cto@theweplm.com'}</p>
+              <p className="text-[10px] text-slate-500 dark:text-zinc-400">Auto-Dispatches PDF payload immediately upon final HR signature.</p>
             </div>
           </div>
 

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Menu, ChevronLeft } from 'lucide-react';
+import { Menu, ChevronLeft, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import NavigationCON from '../../Constants/NavigationCON';
 import ApplicationRouteCON from '../../../../Constants/ApplicationRouteCON';
+import ConfigurationConstantCON from '../../../../Constants/ConfigurationConstantCON';
 import ProfileDropdownStaticComponent from './ProfileDropdownStaticComponent';
 import MobileNavigationDrawerStaticComponent from './MobileNavigationDrawerStaticComponent';
+import ButtonSharedComponent from '../../../../Shared/Components/ButtonSharedComponent';
 import ApplicationHapticsUtility from '../../../../Utilities/ApplicationHapticsUtility';
 import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
 import useAuthenticationStateStore from '../../../../Store/AuthenticationStateStore';
@@ -25,6 +27,7 @@ export default function HeaderStaticComponent({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const user = useAuthenticationStateStore((s) => s.user);
+  const isAuthenticated = useAuthenticationStateStore((s) => s.isAuthenticated);
 
   const displayName =
     user?.fullName ||
@@ -48,14 +51,32 @@ export default function HeaderStaticComponent({
 
   const userInitials = getInitials(displayName, displayEmail);
   const isStandalone = typeof window !== 'undefined' && PWAService.current.isStandalone();
+  const { goBack, isFeatureEnabled } = useOfferDocumentStore();
+
+  const isPdfUploadEnabled =
+    (typeof isFeatureEnabled === 'function' &&
+      isFeatureEnabled(ConfigurationConstantCON.KEY_PDF_UPLOAD_FEATURE_WORKING)) ||
+    Boolean(import.meta.env.DEV);
+
+  const visibleNavItems = NavigationCON.PRIMARY_NAV_ITEMS.filter((item) => {
+    if (item.id === ApplicationRouteCON.UPLOAD_PDF) {
+      return isPdfUploadEnabled;
+    }
+    return true;
+  });
+
   const isMainTab =
     currentView === ApplicationRouteCON.DOCUMENTS ||
     currentView === ApplicationRouteCON.CREATE_OFFER ||
-    currentView === ApplicationRouteCON.UPLOAD_PDF;
+    currentView === ApplicationRouteCON.UPLOAD_PDF ||
+    currentView === ApplicationRouteCON.REQUEST_FEATURE;
   const showBackButton = isStandalone && !isMainTab;
-  const { goBack } = useOfferDocumentStore();
 
   const handleNavClick = () => {
+    if (!isAuthenticated) {
+      onSelectView(ApplicationRouteCON.LOGIN);
+      return;
+    }
     if (showBackButton) {
       goBack();
     } else {
@@ -77,7 +98,7 @@ export default function HeaderStaticComponent({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={() => onSelectView(ApplicationRouteCON.DOCUMENTS)}
+                  onClick={() => onSelectView(isAuthenticated ? ApplicationRouteCON.DOCUMENTS : ApplicationRouteCON.LOGIN)}
                   className="w-10 h-10 sm:w-8 sm:h-8 cursor-pointer shrink-0"
                 >
                   <img
@@ -119,83 +140,103 @@ export default function HeaderStaticComponent({
           </div>
         </div>
 
-        {/* Right Clustered: Navigation Tabs + Profile Button */}
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          {/* Segmented Capsule Navigation Tabs (Desktop) */}
-          <nav className="hidden md:flex items-center gap-1 p-1 bg-slate-100/80 dark:bg-zinc-900/90 rounded-xl border border-slate-200/60 dark:border-zinc-800/60">
-            {NavigationCON.PRIMARY_NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentView === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => onSelectView(item.id)}
-                  className="relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer select-none"
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeTopNavPill"
-                      className="absolute inset-0 bg-white dark:bg-zinc-800 rounded-lg shadow-xs"
-                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    />
-                  )}
-                  <span
-                    className={`relative z-10 flex items-center gap-2 ${
-                      isActive
-                        ? 'text-[#0C2086] dark:text-zinc-100 font-semibold'
-                        : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
-                    }`}
+        {/* Right Clustered: Navigation Tabs + Profile Button OR Login Button */}
+        {isAuthenticated ? (
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Segmented Capsule Navigation Tabs (Desktop) */}
+            <nav className="hidden md:flex items-center gap-1 p-1 bg-slate-100/80 dark:bg-zinc-900/90 rounded-xl border border-slate-200/60 dark:border-zinc-800/60">
+              {visibleNavItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onSelectView(item.id)}
+                    className="relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer select-none"
                   >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{item.label}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-          {/* 1:1 AssetSphere Profile Button */}
-          <div className="relative">
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTopNavPill"
+                        className="absolute inset-0 bg-white dark:bg-zinc-800 rounded-lg shadow-xs"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <span
+                      className={`relative z-10 flex items-center gap-2 ${
+                        isActive
+                          ? 'text-[#0C2086] dark:text-zinc-100 font-semibold'
+                          : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{item.label}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* 1:1 AssetSphere Profile Button */}
+            <div className="relative">
+              <button
+                type="button"
+                onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="h-10 w-10 sm:h-9 sm:w-9 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 text-slate-700 dark:text-zinc-300 hairline-border hover:bg-slate-200 dark:hover:bg-zinc-700/80 transition-colors cursor-pointer relative flex items-center justify-center select-none"
+                title={`${displayName} - Profile & Settings`}
+              >
+                <div className="w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 flex items-center justify-center font-bold text-xs sm:text-[10px] font-mono">
+                  {userInitials}
+                </div>
+              </button>
+
+              {/* Profile Dropdown Popover */}
+              <ProfileDropdownStaticComponent
+                isOpen={isProfileOpen}
+                onClose={() => setIsProfileOpen(false)}
+                onOpenAuditLogs={onOpenAuditLogs}
+              />
+            </div>
+
+            {/* Mobile Menu Button (<768px) */}
             <button
               type="button"
               onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="h-10 w-10 sm:h-9 sm:w-9 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 text-slate-700 dark:text-zinc-300 hairline-border hover:bg-slate-200 dark:hover:bg-zinc-700/80 transition-colors cursor-pointer relative flex items-center justify-center select-none"
-              title={`${displayName} - Profile & Settings`}
+              onClick={() => setIsMobileDrawerOpen(true)}
+              aria-label="Open Navigation Menu"
+              className="md:hidden h-10 w-10 sm:h-9 sm:w-9 rounded-xl sm:rounded-lg flex items-center justify-center p-2 text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer"
             >
-              <div className="w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 flex items-center justify-center font-bold text-xs sm:text-[10px] font-mono">
-                {userInitials}
-              </div>
+              <Menu className="w-5 h-5 sm:w-4 sm:h-4" />
             </button>
-
-            {/* Profile Dropdown Popover */}
-            <ProfileDropdownStaticComponent
-              isOpen={isProfileOpen}
-              onClose={() => setIsProfileOpen(false)}
-              onOpenAuditLogs={onOpenAuditLogs}
-            />
           </div>
-
-          {/* Mobile Menu Button (<768px) */}
-          <button
-            type="button"
-            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
-            onClick={() => setIsMobileDrawerOpen(true)}
-            aria-label="Open Navigation Menu"
-            className="md:hidden h-10 w-10 sm:h-9 sm:w-9 rounded-xl sm:rounded-lg flex items-center justify-center p-2 text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200/80 dark:border-zinc-800 cursor-pointer"
-          >
-            <Menu className="w-5 h-5 sm:w-4 sm:h-4" />
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Segmented Capsule Controller with Single 'Login' Option */}
+            <nav className="flex items-center p-1 bg-slate-100/80 dark:bg-zinc-900/90 rounded-xl border border-slate-200/60 dark:border-zinc-800/60 shadow-2xs">
+              <button
+                type="button"
+                onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
+                onClick={() => onSelectView(ApplicationRouteCON.LOGIN)}
+                className="relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#0C2086] dark:text-zinc-100 transition-colors cursor-pointer select-none bg-white dark:bg-zinc-800 shadow-xs border border-slate-200/50 dark:border-zinc-700/50"
+              >
+                <LogIn className="w-3.5 h-3.5 text-[#0C2086] dark:text-blue-400 stroke-[2.2]" />
+                <span className="font-bold">Login</span>
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
 
       {/* Mobile Drawer */}
-      <MobileNavigationDrawerStaticComponent
-        isOpen={isMobileDrawerOpen}
-        onClose={() => setIsMobileDrawerOpen(false)}
-        currentView={currentView}
-        onSelectView={onSelectView}
-      />
+      {isAuthenticated && (
+        <MobileNavigationDrawerStaticComponent
+          isOpen={isMobileDrawerOpen}
+          onClose={() => setIsMobileDrawerOpen(false)}
+          currentView={currentView}
+          onSelectView={onSelectView}
+        />
+      )}
     </header>
   );
 }

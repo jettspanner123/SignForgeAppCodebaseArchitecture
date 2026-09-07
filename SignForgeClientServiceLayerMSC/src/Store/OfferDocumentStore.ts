@@ -37,6 +37,7 @@ interface OfferDocumentState {
   inventoryViewMode: 'table' | 'grid';
   inventoryGridColumns: 2 | 3;
   inventorySingleLineMode: boolean;
+  configurationConstants: Record<string, string>;
 
   // Actions
   setCurrentView: (view: string, docId?: string) => void;
@@ -46,6 +47,8 @@ interface OfferDocumentState {
   setInventoryViewMode: (mode: 'table' | 'grid') => void;
   setInventoryGridColumns: (cols: 2 | 3) => void;
   setInventorySingleLineMode: (val: boolean) => void;
+  setConfigurationConstants: (constants: Record<string, string>) => void;
+  isFeatureEnabled: (key: string) => boolean;
   setDocuments: (docs: OfferDocument[]) => void;
   addDocument: (doc: OfferDocument) => void;
   updateDocument: (doc: OfferDocument) => void;
@@ -66,6 +69,17 @@ export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
   inventoryViewMode: UserPreferencesUtility.current.getInventoryViewMode('grid'),
   inventoryGridColumns: UserPreferencesUtility.current.getInventoryGridColumns(2),
   inventorySingleLineMode: UserPreferencesUtility.current.getInventorySingleLine(false),
+  configurationConstants: {},
+
+  setConfigurationConstants: (constants) => {
+    set({ configurationConstants: constants });
+  },
+
+  isFeatureEnabled: (key) => {
+    const val = get().configurationConstants[key];
+    if (val === undefined || val === null) return false;
+    return val.toLowerCase() === 'true' || val === '1';
+  },
 
   setCurrentView: (view, docId) => {
     const targetPath = ApplicationRouteCON.toPath(view, docId);

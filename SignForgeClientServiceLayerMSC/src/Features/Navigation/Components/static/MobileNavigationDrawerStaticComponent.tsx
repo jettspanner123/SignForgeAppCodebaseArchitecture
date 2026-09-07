@@ -9,7 +9,9 @@ import PWAService from '../../../../Services/PWAService';
 import ApplicationHapticsUtility from '../../../../Utilities/ApplicationHapticsUtility';
 import LoginScreenService from '../../../LoginScreen/Services/LoginScreenService';
 import useAuthenticationStateStore from '../../../../Store/AuthenticationStateStore';
+import { useOfferDocumentStore } from '../../../../Store/OfferDocumentStore';
 import ApplicationRouteCON from '../../../../Constants/ApplicationRouteCON';
+import ConfigurationConstantCON from '../../../../Constants/ConfigurationConstantCON';
 import weplmLogo from '@/src/Assets/weplm.jpeg';
 
 export interface MobileNavigationDrawerStaticComponentProps {
@@ -27,6 +29,19 @@ export default function MobileNavigationDrawerStaticComponent({
 }: MobileNavigationDrawerStaticComponentProps): React.JSX.Element | null {
   const [canInstall, setCanInstall] = useState<boolean>(false);
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState<boolean>(false);
+  const isFeatureEnabled = useOfferDocumentStore((s) => s.isFeatureEnabled);
+
+  const isPdfUploadEnabled =
+    (typeof isFeatureEnabled === 'function' &&
+      isFeatureEnabled(ConfigurationConstantCON.KEY_PDF_UPLOAD_FEATURE_WORKING)) ||
+    Boolean(import.meta.env.DEV);
+
+  const visibleNavItems = NavigationCON.PRIMARY_NAV_ITEMS.filter((item) => {
+    if (item.id === ApplicationRouteCON.UPLOAD_PDF) {
+      return isPdfUploadEnabled;
+    }
+    return true;
+  });
 
   useEffect(() => {
     const unsubscribe = PWAService.current.subscribe((installable) => {
@@ -128,7 +143,7 @@ export default function MobileNavigationDrawerStaticComponent({
 
                 {/* Nav Items List (AssetSphere Aesthetics with Increased Touch Targets) */}
                 <div className="space-y-2.5">
-                  {NavigationCON.PRIMARY_NAV_ITEMS.map((item) => {
+                  {visibleNavItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = currentView === item.id;
                     return (

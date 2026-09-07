@@ -66,8 +66,13 @@ export class DashboardInfoGrabQueryService {
       queryFn: async (): Promise<DashboardInfoGrabResponseInterfaceModel> => {
         try {
           const result = await DashboardInfoGrabService.current.getDashboardData();
-          if (result && result.offers && result.offers.length > 0) {
-            useOfferDocumentStore.getState().setDocuments(result.offers);
+          if (result) {
+            if (result.offers && result.offers.length > 0) {
+              useOfferDocumentStore.getState().setDocuments(result.offers);
+            }
+            if (result.configurationConstants) {
+              useOfferDocumentStore.getState().setConfigurationConstants(result.configurationConstants);
+            }
           }
           return result;
         } catch (err) {
@@ -246,6 +251,31 @@ export class EmploymentOfferQueryService {
   }
 }
 
+export class ConfigurationConstantQueryService {
+  constructor(private readonly getClient?: () => QueryClient) {}
+
+  public useConfigurationConstantsQuery(
+    options?: Partial<UseQueryOptions<import('../Models/ConfigurationConstantInterfaceModel').default[], Error>>
+  ) {
+    return useQuery({
+      queryKey: TanstackQueryKeysCON.CONFIGURATION_CONSTANTS,
+      queryFn: async () => {
+        const ConfigurationConstantService = (await import('../Features/ConfigurationConstant/Services/ConfigurationConstantService')).default;
+        const list = await ConfigurationConstantService.current.getAllConfigurations();
+        const map: Record<string, string> = {};
+        list.forEach((item) => {
+          map[item.configurationKey] = item.configurationValue;
+        });
+        useOfferDocumentStore.getState().setConfigurationConstants(map);
+        return list;
+      },
+      staleTime: 1000 * 60 * 2, // 2 minutes
+      refetchOnWindowFocus: false,
+      ...options,
+    });
+  }
+}
+
 export default class TanstackQueryClientService {
   public static current: TanstackQueryClientService = new TanstackQueryClientService();
 
@@ -262,4 +292,5 @@ export default class TanstackQueryClientService {
   public readonly authentication: AuthenticationQueryService = new AuthenticationQueryService(() => this.client);
   public readonly dashboardInfoGrab: DashboardInfoGrabQueryService = new DashboardInfoGrabQueryService(() => this.client);
   public readonly employmentOffer: EmploymentOfferQueryService = new EmploymentOfferQueryService(() => this.client);
+  public readonly configurationConstant: ConfigurationConstantQueryService = new ConfigurationConstantQueryService(() => this.client);
 }

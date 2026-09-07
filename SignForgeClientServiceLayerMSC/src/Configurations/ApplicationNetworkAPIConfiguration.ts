@@ -42,6 +42,23 @@ export interface NetworkAPIEndpoints {
     acceptOffer: string;
     rejectOffer: string;
   };
+  configurationConstant: {
+    base: string;
+    getAll: string;
+    getByKey: (key: string) => string;
+    update: (key: string) => string;
+  };
+  users: {
+    base: string;
+    getAll: string;
+    getById: (id: string) => string;
+  };
+  requestFeature: {
+    base: string;
+    getAll: string;
+    create: string;
+    getById: (id: string) => string;
+  };
 }
 
 export interface ApplicationNetworkAPIConfigurationDetails {
@@ -164,6 +181,23 @@ export default class ApplicationNetworkAPIConfiguration {
           getPortalView: (id: string) => `${activeBaseUrl}/Api/V1/Candidate/${id}`,
           acceptOffer: `${activeBaseUrl}/Api/V1/Candidate/Accept`,
           rejectOffer: `${activeBaseUrl}/Api/V1/Candidate/Reject`,
+        },
+        configurationConstant: {
+          base: `${activeBaseUrl}/Api/V1/ConfigurationConstant`,
+          getAll: `${activeBaseUrl}/Api/V1/ConfigurationConstant`,
+          getByKey: (key: string) => `${activeBaseUrl}/Api/V1/ConfigurationConstant/${key}`,
+          update: (key: string) => `${activeBaseUrl}/Api/V1/ConfigurationConstant/${key}`,
+        },
+        users: {
+          base: `${activeBaseUrl}/Api/V1/Users`,
+          getAll: `${activeBaseUrl}/Api/V1/Users`,
+          getById: (id: string) => `${activeBaseUrl}/Api/V1/Users/${id}`,
+        },
+        requestFeature: {
+          base: `${activeBaseUrl}/Api/V1/RequestFeature`,
+          getAll: `${activeBaseUrl}/Api/V1/RequestFeature`,
+          create: `${activeBaseUrl}/Api/V1/RequestFeature`,
+          getById: (id: string) => `${activeBaseUrl}/Api/V1/RequestFeature/${id}`,
         },
       },
     };

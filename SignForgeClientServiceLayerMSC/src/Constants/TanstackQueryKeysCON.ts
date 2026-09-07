@@ -8,4 +8,6 @@ export default class TanstackQueryKeysCON {
   public static readonly DASHBOARD_INFO_GRAB = ['dashboard-info-grab'] as const;
   public static readonly EMPLOYMENT_OFFERS = ['employment-offers'] as const;
   public static readonly EMPLOYMENT_OFFER_DETAIL = (id: string) => ['employment-offers', id] as const;
+  public static readonly CONFIGURATION_CONSTANTS = ['configuration-constants'] as const;
+  public static readonly CONFIGURATION_CONSTANT_DETAIL = (key: string) => ['configuration-constants', key] as const;
 }

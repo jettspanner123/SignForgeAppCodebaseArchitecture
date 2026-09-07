@@ -15,4 +15,6 @@ public interface IUserRepository extends JpaRepository<UserEntityClass, UUID> {
     Optional<UserEntityClass> findByRefreshToken(String refreshToken);
 
     boolean existsByEmailIgnoreCase(String email);
+
+    java.util.List<UserEntityClass> findAllByIsActiveTrue();
 }

@@ -265,6 +265,23 @@ export default class EmploymentOfferService {
       };
     }
 
+    // PDF metadata unpacking for uploaded PDF documents
+    const rawHtml = dto.OfferLetterHtml || dto.offerLetterHtml || '';
+    if (rawHtml.startsWith('{"isUploadedPdf":true') || rawHtml.startsWith('{"pdfUrl"')) {
+      try {
+        const pdfMeta = JSON.parse(rawHtml);
+        doc.isUploadedPdf = true;
+        doc.pdfUrl = pdfMeta.pdfUrl || doc.pdfUrl;
+        doc.pdfFileName = pdfMeta.pdfFileName || doc.pdfFileName;
+        doc.fields = pdfMeta.fields || doc.fields;
+        if (pdfMeta.directorSignature) {
+          doc.directorSignature = pdfMeta.directorSignature;
+        }
+      } catch (err) {
+        console.warn('Failed to parse uploaded PDF JSON envelope:', err);
+      }
+    }
+
     return doc;
   }
 
@@ -340,7 +357,13 @@ export default class EmploymentOfferService {
       NoticePeriodDays: offer.offerDetails.noticePeriodDays || 30,
       RelocationAllowance: offer.offerDetails.relocationAllowance || 0,
       BenefitsDetails: offer.offerDetails.benefits ? JSON.stringify(offer.offerDetails.benefits) : '',
-      OfferLetterHtml: offer.offerLetterHtml || '',
+      OfferLetterHtml: offer.isUploadedPdf ? JSON.stringify({
+        isUploadedPdf: true,
+        pdfUrl: offer.pdfUrl,
+        pdfFileName: offer.pdfFileName,
+        fields: offer.fields,
+        directorSignature: offer.directorSignature,
+      }) : (offer.offerLetterHtml || ''),
       GeneratedCandidateUrl: offer.generatedCandidateUrl || '',
       DocumentHash: offer.sha256Checksum || '',
       AuditTrailJson: JSON.stringify(offer.auditTrail || []),

@@ -28,6 +28,7 @@ public class DashboardInfoGrabService implements IDashboardInfoGrabService {
 
     private final IEmploymentOfferRepository employmentOfferRepository;
     private final IEmploymentOfferService employmentOfferService;
+    private final com.theweplm.signforge.Features.ConfigurationConstant.Services.IConfigurationConstantService configurationConstantService;
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
@@ -104,10 +105,13 @@ public class DashboardInfoGrabService implements IDashboardInfoGrabService {
                 .executionRatePercentage(Math.round(executionRate * 10.0) / 10.0)
                 .build();
 
+        Map<String, String> configConstants = configurationConstantService.getConfigurationKeyValueMap();
+
         return DashboardInfoGrabResponseDTO.builder()
                 .metrics(metrics)
                 .recentActivities(activities)
                 .offers(offerDtos)
+                .configurationConstants(configConstants)
                 .build();
     }
 

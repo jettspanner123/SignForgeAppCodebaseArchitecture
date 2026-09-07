@@ -23,6 +23,29 @@ public final class ApplicationRouteFactory {
     public final DashboardInfoGrabRoutes dashboardInfoGrab = new DashboardInfoGrabRoutes();
     public final SignatureRoutes signature = new SignatureRoutes();
     public final CandidateRoutes candidate = new CandidateRoutes();
+    public final ConfigurationConstantRoutes configurationConstant = new ConfigurationConstantRoutes();
+    public final UserRoutes users = new UserRoutes();
+    public final RequestFeatureRoutes requestFeature = new RequestFeatureRoutes();
+
+    public static final class UserRoutes {
+        public static final String CONTROLLER_URL = "Api/V1/Users";
+        public static final String GET_ALL = "";
+        public static final String GET_BY_ID = "{id}";
+    }
+
+    public static final class RequestFeatureRoutes {
+        public static final String CONTROLLER_URL = "Api/V1/RequestFeature";
+        public static final String GET_ALL = "";
+        public static final String CREATE = "";
+        public static final String GET_BY_ID = "{id}";
+    }
+
+    public static final class ConfigurationConstantRoutes {
+        public static final String CONTROLLER_URL = "Api/V1/ConfigurationConstant";
+        public static final String GET_ALL = "";
+        public static final String GET_BY_KEY = "{key}";
+        public static final String UPDATE = "{key}";
+    }
 
     public static final class AuthenticationRoutes {
         public static final String CONTROLLER_URL = "Api/V1/Authentication";

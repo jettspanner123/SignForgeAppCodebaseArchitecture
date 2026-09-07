@@ -6,6 +6,7 @@ export interface DashboardInfoGrabResponseInterfaceModel {
   metrics: DashboardKpiMetricsInterfaceModel;
   recentActivities: DashboardActivityInterfaceModel[];
   offers: OfferDocument[];
+  configurationConstants?: Record<string, string>;
 }
 
 export default DashboardInfoGrabResponseInterfaceModel;

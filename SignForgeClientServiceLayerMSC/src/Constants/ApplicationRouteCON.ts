@@ -9,14 +9,18 @@ export default class ApplicationRouteCON {
   public static readonly HR_COUNTERSIGN: string = 'hr_countersign';
   public static readonly SETTINGS: string = 'settings';
   public static readonly VERCEL_GUIDE: string = 'vercel_guide';
+  public static readonly REQUEST_FEATURE: string = 'request_feature';
+  public static readonly NOT_FOUND: string = 'not_found';
 
   public static readonly PATH_MAP: Record<string, string> = {
-    [ApplicationRouteCON.LOGIN]: '/login',
-    [ApplicationRouteCON.DOCUMENTS]: '/dashboard',
-    [ApplicationRouteCON.CREATE_OFFER]: '/create-offer',
-    [ApplicationRouteCON.UPLOAD_PDF]: '/upload-pdf',
-    [ApplicationRouteCON.CANDIDATE_VIEW]: '/candidate',
-    [ApplicationRouteCON.HR_COUNTERSIGN]: '/countersign',
+    login: '/login',
+    documents: '/dashboard',
+    create_offer: '/create-offer',
+    upload_pdf: '/upload-pdf',
+    request_feature: '/request-feature',
+    candidate_view: '/candidate',
+    hr_countersign: '/countersign',
+    not_found: '/404',
   };
 
   public static toPath(view: string, docId?: string): string {
@@ -28,14 +32,15 @@ export default class ApplicationRouteCON {
   }
 
   public static isPublicRoute(view: string, pathname?: string): boolean {
-    if (view === this.CANDIDATE_VIEW) return true;
+    if (view === this.CANDIDATE_VIEW || view === this.NOT_FOUND) return true;
     if (pathname) {
       const clean = pathname.toLowerCase();
       if (
         clean.startsWith('/candidate') ||
         clean.startsWith('/candidate-portal') ||
         clean.startsWith('/c/') ||
-        clean.startsWith('/sign')
+        clean.startsWith('/sign') ||
+        clean === '/404'
       ) {
         return true;
       }
@@ -87,9 +92,11 @@ export default class ApplicationRouteCON {
     if (cleanPath === '/countersign') return { view: this.HR_COUNTERSIGN };
     if (cleanPath === '/create-offer' || cleanPath === '/create') return { view: this.CREATE_OFFER };
     if (cleanPath === '/upload-pdf' || cleanPath === '/upload') return { view: this.UPLOAD_PDF };
+    if (cleanPath === '/request-feature' || cleanPath === '/request') return { view: this.REQUEST_FEATURE };
     if (cleanPath === '/vercel-guide') return { view: this.VERCEL_GUIDE };
+    if (cleanPath === '/404') return { view: this.NOT_FOUND };
 
-    // Default fallback
-    return { view: this.DOCUMENTS };
+    // Default fallback for unmatched routes
+    return { view: this.NOT_FOUND };
   }
 }

@@ -17,4 +17,5 @@ public class DashboardInfoGrabResponseDTO {
     private DashboardKpiMetricsDTO metrics;
     private List<DashboardActivityDTO> recentActivities;
     private List<EmploymentOfferResponseDTO> offers;
+    private java.util.Map<String, String> configurationConstants;
 }

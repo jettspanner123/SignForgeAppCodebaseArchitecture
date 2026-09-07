@@ -86,6 +86,28 @@ export interface OfferDetails {
   currency?: string;
 }
 
+export type OfferDocumentFieldType =
+  | 'CANDIDATE_SIGNATURE'
+  | 'HR_SIGNATURE'
+  | 'DIRECTOR_SIGNATURE'
+  | 'DATE_SIGNED'
+  | 'FULL_NAME'
+  | 'TEXT_CUSTOM';
+
+export interface OfferDocumentField {
+  id: string;
+  type: OfferDocumentFieldType;
+  label: string;
+  page?: number;
+  xPercent: number;
+  yPercent: number;
+  widthPercent?: number;
+  heightPercent?: number;
+  required?: boolean;
+  assignedTo?: 'CANDIDATE' | 'HR' | 'DIRECTOR';
+  value?: string;
+}
+
 export interface OfferDocument {
   id: string;
   documentNumber: string;
@@ -109,7 +131,7 @@ export interface OfferDocument {
     cto?: { name: string; role: string; email: string; status: string };
     [key: string]: any;
   };
-  fields?: any[];
+  fields?: OfferDocumentField[];
   auditTrail: AuditEvent[];
   candidateSignature?: SignatureData;
   hrSignature?: SignatureData;

@@ -83,15 +83,20 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
       sha256Checksum: finalChecksum,
       executives: {
         hrHead: {
-          ...document.executives.hrHead,
+          name: document.executives?.hrHead?.name || 'HR Head',
+          role: 'HR_HEAD',
+          email: document.executives?.hrHead?.email || document.hrHeadEmail || 'hr@theweplm.com',
           status: 'SENT_SUCCESSFULLY',
           notifiedAt: now
         },
         cto: {
-          ...document.executives.cto,
+          name: document.executives?.cto?.name || 'CTO',
+          role: 'CTO',
+          email: document.executives?.cto?.email || document.ctoEmail || 'cto@theweplm.com',
           status: 'SENT_SUCCESSFULLY',
           notifiedAt: now
-        }
+        },
+        director: document.executives?.director
       },
       auditTrail: [
         {
@@ -101,7 +106,7 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
           actor: 'SignCorp Dispatcher Engine',
           actorRole: 'System',
           ipAddress: ip,
-          details: `Sent encrypted signed PDF payload to HR Head (${document.executives.hrHead.email}) and CTO (${document.executives.cto.email})`,
+          details: `Sent encrypted signed PDF payload to HR Head (${document.executives?.hrHead?.email || document.hrHeadEmail || 'hr@theweplm.com'}) and CTO (${document.executives?.cto?.email || document.ctoEmail || 'cto@theweplm.com'})`,
           checksum: finalChecksum
         },
         {
@@ -350,11 +355,177 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
         </div>
       </CardSharedComponent>
 
-      {/* Document Sheet Viewer using exact We.PLM Joining/Offer Letter format */}
-      <OfferLetterPaper
-        document={document}
-        isHRView={true}
-      />
+      {/* Document Sheet Viewer: Uploaded PDF vs We.PLM Offer Letter */}
+      {document.isUploadedPdf && document.pdfUrl ? (
+        <div className="bg-white dark:bg-[#0a0a0c] text-slate-900 dark:text-zinc-100 rounded-xl shadow-xs p-6 border border-slate-200/80 dark:border-zinc-800/80 space-y-6 max-w-4xl mx-auto relative">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/80 dark:border-zinc-800/80">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20">
+                  UPLOADED PDF OFFER DOCUMENT
+                </span>
+                <span className="text-xs font-mono font-bold text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700">
+                  {document.pdfFileName || document.documentNumber}
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
+                Verify candidate eSignature placement and apply authorized HR representative countersignature.
+              </p>
+            </div>
+            
+            <ButtonSharedComponent
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadPdf}
+              icon={<Download className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400" />}
+            >
+              Download PDF
+            </ButtonSharedComponent>
+          </div>
+
+          {/* Embedded PDF Viewer with Interactive Coordinate Overlays */}
+          <div className="bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-md relative min-h-[560px]">
+            <object
+              data={document.pdfUrl}
+              type="application/pdf"
+              className="w-full h-[560px] bg-white pointer-events-none"
+            >
+              <div className="p-8 text-center text-slate-300 space-y-2">
+                <p className="font-bold font-serif-headline">Uploaded PDF Document</p>
+                <p className="text-xs text-slate-400 font-mono">{document.pdfFileName}</p>
+              </div>
+            </object>
+
+            {/* Dynamic Coordinate Tags Overlay Layer */}
+            <div className="absolute inset-0 z-10 pointer-events-auto">
+              {document.fields && document.fields.length > 0 ? (
+                document.fields.map((field) => {
+                  const isCandidateField = field.type === 'CANDIDATE_SIGNATURE';
+                  const isDirectorField = field.type === 'DIRECTOR_SIGNATURE';
+                  const isHRField = field.type === 'HR_SIGNATURE';
+                  const isDateField = field.type === 'DATE_SIGNED';
+                  const isNameField = field.type === 'FULL_NAME';
+
+                  return (
+                    <div
+                      key={field.id}
+                      style={{
+                        left: `${field.xPercent}%`,
+                        top: `${field.yPercent}%`,
+                      }}
+                      className="absolute z-20"
+                    >
+                      {isCandidateField && (
+                        <div className="p-2.5 rounded-xl border border-emerald-500/60 bg-emerald-950/90 text-emerald-300 select-none shadow-md backdrop-blur-sm">
+                          <div className="flex items-center gap-1.5 mb-1 text-[10px] font-mono font-bold uppercase">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Candidate Signature</span>
+                          </div>
+                          <p className="text-xs font-bold font-serif text-emerald-200">
+                            {document.candidateSignature?.value || 'Signed'}
+                          </p>
+                        </div>
+                      )}
+
+                      {isDirectorField && (
+                        <div className="p-2.5 rounded-xl border border-amber-500/60 bg-amber-950/90 text-amber-300 select-none shadow-md backdrop-blur-sm">
+                          <div className="flex items-center gap-1.5 mb-1 text-[10px] font-mono font-bold uppercase">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Director Authorization</span>
+                          </div>
+                          <p className="text-xs font-bold font-serif text-amber-200">
+                            {document.directorSignature?.value || document.offerDetails?.directorName || 'Authorized'}
+                          </p>
+                        </div>
+                      )}
+
+                      {isHRField && (
+                        <div
+                          onClick={() => !isHRSigned && isCandidateSigned && setIsSignModalOpen(true)}
+                          className={`p-2.5 rounded-xl border-2 transition-all select-none shadow-lg backdrop-blur-md ${
+                            isHRSigned
+                              ? 'border-indigo-500 bg-indigo-950/90 text-indigo-300'
+                              : isCandidateSigned
+                              ? 'border-indigo-400 bg-indigo-900/90 text-indigo-100 hover:bg-indigo-800 hover:scale-105 cursor-pointer animate-pulse ring-4 ring-indigo-500/20'
+                              : 'border-slate-700 bg-slate-900/80 text-slate-400 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <PenTool className="w-3.5 h-3.5 text-indigo-400" />
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider">
+                              HR Countersign
+                            </span>
+                          </div>
+                          {isHRSigned ? (
+                            <div className="font-serif text-sm font-bold text-indigo-200">
+                              {document.hrSignature?.value || 'Countersigned'}
+                            </div>
+                          ) : (
+                            <div className="text-xs font-bold text-white flex items-center gap-1">
+                              <span>Click to Countersign</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {isDateField && (
+                        <div className="px-2.5 py-1.5 rounded-lg border border-teal-500/50 bg-teal-950/90 text-teal-300 text-xs font-mono font-bold select-none shadow-md">
+                          <span>Date: {document.candidateSignature ? new Date(document.candidateSignature.timestamp).toLocaleDateString() : 'Active'}</span>
+                        </div>
+                      )}
+
+                      {isNameField && (
+                        <div className="px-2.5 py-1.5 rounded-lg border border-purple-500/50 bg-purple-950/90 text-purple-300 text-xs font-mono font-bold select-none shadow-md">
+                          <span>Name: {document.offerDetails.candidateName}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : null}
+            </div>
+
+            {/* Bottom Bar prompt */}
+            <div className="p-4 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-100">
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <ShieldCheck className="h-4 w-4 text-indigo-400" />
+                <span className="font-semibold">Interactive HR Countersign Placement Active</span>
+              </div>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => !isHRSigned && isCandidateSigned && setIsSignModalOpen(true)}
+                  disabled={isHRSigned || !isCandidateSigned}
+                  className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium text-xs transition-all ${
+                    isHRSigned
+                      ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 cursor-default'
+                      : isCandidateSigned
+                      ? 'bg-[#0C2086] hover:bg-[#081765] text-white shadow-xs cursor-pointer'
+                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                  }`}
+                >
+                  {isHRSigned ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 text-indigo-400" />
+                      <span>Countersigned by {document.hrSignature?.signedBy}</span>
+                    </>
+                  ) : (
+                    <>
+                      <PenTool className="h-4 w-4" />
+                      <span>Apply HR Counter-Signature</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <OfferLetterPaper
+          document={document}
+          isHRView={true}
+        />
+      )}
 
       {/* Signature Modal */}
       <SignatureCanvasModal

@@ -18,7 +18,8 @@ import {
   ExternalLink,
   Lock,
   FileSignature,
-  FileEdit
+  FileEdit,
+  Clock
 } from 'lucide-react';
 import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
@@ -302,12 +303,12 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
             </ButtonSharedComponent>
           </div>
 
-          {/* Embedded PDF Viewer */}
-          <div className="bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-md relative">
+          {/* Embedded PDF Viewer with Interactive Coordinate Overlays */}
+          <div className="bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-md relative min-h-[560px]">
             <object
               data={document.pdfUrl}
               type="application/pdf"
-              className="w-full h-[520px] bg-white"
+              className="w-full h-[560px] bg-white pointer-events-none"
             >
               <div className="p-8 text-center text-slate-300 space-y-2">
                 <p className="font-bold font-serif-headline">Uploaded PDF Document</p>
@@ -315,11 +316,95 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
               </div>
             </object>
 
-            {/* Interactive eSign Floating Overlay Bar on top of PDF Viewer */}
+            {/* Dynamic Coordinate Tags Overlay Layer */}
+            <div className="absolute inset-0 z-10 pointer-events-auto">
+              {document.fields && document.fields.length > 0 ? (
+                document.fields.map((field) => {
+                  const isCandidateField = field.type === 'CANDIDATE_SIGNATURE';
+                  const isDirectorField = field.type === 'DIRECTOR_SIGNATURE';
+                  const isHRField = field.type === 'HR_SIGNATURE';
+                  const isDateField = field.type === 'DATE_SIGNED';
+                  const isNameField = field.type === 'FULL_NAME';
+
+                  return (
+                    <div
+                      key={field.id}
+                      style={{
+                        left: `${field.xPercent}%`,
+                        top: `${field.yPercent}%`,
+                      }}
+                      className="absolute z-20"
+                    >
+                      {isCandidateField && (
+                        <div
+                          onClick={() => !isAlreadySigned && setIsSignModalOpen(true)}
+                          className={`p-2.5 rounded-xl border-2 transition-all select-none shadow-lg backdrop-blur-md ${
+                            isAlreadySigned
+                              ? 'border-emerald-500 bg-emerald-950/90 text-emerald-300'
+                              : 'border-emerald-400 bg-emerald-900/90 text-emerald-100 hover:bg-emerald-800 hover:scale-105 cursor-pointer animate-pulse ring-4 ring-emerald-500/20'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <PenTool className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider">
+                              Candidate Signature
+                            </span>
+                          </div>
+                          {isAlreadySigned ? (
+                            <div className="font-serif text-sm font-bold text-emerald-200">
+                              {document.candidateSignature?.value || 'Signed'}
+                            </div>
+                          ) : (
+                            <div className="text-xs font-bold text-white flex items-center gap-1">
+                              <span>Click to eSign Here</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {isDirectorField && (
+                        <div className="p-2.5 rounded-xl border border-amber-500/60 bg-amber-950/90 text-amber-300 select-none shadow-md backdrop-blur-sm">
+                          <div className="flex items-center gap-1.5 mb-1 text-[10px] font-mono font-bold uppercase">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Director Authorization</span>
+                          </div>
+                          <p className="text-xs font-bold font-serif text-amber-200">
+                            {document.directorSignature?.value || document.offerDetails?.directorName || 'Authorized'}
+                          </p>
+                        </div>
+                      )}
+
+                      {isHRField && (
+                        <div className="p-2.5 rounded-xl border border-indigo-500/50 bg-indigo-950/85 text-indigo-300 select-none shadow-md backdrop-blur-sm">
+                          <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase">
+                            <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                            <span>HR Countersign (Queued)</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {isDateField && (
+                        <div className="px-2.5 py-1.5 rounded-lg border border-teal-500/50 bg-teal-950/90 text-teal-300 text-xs font-mono font-bold select-none shadow-md">
+                          <span>Date: {document.candidateSignature ? new Date(document.candidateSignature.timestamp).toLocaleDateString() : 'Upon Signature'}</span>
+                        </div>
+                      )}
+
+                      {isNameField && (
+                        <div className="px-2.5 py-1.5 rounded-lg border border-purple-500/50 bg-purple-950/90 text-purple-300 text-xs font-mono font-bold select-none shadow-md">
+                          <span>Name: {document.offerDetails.candidateName}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : null}
+            </div>
+
+            {/* Bottom Bar prompt */}
             <div className="p-4 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-100">
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-2 text-xs font-mono">
                 <PenTool className="h-4 w-4 text-emerald-400" />
-                <span className="font-semibold">Interactive eSignature Field inside PDF:</span>
+                <span className="font-semibold">Interactive Candidate eSign Placement Active</span>
               </div>
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <button
@@ -329,7 +414,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
                   className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium text-xs transition-all ${
                     isAlreadySigned
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 cursor-default'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs animate-pulse cursor-pointer'
+                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs cursor-pointer'
                   }`}
                 >
                   {isAlreadySigned ? (
@@ -340,7 +425,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
                   ) : (
                     <>
                       <PenTool className="h-4 w-4" />
-                      <span>Click to eSign Candidate Signature inside PDF</span>
+                      <span>Click to eSign Candidate Signature</span>
                     </>
                   )}
                 </button>

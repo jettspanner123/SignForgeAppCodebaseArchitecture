@@ -12,6 +12,9 @@ import NavigationController from './Features/Navigation/NavigationController';
 import DocumentInventoryScreenController from './Features/DocumentInventory/DocumentInventoryScreenController';
 import SplashScreenController from './Features/SplashScreen/SplashScreenController';
 import UploadPDFScreenController from './Features/UploadPDF/UploadPDFScreenController';
+import RequestFeatureController from './Features/RequestFeature/RequestFeatureController';
+import NotFoundScreenController from './Features/NotFound/NotFoundScreenController';
+import ConfigurationConstantCON from './Constants/ConfigurationConstantCON';
 import { DocumentEditor } from './components/DocumentEditor';
 import { CandidatePortal } from './components/CandidatePortal';
 import { HRCounterSignPortal } from './components/HRCounterSignPortal';
@@ -37,7 +40,13 @@ export default function App() {
     setSelectedDocId,
     setCurrentView,
     toggleTheme,
+    isFeatureEnabled,
   } = useOfferDocumentStore();
+
+  const isPdfUploadEnabled =
+    (typeof isFeatureEnabled === 'function' &&
+      isFeatureEnabled(ConfigurationConstantCON.KEY_PDF_UPLOAD_FEATURE_WORKING)) ||
+    Boolean(import.meta.env.DEV);
 
   const isAuthenticated = useAuthenticationStateStore((s) => s.isAuthenticated);
 
@@ -138,7 +147,15 @@ export default function App() {
     }
   }, []);
 
-  const activeDoc = documents.find((d) => d.id === selectedDocId) || documents[0] || null;
+  const resolvedRoute = ApplicationRouteCON.fromPathname(
+    typeof window !== 'undefined' ? window.location.pathname : '',
+    typeof window !== 'undefined' ? window.location.hash : ''
+  );
+  const activeDoc =
+    (selectedDocId ? documents.find((d) => d.id === selectedDocId) : null) ||
+    (resolvedRoute.docId ? documents.find((d) => d.id === resolvedRoute.docId) : null) ||
+    documents[0] ||
+    null;
 
   const handleSaveOffer = (savedDoc: OfferDocument) => {
     createOfferMutation.mutate(savedDoc);
@@ -164,8 +181,11 @@ export default function App() {
         currentTheme={theme}
         onToggleTheme={toggleTheme}
         onLoginSuccess={() => {
-          setCurrentView(ApplicationRouteCON.DOCUMENTS);
-          window.history.replaceState(null, '', '/dashboard');
+          const resolved = ApplicationRouteCON.fromPathname(window.location.pathname, window.location.hash);
+          const targetView = resolved.view !== ApplicationRouteCON.LOGIN ? resolved.view : ApplicationRouteCON.DOCUMENTS;
+          const targetPath = ApplicationRouteCON.toPath(targetView, resolved.docId);
+          window.history.replaceState(null, '', targetPath);
+          setCurrentView(targetView, resolved.docId);
         }}
       />
     );
@@ -173,8 +193,11 @@ export default function App() {
 
   if (currentView === ApplicationRouteCON.LOGIN) {
     if (isAuthenticated) {
-      setCurrentView(ApplicationRouteCON.DOCUMENTS);
-      window.history.replaceState(null, '', '/dashboard');
+      const resolved = ApplicationRouteCON.fromPathname(window.location.pathname, window.location.hash);
+      const targetView = resolved.view !== ApplicationRouteCON.LOGIN ? resolved.view : ApplicationRouteCON.DOCUMENTS;
+      const targetPath = ApplicationRouteCON.toPath(targetView, resolved.docId);
+      window.history.replaceState(null, '', targetPath);
+      setCurrentView(targetView, resolved.docId);
       return null;
     }
     return (
@@ -182,8 +205,11 @@ export default function App() {
         currentTheme={theme}
         onToggleTheme={toggleTheme}
         onLoginSuccess={() => {
-          setCurrentView(ApplicationRouteCON.DOCUMENTS);
-          window.history.replaceState(null, '', '/dashboard');
+          const resolved = ApplicationRouteCON.fromPathname(window.location.pathname, window.location.hash);
+          const targetView = resolved.view !== ApplicationRouteCON.LOGIN ? resolved.view : ApplicationRouteCON.DOCUMENTS;
+          const targetPath = ApplicationRouteCON.toPath(targetView, resolved.docId);
+          window.history.replaceState(null, '', targetPath);
+          setCurrentView(targetView, resolved.docId);
         }}
       />
     );
@@ -220,11 +246,28 @@ export default function App() {
 
         {/* Custom PDF Upload Editor */}
         {currentView === ApplicationRouteCON.UPLOAD_PDF && (
-          <UploadPDFScreenController
-            onSaveAndSend={handleSaveOffer}
-            onCancel={() => setCurrentView(ApplicationRouteCON.DOCUMENTS)}
-            onSwitchToTemplate={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
-          />
+          isPdfUploadEnabled ? (
+            <UploadPDFScreenController
+              onSaveAndSend={handleSaveOffer}
+              onCancel={() => setCurrentView(ApplicationRouteCON.DOCUMENTS)}
+              onSwitchToTemplate={() => setCurrentView(ApplicationRouteCON.CREATE_OFFER)}
+            />
+          ) : (
+            <NotFoundScreenController
+              isRestrictedFeature={true}
+              featureName="External PDF Upload & Coordinate Tagging"
+            />
+          )
+        )}
+
+        {/* Feature Requests & Enhancements */}
+        {currentView === ApplicationRouteCON.REQUEST_FEATURE && (
+          <RequestFeatureController />
+        )}
+
+        {/* Global 404 / Page Not Found */}
+        {currentView === ApplicationRouteCON.NOT_FOUND && (
+          <NotFoundScreenController />
         )}
 
         {/* Candidate Signing Portal */}

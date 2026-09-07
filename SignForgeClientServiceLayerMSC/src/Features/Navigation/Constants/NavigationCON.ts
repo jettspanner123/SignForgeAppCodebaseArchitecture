@@ -1,4 +1,4 @@
-import { FileText, Plus, Upload } from 'lucide-react';
+import { FileText, Plus, Upload, Sparkles } from 'lucide-react';
 import ApplicationRouteCON from '../../../Constants/ApplicationRouteCON';
 
 export interface NavItemDef {
@@ -34,6 +34,13 @@ export default class NavigationCON {
       icon: Upload,
       hashPath: '#/upload-pdf',
       description: 'Upload PDF and place eSignature coordinate fields'
+    },
+    {
+      id: ApplicationRouteCON.REQUEST_FEATURE,
+      label: 'Request Feature',
+      icon: Sparkles,
+      hashPath: '#/request-feature',
+      description: 'Submit enterprise feature suggestions and enhancements'
     }
   ];
 

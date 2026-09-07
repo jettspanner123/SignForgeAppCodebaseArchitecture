@@ -7,11 +7,10 @@ import {
   User, 
   Mail, 
   Sparkles, 
-  Send,
-  Upload
+  Send
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { OfferDocument, OfferDetails } from '../../Types';
+import { OfferDocument, OfferDetails, OfferDocumentField } from '../../Types';
 import UploadPDFCON from './Constants/UploadPDFCON';
 import UploadPdfDropzoneStaticComponent from './Components/static/UploadPdfDropzoneStaticComponent';
 import UploadPdfViewerStaticComponent from './Components/static/UploadPdfViewerStaticComponent';
@@ -20,6 +19,8 @@ import PrimaryActionButtonSharedComponent from '../../Shared/Components/PrimaryA
 import InputSharedComponent from '../../Shared/Components/InputSharedComponent';
 import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 import ApplicationCryptoUtility from '../../Utilities/ApplicationCryptoUtility';
+import ConfigurationConstantCON from '../../Constants/ConfigurationConstantCON';
+import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
 
 export interface UploadPDFScreenControllerProps {
   onSaveAndSend: (doc: OfferDocument) => void;
@@ -32,12 +33,18 @@ export default function UploadPDFScreenController({
   onCancel,
   onSwitchToTemplate,
 }: UploadPDFScreenControllerProps): React.JSX.Element {
+  const isFeatureEnabled = useOfferDocumentStore((s) => s.isFeatureEnabled);
+  const isBackendFeatureWorking = isFeatureEnabled(ConfigurationConstantCON.KEY_PDF_UPLOAD_FEATURE_WORKING);
+
   const [documentType, setDocumentType] = useState<'OFFER_LETTER' | 'JOINING_LETTER'>('JOINING_LETTER');
   const [signatureCount, setSignatureCount] = useState<2 | 3>(3);
 
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfFileName, setPdfFileName] = useState<string>('');
+
+  // Interactive Placed Tag Fields State
+  const [fields, setFields] = useState<OfferDocumentField[]>([]);
 
   // Offer Metadata
   const [companyName, setCompanyName] = useState(UploadPDFCON.DEFAULT_COMPANY_NAME);
@@ -73,6 +80,130 @@ export default function UploadPDFScreenController({
   const [dragOver, setDragOver] = useState(false);
   const [isAutoPopulated, setIsAutoPopulated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Field Tag Handlers
+  const handleAddField = (newField: OfferDocumentField) => {
+    setFields((prev) => [...prev, newField]);
+  };
+
+  const handleUpdateFieldPosition = (id: string, xPercent: number, yPercent: number) => {
+    setFields((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, xPercent, yPercent } : f))
+    );
+  };
+
+  const handleRemoveField = (id: string) => {
+    setFields((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const handleAutoPlaceDefaults = () => {
+    ApplicationHapticsUtility.current.triggerHapticFeedback(15);
+    if (signatureCount === 3) {
+      const defaultFields: OfferDocumentField[] = [
+        {
+          id: `field-dir-${Date.now()}`,
+          type: 'DIRECTOR_SIGNATURE',
+          label: 'Director Seal',
+          page: 1,
+          xPercent: 8,
+          yPercent: 78,
+          widthPercent: 26,
+          heightPercent: 7,
+          required: true,
+          assignedTo: 'DIRECTOR',
+        },
+        {
+          id: `field-cand-${Date.now()}`,
+          type: 'CANDIDATE_SIGNATURE',
+          label: 'Candidate Signature',
+          page: 1,
+          xPercent: 38,
+          yPercent: 78,
+          widthPercent: 26,
+          heightPercent: 7,
+          required: true,
+          assignedTo: 'CANDIDATE',
+        },
+        {
+          id: `field-hr-${Date.now()}`,
+          type: 'HR_SIGNATURE',
+          label: 'HR Countersign',
+          page: 1,
+          xPercent: 68,
+          yPercent: 78,
+          widthPercent: 26,
+          heightPercent: 7,
+          required: true,
+          assignedTo: 'HR',
+        },
+        {
+          id: `field-date-${Date.now()}`,
+          type: 'DATE_SIGNED',
+          label: 'Date Signed',
+          page: 1,
+          xPercent: 38,
+          yPercent: 88,
+          widthPercent: 26,
+          heightPercent: 5,
+          required: true,
+          assignedTo: 'CANDIDATE',
+        },
+        {
+          id: `field-name-${Date.now()}`,
+          type: 'FULL_NAME',
+          label: 'Full Name',
+          page: 1,
+          xPercent: 8,
+          yPercent: 88,
+          widthPercent: 26,
+          heightPercent: 5,
+          required: true,
+          assignedTo: 'CANDIDATE',
+        },
+      ];
+      setFields(defaultFields);
+    } else {
+      const defaultFields: OfferDocumentField[] = [
+        {
+          id: `field-cand-${Date.now()}`,
+          type: 'CANDIDATE_SIGNATURE',
+          label: 'Candidate Signature',
+          page: 1,
+          xPercent: 12,
+          yPercent: 80,
+          widthPercent: 32,
+          heightPercent: 7,
+          required: true,
+          assignedTo: 'CANDIDATE',
+        },
+        {
+          id: `field-hr-${Date.now()}`,
+          type: 'HR_SIGNATURE',
+          label: 'HR Countersign',
+          page: 1,
+          xPercent: 56,
+          yPercent: 80,
+          widthPercent: 32,
+          heightPercent: 7,
+          required: true,
+          assignedTo: 'HR',
+        },
+        {
+          id: `field-date-${Date.now()}`,
+          type: 'DATE_SIGNED',
+          label: 'Date Signed',
+          page: 1,
+          xPercent: 12,
+          yPercent: 90,
+          widthPercent: 32,
+          heightPercent: 5,
+          required: true,
+          assignedTo: 'CANDIDATE',
+        },
+      ];
+      setFields(defaultFields);
+    }
+  };
 
   // Auto extract and pre-populate candidate details from uploaded PDF file or text
   const autoExtractAndFill = (filename: string, textContent: string = '') => {
@@ -219,6 +350,18 @@ export default function UploadPDFScreenController({
       ? `Uploaded Joining Letter — ${jobTitle} (${candidateName})`
       : `Uploaded Offer Letter — ${jobTitle} (${candidateName})`;
 
+    // If user hasn't explicitly placed tags, auto-generate standard tags
+    const finalFields: OfferDocumentField[] = fields.length > 0 ? fields : (
+      signatureCount === 3 ? [
+        { id: 'f-pdf-dir', type: 'DIRECTOR_SIGNATURE', label: 'Director Seal', page: 1, xPercent: 10, yPercent: 78, required: true, assignedTo: 'DIRECTOR' },
+        { id: 'f-pdf-cand', type: 'CANDIDATE_SIGNATURE', label: 'Candidate Signature', page: 1, xPercent: 40, yPercent: 78, required: true, assignedTo: 'CANDIDATE' },
+        { id: 'f-pdf-hr', type: 'HR_SIGNATURE', label: 'HR Countersign', page: 1, xPercent: 70, yPercent: 78, required: true, assignedTo: 'HR' },
+      ] : [
+        { id: 'f-pdf-cand', type: 'CANDIDATE_SIGNATURE', label: 'Candidate Signature', page: 1, xPercent: 15, yPercent: 78, required: true, assignedTo: 'CANDIDATE' },
+        { id: 'f-pdf-hr', type: 'HR_SIGNATURE', label: 'HR Countersign', page: 1, xPercent: 55, yPercent: 78, required: true, assignedTo: 'HR' },
+      ]
+    );
+
     const newDoc: OfferDocument = {
       id: docId,
       documentNumber: docNum,
@@ -239,6 +382,7 @@ export default function UploadPDFScreenController({
       pdfFileName: pdfFileName || 'Uploaded_Document.pdf',
       sha256Checksum: initialChecksum,
       offerDetails,
+      fields: finalFields,
       executives: {
         hrHead: {
           name: hrHeadName.trim(),
@@ -272,63 +416,15 @@ export default function UploadPDFScreenController({
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         sha256Hash: initialChecksum,
       } : undefined,
-      fields: signatureCount === 3 ? [
-        {
-          id: 'f-pdf-dir',
-          type: 'DIRECTOR_SIGNATURE',
-          label: 'Director Authorization Signature',
-          page: 1,
-          xPercent: 10,
-          yPercent: 75,
-          required: true,
-        },
-        {
-          id: 'f-pdf-cand',
-          type: 'CANDIDATE_SIGNATURE',
-          label: 'Candidate Acceptance Signature',
-          page: 1,
-          xPercent: 40,
-          yPercent: 75,
-          required: true,
-        },
-        {
-          id: 'f-pdf-hr',
-          type: 'HR_SIGNATURE',
-          label: 'HR Counter-Signature',
-          page: 1,
-          xPercent: 70,
-          yPercent: 75,
-          required: true,
-        }
-      ] : [
-        {
-          id: 'f-pdf-cand',
-          type: 'CANDIDATE_SIGNATURE',
-          label: 'Candidate Signature inside PDF',
-          page: 1,
-          xPercent: 15,
-          yPercent: 75,
-          required: true,
-        },
-        {
-          id: 'f-pdf-hr',
-          type: 'HR_SIGNATURE',
-          label: 'HR Counter-Signature inside PDF',
-          page: 1,
-          xPercent: 55,
-          yPercent: 75,
-          required: true,
-        }
-      ],
       auditTrail: [
         {
           id: ApplicationCryptoUtility.current.generateUUID(),
           timestamp: now,
-          action: `External PDF ${documentType === 'JOINING_LETTER' ? 'Joining Letter' : 'Offer Letter'} Uploaded`,
+          action: `External PDF ${documentType === 'JOINING_LETTER' ? 'Joining Letter' : 'Offer Letter'} Uploaded with ${finalFields.length} Coordinate Tags`,
           actor: 'HR Admin (admin@theweplm.com)',
           actorRole: 'HR Representative',
           ipAddress: ip,
-          details: `Uploaded file "${pdfFileName || 'Document.pdf'}" for candidate ${candidateName} requiring ${signatureCount} eSignatures`,
+          details: `Uploaded file "${pdfFileName || 'Document.pdf'}" for candidate ${candidateName} with interactive field tags`,
           checksum: initialChecksum,
         },
         ...(signatureCount === 3 ? [{
@@ -366,9 +462,16 @@ export default function UploadPDFScreenController({
       {/* 1. Standard Page Header matching /documents & /create-offer */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold font-serif-headline tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
-            Upload External <br className="sm:hidden" />PDF Offer Letter
-          </h1>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-3xl sm:text-4xl font-bold font-serif-headline tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
+              Upload External <br className="sm:hidden" />PDF Offer Letter
+            </h1>
+            {Boolean(import.meta.env.DEV) && !isBackendFeatureWorking && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs">
+                [DEV OVERRIDE]
+              </span>
+            )}
+          </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1.5 max-w-2xl">
             {UploadPDFCON.FEATURE_SUBTITLE}
           </p>
@@ -851,12 +954,17 @@ export default function UploadPDFScreenController({
           </div>
         </div>
 
-        {/* Right Column: Sticky Dark Executive PDF Canvas */}
+        {/* Right Column: Sticky Dark Executive PDF Canvas with Interactive Tagging */}
         <div className="w-full sticky top-24">
           <UploadPdfViewerStaticComponent
             pdfUrl={pdfUrl}
             pdfFileName={pdfFileName}
             signatureCount={signatureCount}
+            fields={fields}
+            onAddField={handleAddField}
+            onUpdateFieldPosition={handleUpdateFieldPosition}
+            onRemoveField={handleRemoveField}
+            onAutoPlaceDefaults={handleAutoPlaceDefaults}
           />
         </div>
 
