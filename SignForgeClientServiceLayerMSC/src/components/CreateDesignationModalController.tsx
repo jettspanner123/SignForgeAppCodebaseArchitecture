@@ -29,6 +29,7 @@ export default function CreateDesignationModalController({
   const [department, setDepartment] = useState<string>(initialDepartment);
   const [designationName, setDesignationName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const addDesignationMutation = TanstackQueryClientService.current.configurationConstant.useAddDesignationMutation();
 
@@ -37,6 +38,11 @@ export default function CreateDesignationModalController({
       setDepartment(initialDepartment || (departmentKeys.length > 0 ? departmentKeys[0] : 'Engineering'));
       setDesignationName('');
       setErrorMessage(null);
+      // Prevent browser jump scroll on focus
+      const timer = setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true });
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, initialDepartment, departmentKeys]);
 
@@ -111,9 +117,9 @@ export default function CreateDesignationModalController({
           <div className="relative">
             <Briefcase className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
+              ref={inputRef}
               type="text"
               required
-              autoFocus
               value={designationName}
               onChange={(e) => setDesignationName(e.target.value)}
               placeholder="e.g. Lead AI Systems Architect"

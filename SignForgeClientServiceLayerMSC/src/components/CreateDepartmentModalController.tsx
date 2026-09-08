@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Building2, Plus } from 'lucide-react';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
@@ -17,6 +17,7 @@ export default function CreateDepartmentModalController({
 }: CreateDepartmentModalControllerProps): React.JSX.Element {
   const [departmentName, setDepartmentName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const addDepartmentMutation = TanstackQueryClientService.current.configurationConstant.useAddDepartmentMutation();
 
@@ -24,6 +25,11 @@ export default function CreateDepartmentModalController({
     if (isOpen) {
       setDepartmentName('');
       setErrorMessage(null);
+      // Prevent browser jump scroll on focus
+      const timer = setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true });
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
@@ -83,9 +89,9 @@ export default function CreateDepartmentModalController({
           <div className="relative">
             <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
+              ref={inputRef}
               type="text"
               required
-              autoFocus
               value={departmentName}
               onChange={(e) => setDepartmentName(e.target.value)}
               placeholder="e.g. Artificial Intelligence Research"

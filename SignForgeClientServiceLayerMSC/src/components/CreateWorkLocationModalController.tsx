@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Plus } from 'lucide-react';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
@@ -17,6 +17,7 @@ export default function CreateWorkLocationModalController({
 }: CreateWorkLocationModalControllerProps): React.JSX.Element {
   const [locationName, setLocationName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const addWorkLocationMutation = TanstackQueryClientService.current.configurationConstant.useAddWorkLocationMutation();
 
@@ -24,6 +25,11 @@ export default function CreateWorkLocationModalController({
     if (isOpen) {
       setLocationName('');
       setErrorMessage(null);
+      // Prevent browser jump scroll on focus
+      const timer = setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true });
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
@@ -83,9 +89,9 @@ export default function CreateWorkLocationModalController({
           <div className="relative">
             <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
+              ref={inputRef}
               type="text"
               required
-              autoFocus
               value={locationName}
               onChange={(e) => setLocationName(e.target.value)}
               placeholder="e.g. Pune / Innovation Hub"

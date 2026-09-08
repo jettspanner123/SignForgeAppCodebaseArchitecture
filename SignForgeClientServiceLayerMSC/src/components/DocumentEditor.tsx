@@ -940,7 +940,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         searchPlaceholder="Search departments..."
                         size="md"
                         footerAction={{
-                          label: '+ Create New Department',
+                          label: 'Create New Department',
                           icon: <Plus className="w-3.5 h-3.5" />,
                           onClick: () => setIsCreateDepartmentOpen(true),
                         }}
@@ -960,7 +960,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         searchPlaceholder="Search designations..."
                         size="md"
                         footerAction={{
-                          label: '+ Create New Designation',
+                          label: 'Create New Designation',
                           icon: <Plus className="w-3.5 h-3.5" />,
                           onClick: () => setIsCreateDesignationOpen(true),
                         }}
@@ -1024,7 +1024,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         searchPlaceholder="Search work locations..."
                         size="md"
                         footerAction={{
-                          label: '+ Create New Work Location',
+                          label: 'Create New Work Location',
                           icon: <Plus className="w-3.5 h-3.5" />,
                           onClick: () => setIsCreateWorkLocationOpen(true),
                         }}
