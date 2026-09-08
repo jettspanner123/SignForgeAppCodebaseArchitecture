@@ -324,38 +324,58 @@ export default class EmploymentOfferService {
     return this.mapDtoToOfferDocument(data);
   }
 
+  private parseNumeric(val: unknown): number {
+    if (typeof val === 'number') {
+      return isNaN(val) ? 0 : val;
+    }
+    if (typeof val === 'string') {
+      const cleaned = val.replace(/[^0-9.-]/g, '');
+      const parsed = parseFloat(cleaned);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  }
+
   public async createOffer(offer: OfferDocument): Promise<OfferDocument> {
     const config = ApplicationNetworkAPIConfiguration.current.getConfiguration();
     const endpoint = config.endpoints.employmentOffer.create;
+
+    const totalSalary = this.parseNumeric(offer.offerDetails.annualSalary ?? offer.offerDetails.ctc);
+    const fixedSal = offer.offerDetails.fixedSalary ? this.parseNumeric(offer.offerDetails.fixedSalary) : (totalSalary > 0 ? Math.round(totalSalary * 0.7) : 0);
+    const varBonus = this.parseNumeric(offer.offerDetails.variableBonus);
+    const signBonus = this.parseNumeric(offer.offerDetails.signOnBonus);
+    const relocAllowance = this.parseNumeric(offer.offerDetails.relocationAllowance);
+    const probMonths = typeof offer.offerDetails.probationMonths === 'number' ? offer.offerDetails.probationMonths : 3;
+    const notDays = typeof offer.offerDetails.noticePeriodDays === 'number' ? offer.offerDetails.noticePeriodDays : 30;
 
     const body = {
       OfferCode: offer.documentNumber,
       DocumentType: offer.documentType || 'OFFER_LETTER',
       SignatureCount: offer.signatureCount || 2,
-      CandidateName: offer.offerDetails.candidateName,
-      CandidateEmail: offer.offerDetails.candidateEmail,
-      CandidatePhone: offer.offerDetails.candidatePhone,
-      Designation: offer.offerDetails.jobTitle || offer.offerDetails.roleTitle || 'Professional',
-      Department: offer.offerDetails.department,
+      CandidateName: offer.offerDetails.candidateName?.trim() || 'Candidate',
+      CandidateEmail: offer.offerDetails.candidateEmail?.trim() || '',
+      CandidatePhone: offer.offerDetails.candidatePhone?.trim() || '',
+      Designation: offer.offerDetails.jobTitle?.trim() || offer.offerDetails.roleTitle?.trim() || offer.title?.trim() || 'Professional',
+      Department: offer.offerDetails.department?.trim() || 'Engineering',
       EmploymentType: 'Full-Time',
-      WorkLocation: offer.offerDetails.workLocation || offer.offerDetails.location,
-      JoiningDate: offer.offerDetails.joiningDate || offer.offerDetails.startDate,
-      ExpiryDate: offer.offerDetails.expiryDate,
-      ReportingManagerName: offer.offerDetails.reportingManager,
+      WorkLocation: offer.offerDetails.workLocation?.trim() || offer.offerDetails.location?.trim() || 'Pune office',
+      JoiningDate: offer.offerDetails.joiningDate?.trim() || offer.offerDetails.startDate?.trim() || new Date().toISOString().split('T')[0],
+      ExpiryDate: offer.offerDetails.expiryDate?.trim() || '',
+      ReportingManagerName: offer.offerDetails.reportingManager?.trim() || 'Hiring Manager',
       ReportingManagerTitle: 'Department Head',
-      CompanyName: offer.companyName,
-      CompanyAddress: offer.companyAddress,
+      CompanyName: offer.companyName?.trim() || 'We.PLM Global Technologies (P) Ltd.',
+      CompanyAddress: offer.companyAddress?.trim() || 'G22 Deepmala Pimple Saudagar Pune 411027',
       CompanyCin: 'U72900PN2021PTC202391',
-      BaseSalary: offer.offerDetails.fixedSalary || (typeof offer.offerDetails.annualSalary === 'number' ? offer.offerDetails.annualSalary * 0.7 : 0),
-      VariablePay: offer.offerDetails.variableBonus || 0,
-      JoiningBonus: offer.offerDetails.signOnBonus || 0,
-      StockOptions: offer.offerDetails.stockOptionsValue ? String(offer.offerDetails.stockOptionsValue) : '',
-      TotalCtc: typeof offer.offerDetails.annualSalary === 'number' ? offer.offerDetails.annualSalary : (offer.offerDetails.ctc || 0),
-      AnnualCtc: typeof offer.offerDetails.annualSalary === 'number' ? offer.offerDetails.annualSalary : (offer.offerDetails.ctc || 0),
+      BaseSalary: fixedSal,
+      VariablePay: varBonus,
+      JoiningBonus: signBonus,
+      StockOptions: offer.offerDetails.stockOptionsValue ? String(offer.offerDetails.stockOptionsValue) : (offer.offerDetails.equityUnits ? String(offer.offerDetails.equityUnits) : ''),
+      TotalCtc: totalSalary,
+      AnnualCtc: totalSalary,
       Currency: offer.offerDetails.currency || 'INR',
-      ProbationPeriodMonths: offer.offerDetails.probationMonths || 3,
-      NoticePeriodDays: offer.offerDetails.noticePeriodDays || 30,
-      RelocationAllowance: offer.offerDetails.relocationAllowance || 0,
+      ProbationPeriodMonths: probMonths,
+      NoticePeriodDays: notDays,
+      RelocationAllowance: relocAllowance,
       BenefitsDetails: offer.offerDetails.benefits ? JSON.stringify(offer.offerDetails.benefits) : '',
       OfferLetterHtml: offer.isUploadedPdf ? JSON.stringify({
         isUploadedPdf: true,

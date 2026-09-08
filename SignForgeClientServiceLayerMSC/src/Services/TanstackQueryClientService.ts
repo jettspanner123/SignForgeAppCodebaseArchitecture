@@ -133,15 +133,9 @@ export class EmploymentOfferQueryService {
     return useMutation({
       ...options,
       mutationFn: async (offer: OfferDocument): Promise<OfferDocument> => {
-        try {
-          const persisted = await EmploymentOfferService.current.createOffer(offer);
-          useOfferDocumentStore.getState().addDocument(persisted);
-          return persisted;
-        } catch (err) {
-          console.warn('Backend persistence error, saved locally:', err);
-          useOfferDocumentStore.getState().addDocument(offer);
-          return offer;
-        }
+        const persisted = await EmploymentOfferService.current.createOffer(offer);
+        useOfferDocumentStore.getState().addDocument(persisted);
+        return persisted;
       },
       onSuccess: async (...args) => {
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });

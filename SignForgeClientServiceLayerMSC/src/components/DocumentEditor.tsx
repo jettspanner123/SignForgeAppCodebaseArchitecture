@@ -30,7 +30,7 @@ import OfferLetterInteractiveStateInterfaceModel from '../Models/OfferLetterInte
 
 interface DocumentEditorProps {
   initialDocument?: OfferDocument | null;
-  onSaveAndSend: (doc: OfferDocument) => void;
+  onSaveAndSend: (doc: OfferDocument) => void | Promise<void>;
   onCancel: () => void;
   onSwitchToUpload?: () => void;
 }
@@ -322,10 +322,15 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
       newDoc.offerLetterHtml = paperElement.innerHTML;
     }
 
-    setTimeout(() => {
-      onSaveAndSend(newDoc);
+    try {
+      await onSaveAndSend(newDoc);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('Failed to create and persist employment offer:', err);
+      alert(`Failed to save document to server database: ${errorMessage}`);
+    } finally {
       setIsSubmitting(false);
-    }, 400);
+    }
   };
 
   const interactiveState: OfferLetterInteractiveStateInterfaceModel = {

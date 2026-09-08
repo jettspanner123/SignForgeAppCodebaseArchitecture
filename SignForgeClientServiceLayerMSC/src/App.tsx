@@ -157,8 +157,8 @@ export default function App() {
     documents[0] ||
     null;
 
-  const handleSaveOffer = (savedDoc: OfferDocument) => {
-    createOfferMutation.mutate(savedDoc);
+  const handleSaveOffer = async (savedDoc: OfferDocument) => {
+    await createOfferMutation.mutateAsync(savedDoc);
     setEditingDoc(null);
     setCurrentView(ApplicationRouteCON.DOCUMENTS);
   };
