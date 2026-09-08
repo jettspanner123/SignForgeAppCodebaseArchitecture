@@ -78,14 +78,31 @@ export default function ModalSharedComponent({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') handleEscapeKey();
     };
+
     if (isOpen) {
+      // Locking scroll via `body.style.overflow = 'hidden'` alone makes body a scroll
+      // container in its own right, which breaks `position: sticky` descendants (e.g. the
+      // page header): sticky then resolves against body's always-0 scrollTop instead of the
+      // page's real scroll offset, so it renders off-screen until the lock is released.
+      // Pinning body in place at its current scroll offset avoids that mismatch entirely.
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
       document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+        window.removeEventListener('keydown', handleKeyDown);
+      };
     }
-    return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
   }, [isOpen]);
 
   let widthClass = 'max-w-2xl';
