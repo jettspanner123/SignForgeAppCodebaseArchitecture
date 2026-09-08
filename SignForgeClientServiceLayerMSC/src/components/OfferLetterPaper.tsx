@@ -278,7 +278,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
                   name="annualSalary"
                   value={interactive.annualSalary}
                   onChange={(e) => interactive.setAnnualSalary(e.target.value)}
-                  placeholder="e.g. 18,50,000 INR"
+                  placeholder="e.g. 2400000"
                   className={`px-2.5 py-1 text-xs font-extrabold text-emerald-800 bg-white border rounded transition-all outline-none ${
                     errors.annualSalary 
                       ? 'border-red-500 ring-2 ring-red-500/20' 
@@ -335,7 +335,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
                   type="text"
                   value={interactive.equity}
                   onChange={(e) => interactive.setEquity(e.target.value)}
-                  placeholder="e.g. 5,000 RSUs"
+                  placeholder="e.g. 5000 RSUs (Leave empty if none)"
                   className="w-full px-2 py-1 text-xs font-semibold text-slate-900 bg-white border border-slate-300 rounded transition-all outline-none focus:border-[#0C2086] focus:ring-2 focus:ring-[#0C2086]/20"
                 />
               </div>
@@ -346,7 +346,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
                   type="text"
                   value={interactive.signOnBonus}
                   onChange={(e) => interactive.setSignOnBonus(e.target.value)}
-                  placeholder="e.g. 1,00,000 INR"
+                  placeholder="e.g. 100000 (Leave empty if none)"
                   className="w-full px-2 py-1 text-xs font-semibold text-slate-900 bg-white border border-slate-300 rounded transition-all outline-none focus:border-[#0C2086] focus:ring-2 focus:ring-[#0C2086]/20"
                 />
               </div>
@@ -708,7 +708,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
                   Pending Counter-Sign
                 </p>
                 <p className="text-[10px] text-slate-400 font-mono truncate">
-                  {isInteractiveForm ? interactive?.hrHeadEmail || 'hr@theweplm.com' : document.hrHeadEmail}
+                  {isInteractiveForm ? interactive?.hrHeadEmail || 'hr@theweplm.com' : (document.hrHeadEmail || document.executives?.hrHead?.email || 'hr@theweplm.com')}
                 </p>
               </div>
             )}
@@ -798,14 +798,16 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2 text-slate-700">
-              <div>
-                <span className="text-slate-500 block text-[10px]">HR Head Email:</span>
-                <span className="font-mono text-slate-900 font-bold">{document.hrHeadEmail}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-700">
+              <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                <span className="text-slate-500 block text-[10px] font-semibold uppercase tracking-wider">HR Head Dispatch</span>
+                <span className="font-bold text-slate-900 text-xs block mt-0.5">{document.executives?.hrHead?.name || 'HR Head'}</span>
+                <span className="font-mono text-slate-600 text-[11px] block mt-0.5 truncate">{document.hrHeadEmail || document.executives?.hrHead?.email || 'hr@theweplm.com'}</span>
               </div>
-              <div>
-                <span className="text-slate-500 block text-[10px]">CTO Email:</span>
-                <span className="font-mono text-slate-900 font-bold">{document.ctoEmail}</span>
+              <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                <span className="text-slate-500 block text-[10px] font-semibold uppercase tracking-wider">CTO Dispatch</span>
+                <span className="font-bold text-slate-900 text-xs block mt-0.5">{document.executives?.cto?.name || 'CTO'}</span>
+                <span className="font-mono text-slate-600 text-[11px] block mt-0.5 truncate">{document.ctoEmail || document.executives?.cto?.email || 'cto@theweplm.com'}</span>
               </div>
             </div>
           )}

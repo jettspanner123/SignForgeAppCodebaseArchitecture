@@ -3,6 +3,7 @@ import React from 'react';
 export interface InputSharedComponentProps {
   label?: string;
   error?: string;
+  helperText?: string;
   icon?: React.ReactNode;
   leftIcon?: React.ReactNode;
   fullWidth?: boolean;
@@ -22,6 +23,7 @@ export interface InputSharedComponentProps {
 export default function InputSharedComponent({
   label,
   error,
+  helperText,
   icon,
   leftIcon,
   fullWidth = true,
@@ -69,6 +71,7 @@ export default function InputSharedComponent({
         />
       </div>
       {error && <span className="text-xs text-rose-500 mt-0.5">{error}</span>}
+      {helperText && !error && <span className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5">{helperText}</span>}
     </div>
   );
 }

@@ -392,6 +392,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
     companyName: companyName || 'We.PLM Global Technologies (P) Ltd.',
     documentType: documentType,
     signatureCount: signatureCount,
+    candidateEmail: candidateEmail || '',
+    hrHeadEmail: hrHeadEmail || 'hr@theweplm.com',
+    ctoEmail: ctoEmail || 'cto@theweplm.com',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     status: 'OUT_FOR_CANDIDATE_SIGN',
@@ -872,7 +875,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         required
                         value={annualSalary}
                         onChange={(e) => setAnnualSalary(e.target.value)}
-                        placeholder="e.g. 24,00,000 INR"
+                        placeholder="e.g. 2400000"
                       />
 
                       <InputSharedComponent
@@ -926,7 +929,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         label="Equity / Stock Units"
                         value={equityUnits}
                         onChange={(e) => setEquityUnits(e.target.value)}
-                        placeholder="e.g. 5,000 RSUs"
+                        placeholder="e.g. 5000 RSUs"
+                        helperText="Leave empty if none"
                       />
 
                       <div className="sm:col-span-2">
@@ -934,7 +938,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                           label="Sign-on / Joining Bonus"
                           value={signOnBonus}
                           onChange={(e) => setSignOnBonus(e.target.value)}
-                          placeholder="e.g. 1,00,000 INR"
+                          placeholder="e.g. 100000"
+                          helperText="Leave empty if none"
                         />
                       </div>
                     </div>
