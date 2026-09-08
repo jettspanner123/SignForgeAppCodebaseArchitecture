@@ -18,6 +18,7 @@ export default function CreateDepartmentModalController({
 }: CreateDepartmentModalControllerProps): React.JSX.Element {
   const [departmentName, setDepartmentName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [exitDirection, setExitDirection] = useState<'down' | 'up'>('down');
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const addDepartmentMutation = TanstackQueryClientService.current.configurationConstant.useAddDepartmentMutation();
@@ -26,6 +27,7 @@ export default function CreateDepartmentModalController({
     if (isOpen) {
       setDepartmentName('');
       setErrorMessage(null);
+      setExitDirection('down');
       // Prevent browser jump scroll on focus
       const timer = setTimeout(() => {
         inputRef.current?.focus({ preventScroll: true });
@@ -33,6 +35,11 @@ export default function CreateDepartmentModalController({
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
+
+  const handleCancel = () => {
+    setExitDirection('up');
+    onClose();
+  };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -51,6 +58,7 @@ export default function CreateDepartmentModalController({
       if (onCreated) {
         onCreated(trimmedDepartment);
       }
+      setExitDirection('down');
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create department.';
@@ -62,6 +70,8 @@ export default function CreateDepartmentModalController({
     <ModalSharedComponent
       isOpen={isOpen}
       onClose={onClose}
+      exitDirection={exitDirection}
+      headerCloseDirection="down"
       title="Create New Department"
       subtitle="Register a new organizational department into the enterprise directory"
       maxWidth="md"
@@ -72,7 +82,7 @@ export default function CreateDepartmentModalController({
             type="button"
             variant="secondary"
             size="sm"
-            onClick={onClose}
+            onClick={handleCancel}
             disabled={addDepartmentMutation.isPending}
           >
             Cancel

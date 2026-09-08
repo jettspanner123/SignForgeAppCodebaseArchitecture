@@ -104,50 +104,60 @@ export default function ModalSharedComponent({
 
   const modalVariants = {
     initial: {
-      y: isSlideUp ? 16 : 8,
-      opacity: 0,
-      scale: 0.96,
+      y: isSlideUp ? (typeof window !== 'undefined' ? window.innerHeight + 600 : '120vh') : 8,
+      opacity: isSlideUp ? 1 : 0,
+      scale: isSlideUp ? 1 : 0.96,
     },
     animate: {
       y: 0,
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const },
+      transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
     },
-    exit: {
-      y: isSlideUp ? (activeExitDirection === 'up' ? -16 : 16) : 8,
-      opacity: 0,
-      scale: 0.96,
-      transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const },
+    exit: (customDir?: 'down' | 'up') => {
+      const dir = customDir || activeExitDirection;
+      const targetY =
+        dir === 'up'
+          ? -(typeof window !== 'undefined' ? window.innerHeight + 600 : 1200)
+          : typeof window !== 'undefined'
+          ? window.innerHeight + 600
+          : 1200;
+      return {
+        y: isSlideUp ? targetY : 8,
+        opacity: isSlideUp ? 1 : 0,
+        scale: isSlideUp ? 1 : 0.96,
+        transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] as const },
+      };
     },
   };
 
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence custom={activeExitDirection}>
       {isOpen && (
         <div
           ref={scrollContainerRef}
           style={{ zIndex }}
-          className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 overflow-y-auto overflow-x-hidden w-screen h-screen"
+          className="fixed inset-0 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-y-auto overflow-x-hidden w-[100dvw] h-[100dvh]"
         >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
             onClick={handleBackdropClick}
-            className="fixed inset-0 bg-slate-950/70 dark:bg-black/75 backdrop-blur-sm w-screen h-screen cursor-pointer"
+            className="fixed inset-0 bg-slate-950/75 dark:bg-black/80 backdrop-blur-none sm:backdrop-blur-sm w-[100dvw] h-[100dvh] cursor-pointer"
           />
 
           <motion.div
             ref={dialogCardRef}
+            custom={activeExitDirection}
             variants={modalVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`relative w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-2xl shadow-2xl z-10 my-auto max-h-[90vh] flex flex-col shrink-0`}
+            className={`relative w-[100dvw] sm:w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-t-2xl rounded-b-none sm:rounded-2xl shadow-2xl z-10 my-0 sm:my-auto max-h-[92dvh] sm:max-h-[90vh] flex flex-col shrink-0`}
           >
             {(title || subtitle) && (
               <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between shrink-0">
@@ -172,12 +182,12 @@ export default function ModalSharedComponent({
               </div>
             )}
 
-            <div className={`p-5 sm:p-6 flex-1 overflow-y-auto max-h-[calc(90dvh-130px)] sm:max-h-none ${scrollMode === 'body' ? 'overflow-y-auto' : ''} ${minHeight ? minHeight : ''}`}>
+            <div className={`p-5 sm:p-6 flex-1 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-none ${scrollMode === 'body' ? 'overflow-y-auto' : ''} ${minHeight ? minHeight : ''}`}>
               {children}
             </div>
 
             {footer && (
-              <div className="px-5 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#08080a] shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:pb-4">
+              <div className="px-5 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#08080a] shrink-0 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pb-4">
                 {footer}
               </div>
             )}

@@ -30,6 +30,7 @@ export default function CreateDesignationModalController({
   const [department, setDepartment] = useState<string>(initialDepartment);
   const [designationName, setDesignationName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [exitDirection, setExitDirection] = useState<'down' | 'up'>('down');
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const addDesignationMutation = TanstackQueryClientService.current.configurationConstant.useAddDesignationMutation();
@@ -39,6 +40,7 @@ export default function CreateDesignationModalController({
       setDepartment(initialDepartment || (departmentKeys.length > 0 ? departmentKeys[0] : 'Engineering'));
       setDesignationName('');
       setErrorMessage(null);
+      setExitDirection('down');
       // Prevent browser jump scroll on focus
       const timer = setTimeout(() => {
         inputRef.current?.focus({ preventScroll: true });
@@ -46,6 +48,11 @@ export default function CreateDesignationModalController({
       return () => clearTimeout(timer);
     }
   }, [isOpen, initialDepartment, departmentKeys]);
+
+  const handleCancel = () => {
+    setExitDirection('up');
+    onClose();
+  };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -65,6 +72,7 @@ export default function CreateDesignationModalController({
       if (onCreated) {
         onCreated(department.trim(), trimmedDesignation);
       }
+      setExitDirection('down');
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create designation.';
@@ -76,6 +84,8 @@ export default function CreateDesignationModalController({
     <ModalSharedComponent
       isOpen={isOpen}
       onClose={onClose}
+      exitDirection={exitDirection}
+      headerCloseDirection="down"
       title="Create New Designation"
       subtitle="Register a new job role title mapped directly to an enterprise department"
       maxWidth="md"
@@ -86,7 +96,7 @@ export default function CreateDesignationModalController({
             type="button"
             variant="secondary"
             size="sm"
-            onClick={onClose}
+            onClick={handleCancel}
             disabled={addDesignationMutation.isPending}
           >
             Cancel

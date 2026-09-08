@@ -18,6 +18,7 @@ export default function CreateWorkLocationModalController({
 }: CreateWorkLocationModalControllerProps): React.JSX.Element {
   const [locationName, setLocationName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [exitDirection, setExitDirection] = useState<'down' | 'up'>('down');
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const addWorkLocationMutation = TanstackQueryClientService.current.configurationConstant.useAddWorkLocationMutation();
@@ -26,6 +27,7 @@ export default function CreateWorkLocationModalController({
     if (isOpen) {
       setLocationName('');
       setErrorMessage(null);
+      setExitDirection('down');
       // Prevent browser jump scroll on focus
       const timer = setTimeout(() => {
         inputRef.current?.focus({ preventScroll: true });
@@ -33,6 +35,11 @@ export default function CreateWorkLocationModalController({
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
+
+  const handleCancel = () => {
+    setExitDirection('up');
+    onClose();
+  };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -51,6 +58,7 @@ export default function CreateWorkLocationModalController({
       if (onCreated) {
         onCreated(trimmedLocation);
       }
+      setExitDirection('down');
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create work location.';
@@ -62,6 +70,8 @@ export default function CreateWorkLocationModalController({
     <ModalSharedComponent
       isOpen={isOpen}
       onClose={onClose}
+      exitDirection={exitDirection}
+      headerCloseDirection="down"
       title="Create New Work Location"
       subtitle="Register a new corporate office or remote work hub into the enterprise directory"
       maxWidth="md"
@@ -72,7 +82,7 @@ export default function CreateWorkLocationModalController({
             type="button"
             variant="secondary"
             size="sm"
-            onClick={onClose}
+            onClick={handleCancel}
             disabled={addWorkLocationMutation.isPending}
           >
             Cancel
