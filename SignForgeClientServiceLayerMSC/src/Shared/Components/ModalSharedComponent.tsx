@@ -80,26 +80,9 @@ export default function ModalSharedComponent({
     };
 
     if (isOpen) {
-      // Locking scroll via `body.style.overflow = 'hidden'` alone makes body a scroll
-      // container in its own right, which breaks `position: sticky` descendants (e.g. the
-      // page header): sticky then resolves against body's always-0 scrollTop instead of the
-      // page's real scroll offset, so it renders off-screen until the lock is released.
-      // Pinning body in place at its current scroll offset avoids that mismatch entirely.
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleKeyDown);
 
       return () => {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.overflow = '';
-        window.scrollTo(0, scrollY);
         window.removeEventListener('keydown', handleKeyDown);
       };
     }
@@ -119,65 +102,52 @@ export default function ModalSharedComponent({
   const activeExitDirection: 'down' | 'up' =
     exitDirectionProp === 'up' || internalExitDirection === 'up' ? 'up' : 'down';
 
-  const getExitDistance = (dir: 'down' | 'up'): number => {
-    if (typeof window === 'undefined') return dir === 'up' ? -1800 : 1800;
-    const vh = window.innerHeight || 800;
-    const cardHeight = dialogCardRef.current?.offsetHeight || 800;
-    const scrollTop = scrollContainerRef.current?.scrollTop || 0;
-    return dir === 'up' ? -(cardHeight + vh + scrollTop + 400) : cardHeight + vh + 400;
-  };
-
   const modalVariants = {
     initial: {
-      y: isSlideUp ? (typeof window !== 'undefined' ? window.innerHeight + 1000 : '150vh') : 8,
-      opacity: isSlideUp ? 1 : 0,
-      scale: isSlideUp ? 1 : 0.96,
+      y: isSlideUp ? 16 : 8,
+      opacity: 0,
+      scale: 0.96,
     },
     animate: {
       y: 0,
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
+      transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const },
     },
-    exit: (customDir?: 'down' | 'up') => {
-      const dir = customDir || activeExitDirection;
-      const distance = getExitDistance(dir);
-      return {
-        y: isSlideUp ? distance : 8,
-        opacity: isSlideUp ? 1 : 0,
-        scale: isSlideUp ? 1 : 0.96,
-        transition: { duration: 0.55, ease: [0.4, 0, 0.2, 1] as const },
-      };
+    exit: {
+      y: isSlideUp ? (activeExitDirection === 'up' ? -16 : 16) : 8,
+      opacity: 0,
+      scale: 0.96,
+      transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const },
     },
   };
 
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <AnimatePresence custom={activeExitDirection}>
+    <AnimatePresence>
       {isOpen && (
         <div
           ref={scrollContainerRef}
           style={{ zIndex }}
-          className="fixed inset-0 flex items-end sm:items-start justify-center p-0 sm:p-6 overflow-y-auto overflow-x-hidden w-[100dvw] h-[100dvh]"
+          className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 overflow-y-auto overflow-x-hidden w-screen h-screen"
         >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
             onClick={handleBackdropClick}
-            className="fixed inset-0 bg-slate-950/80 dark:bg-black/85 sm:bg-slate-900/60 sm:dark:bg-black/60 backdrop-blur-none sm:backdrop-blur-md w-[100dvw] h-[100dvh]"
+            className="fixed inset-0 bg-slate-950/70 dark:bg-black/75 backdrop-blur-sm w-screen h-screen cursor-pointer"
           />
 
           <motion.div
             ref={dialogCardRef}
-            custom={activeExitDirection}
             variants={modalVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`relative w-[100dvw] sm:w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-t-2xl rounded-b-none sm:rounded-xl shadow-2xl z-10 my-0 sm:my-8 max-h-[90dvh] sm:max-h-none flex flex-col shrink-0`}
+            className={`relative w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-2xl shadow-2xl z-10 my-auto max-h-[90vh] flex flex-col shrink-0`}
           >
             {(title || subtitle) && (
               <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between shrink-0">
