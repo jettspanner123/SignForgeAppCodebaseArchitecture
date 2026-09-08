@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Briefcase, Plus, Sparkles } from 'lucide-react';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
@@ -18,14 +18,10 @@ export default function CreateDesignationModalController({
   onClose,
   onCreated,
 }: CreateDesignationModalControllerProps): React.JSX.Element {
-  const { data: designationsMap = {
-    Engineering: ['Software Engineer'],
-    'Product Design': ['Product Designer'],
-    Operations: ['Operations Manager'],
-  } } = TanstackQueryClientService.current.configurationConstant.useDesignationsQuery();
+  const { data: designationsMap = {} } = TanstackQueryClientService.current.configurationConstant.useDesignationsQuery();
 
   const departmentKeys = Object.keys(designationsMap);
-  const departmentOptions: SelectOption[] = (departmentKeys.length > 0 ? departmentKeys : ['Engineering', 'Product Design', 'Operations']).map((dept) => ({
+  const departmentOptions: SelectOption[] = departmentKeys.map((dept) => ({
     value: dept,
     label: dept,
   }));

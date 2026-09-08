@@ -60,38 +60,25 @@ export default class ConfigurationConstantService {
   }
 
   public async getWorkLocations(): Promise<string[]> {
-    try {
-      const dto = await this.getConstantByKey('WORK_LOCATIONS');
-      if (dto && dto.configurationValue) {
-        const parsed = JSON.parse(dto.configurationValue);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
+    const dto = await this.getConstantByKey('WORK_LOCATIONS');
+    if (dto && dto.configurationValue) {
+      const parsed = JSON.parse(dto.configurationValue);
+      if (Array.isArray(parsed)) {
+        return parsed;
       }
-    } catch {
-      // Fallback if parsing fails or offline
     }
-    return ['Pune, Maharastra', 'Bengaluru, Karnataka', 'Hyderabad, Telangana'];
+    return [];
   }
 
   public async getDesignations(): Promise<Record<string, string[]>> {
-    try {
-      const dto = await this.getConstantByKey('EMPLOYEE_DESIGNATIONS');
-      if (dto && dto.configurationValue) {
-        const parsed = JSON.parse(dto.configurationValue);
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          return parsed as Record<string, string[]>;
-        }
+    const dto = await this.getConstantByKey('EMPLOYEE_DESIGNATIONS');
+    if (dto && dto.configurationValue) {
+      const parsed = JSON.parse(dto.configurationValue);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed as Record<string, string[]>;
       }
-    } catch {
-      // Fallback if parsing fails or offline
     }
-    return {
-      'Engineering': ['Software Engineer', 'Senior Software Engineer', 'Lead Systems Architect', 'Principal Engineer'],
-      'Product Design': ['Product Designer', 'UI/UX Designer', 'Design Lead'],
-      'Operations': ['Operations Manager', 'Project Manager', 'Technical Delivery Lead'],
-      'Human Resources': ['HR Generalist', 'HR Head', 'Talent Acquisition Specialist'],
-    };
+    return {};
   }
 
   public async addDesignation(department: string, designation: string): Promise<Record<string, string[]>> {

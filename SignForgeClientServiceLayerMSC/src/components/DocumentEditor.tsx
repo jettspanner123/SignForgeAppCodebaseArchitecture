@@ -134,14 +134,10 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   );
 
   // Live Designations & Work Locations from AS_ConfigurationConstantTBL (1:1 with AssetSphere)
-  const { data: designationsMap = {
-    'Engineering': ['Software Engineer', 'Senior Software Engineer', 'Lead Systems Architect', 'Principal Engineer'],
-    'Product Design': ['Product Designer', 'UI/UX Designer', 'Design Lead'],
-    'Operations': ['Operations Manager', 'Project Manager', 'Technical Delivery Lead'],
-    'Human Resources': ['HR Generalist', 'HR Head', 'Talent Acquisition Specialist'],
-  } } = TanstackQueryClientService.current.configurationConstant.useDesignationsQuery();
+  const { data: designationsMap = {} } =
+    TanstackQueryClientService.current.configurationConstant.useDesignationsQuery();
 
-  const { data: workLocations = ['Pune, Maharastra', 'Bengaluru, Karnataka', 'Hyderabad, Telangana'] } =
+  const { data: workLocations = [] } =
     TanstackQueryClientService.current.configurationConstant.useWorkLocationsQuery();
 
   const departmentKeys = React.useMemo(() => Object.keys(designationsMap), [designationsMap]);
@@ -151,8 +147,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   const [isCreateWorkLocationOpen, setIsCreateWorkLocationOpen] = useState(false);
 
   const departmentOptions: SelectOption[] = React.useMemo(() => {
-    const list = departmentKeys.length > 0 ? departmentKeys : ['Engineering', 'Product Design', 'Operations', 'Human Resources'];
-    const opts = list.map((dept) => ({ value: dept, label: dept }));
+    const opts = departmentKeys.map((dept) => ({ value: dept, label: dept }));
     if (department && !opts.some((o) => o.value === department)) {
       opts.unshift({ value: department, label: department });
     }
