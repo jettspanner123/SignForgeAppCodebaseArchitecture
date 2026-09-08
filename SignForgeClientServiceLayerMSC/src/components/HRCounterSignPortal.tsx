@@ -25,6 +25,7 @@ import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
 import CardSharedComponent from '../Shared/Components/CardSharedComponent';
 import TanstackQueryClientService from '../Services/TanstackQueryClientService';
+import useAuthenticationStateStore from '../Store/AuthenticationStateStore';
 
 export interface HRCounterSignPortalProps {
   documentId?: string | null;
@@ -45,6 +46,10 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
 
   const [localSignedDoc, setLocalSignedDoc] = useState<OfferDocument | null>(null);
   const document = localSignedDoc || propDocument || remoteDoc;
+
+  const user = useAuthenticationStateStore((s) => s.user);
+  const hrName = (user?.fullName || (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : '')) || (document?.executives?.hrHead?.name || 'HR Representative');
+  const hrEmail = user?.email || document?.hrHeadEmail || document?.executives?.hrHead?.email || 'hr@theweplm.com';
 
   const counterSignMutation =
     TanstackQueryClientService.current.employmentOffer.useCounterSignMutation();
@@ -574,8 +579,8 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
         isOpen={isSignModalOpen}
         onClose={() => setIsSignModalOpen(false)}
         onSave={handleApplyHRSignature}
-        signerName="Sarah Jenkins (HR Representative)"
-        signerEmail="hr@signcorp.com"
+        signerName={hrName}
+        signerEmail={hrEmail}
         signerRole="HR_REPRESENTATIVE"
       />
 
