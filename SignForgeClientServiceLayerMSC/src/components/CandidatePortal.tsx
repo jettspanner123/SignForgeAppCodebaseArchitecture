@@ -55,7 +55,8 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
       !propDocument && docId ? docId : null
     );
 
-  const document = propDocument || remoteDoc;
+  const [localSignedDoc, setLocalSignedDoc] = useState<OfferDocument | null>(null);
+  const document = localSignedDoc || propDocument || remoteDoc;
 
   const candidateSignMutation =
     TanstackQueryClientService.current.employmentOffer.useCandidateSignMutation();
@@ -123,6 +124,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
   };
 
   const handleApplySignature = async (sigData: SignatureData) => {
+    if (!document) return;
     const now = new Date().toISOString();
     const auditChecksum = await ApplicationCryptoUtility.current.generateSHA256(`CANDIDATE_SIGNED-${document.id}-${sigData.sha256Hash}`);
 
@@ -146,11 +148,12 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
       sha256Checksum: auditChecksum
     };
 
+    setLocalSignedDoc(updatedDoc);
     onUpdateDocument(updatedDoc);
     triggerCelebration();
 
     try {
-      await candidateSignMutation.mutateAsync({
+      const persisted = await candidateSignMutation.mutateAsync({
         offerId: document.id,
         signatureData: sigData.value,
         signMode: sigData.type?.toUpperCase() === 'TYPE' ? 'TYPE' : 'DRAW',
@@ -158,6 +161,10 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
         ipAddress: sigData.ipAddress,
         userAgent: navigator.userAgent,
       });
+      if (persisted) {
+        setLocalSignedDoc(persisted);
+        onUpdateDocument(persisted);
+      }
     } catch (err) {
       console.warn('Backend candidate sign sync warning:', err);
     }

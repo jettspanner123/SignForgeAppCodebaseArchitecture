@@ -115,7 +115,10 @@ export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
   },
 
   updateDocument: (doc) => {
-    const updated = get().documents.map((d) => (d.id === doc.id ? doc : d));
+    const exists = get().documents.some((d) => d.id === doc.id);
+    const updated = exists
+      ? get().documents.map((d) => (d.id === doc.id ? doc : d))
+      : [doc, ...get().documents];
     set({ documents: updated });
   },
 

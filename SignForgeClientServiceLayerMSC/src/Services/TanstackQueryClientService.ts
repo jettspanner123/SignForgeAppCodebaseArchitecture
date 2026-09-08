@@ -228,6 +228,10 @@ export class EmploymentOfferQueryService {
           TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
           (old) => (old || []).map((o) => (o.id === updated.id ? updated : o))
         );
+        queryClient.setQueryData<OfferDocument>(
+          [TanstackQueryKeysCON.EMPLOYMENT_OFFERS, updated.id],
+          updated
+        );
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
         if (options?.onSuccess) {
@@ -264,6 +268,10 @@ export class EmploymentOfferQueryService {
           TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
           (old) => (old || []).map((o) => (o.id === updated.id ? updated : o))
         );
+        queryClient.setQueryData<OfferDocument>(
+          [TanstackQueryKeysCON.EMPLOYMENT_OFFERS, updated.id],
+          updated
+        );
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
         if (options?.onSuccess) {
@@ -299,6 +307,10 @@ export class EmploymentOfferQueryService {
         queryClient.setQueryData<OfferDocument[]>(
           TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
           (old) => (old || []).map((o) => (o.id === updated.id ? updated : o))
+        );
+        queryClient.setQueryData<OfferDocument>(
+          [TanstackQueryKeysCON.EMPLOYMENT_OFFERS, updated.id],
+          updated
         );
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });

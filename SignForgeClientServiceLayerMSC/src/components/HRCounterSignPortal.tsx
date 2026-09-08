@@ -43,7 +43,8 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
       !propDocument && docId ? docId : null
     );
 
-  const document = propDocument || remoteDoc;
+  const [localSignedDoc, setLocalSignedDoc] = useState<OfferDocument | null>(null);
+  const document = localSignedDoc || propDocument || remoteDoc;
 
   const counterSignMutation =
     TanstackQueryClientService.current.employmentOffer.useCounterSignMutation();
@@ -92,6 +93,7 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
   const isFullyExecuted = document.status === 'FULLY_EXECUTED';
 
   const handleApplyHRSignature = async (sigData: SignatureData) => {
+    if (!document) return;
     const now = new Date().toISOString();
     const ip = ApplicationCryptoUtility.current.getSimulatedIP();
 
@@ -147,17 +149,22 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
       ]
     };
 
+    setLocalSignedDoc(updatedDoc);
     onUpdateDocument(updatedDoc);
     // Automatically launch executive dispatch modal preview!
     setShowDispatchModal(true);
 
     try {
-      await counterSignMutation.mutateAsync({
+      const persisted = await counterSignMutation.mutateAsync({
         offerId: document.id,
         signatureData: sigData.value,
         signMode: sigData.type?.toUpperCase() === 'TYPE' ? 'TYPE' : 'DRAW',
         updatedHtml: document.offerLetterHtml,
       });
+      if (persisted) {
+        setLocalSignedDoc(persisted);
+        onUpdateDocument(persisted);
+      }
     } catch (err) {
       console.warn('Backend HR countersign sync warning:', err);
     }
