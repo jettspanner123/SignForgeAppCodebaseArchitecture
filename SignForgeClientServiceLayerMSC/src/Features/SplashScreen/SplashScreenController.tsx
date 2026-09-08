@@ -12,19 +12,34 @@ export default function SplashScreenController({
   onReady,
 }: SplashScreenControllerProps): React.JSX.Element {
   // Pre-fetch Dashboard Information from Backend
-  const { isLoading, isFetched, isError } =
+  const dashboardQuery =
     TanstackQueryClientService.current.dashboardInfoGrab.useDashboardInfoQuery();
 
+  // Pre-fetch AssetSphere Work Locations & Employee Designations
+  const workLocationsQuery =
+    TanstackQueryClientService.current.configurationConstant.useWorkLocationsQuery();
+
+  const designationsQuery =
+    TanstackQueryClientService.current.configurationConstant.useDesignationsQuery();
+
+  const allQueriesSettled =
+    !dashboardQuery.isLoading &&
+    (dashboardQuery.isFetched || dashboardQuery.isError) &&
+    !workLocationsQuery.isLoading &&
+    (workLocationsQuery.isFetched || workLocationsQuery.isError) &&
+    !designationsQuery.isLoading &&
+    (designationsQuery.isFetched || designationsQuery.isError);
+
   useEffect(() => {
-    // When backend query settles (either loaded or errored/fallback), hold splash screen for 2 seconds before dismissing
-    if (!isLoading && (isFetched || isError)) {
+    // When all queries settle (loaded or errored), hold splash screen for minimum duration before dismissing
+    if (allQueriesSettled) {
       const timer = setTimeout(() => {
         onReady();
       }, SplashScreenCON.MINIMUM_DISPLAY_DURATION_MS);
 
       return () => clearTimeout(timer);
     }
-  }, [isLoading, isFetched, isError, onReady]);
+  }, [allQueriesSettled, onReady]);
 
   return (
     <AnimatePresence>
