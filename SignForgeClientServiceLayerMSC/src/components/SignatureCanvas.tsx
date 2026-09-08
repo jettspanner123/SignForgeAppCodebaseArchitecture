@@ -191,7 +191,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
   };
 
   const handleFooterClose = () => {
-    setExitDirection('down');
+    setExitDirection('up');
     setInternalIsOpen(false);
     setTimeout(() => {
       onClose();

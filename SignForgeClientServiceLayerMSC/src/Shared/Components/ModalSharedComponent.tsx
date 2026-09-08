@@ -102,6 +102,14 @@ export default function ModalSharedComponent({
   const activeExitDirection: 'down' | 'up' =
     exitDirectionProp === 'up' || internalExitDirection === 'up' ? 'up' : 'down';
 
+  const getExitDistance = (dir: 'down' | 'up'): number => {
+    if (typeof window === 'undefined') return dir === 'up' ? -1500 : 1500;
+    const vh = window.innerHeight || 800;
+    const cardHeight = dialogCardRef.current?.offsetHeight || 600;
+    const scrollTop = scrollContainerRef.current?.scrollTop || 0;
+    return dir === 'up' ? -(cardHeight + vh + scrollTop + 400) : cardHeight + vh + 400;
+  };
+
   const modalVariants = {
     initial: {
       y: isSlideUp ? (typeof window !== 'undefined' ? window.innerHeight + 600 : '120vh') : 8,
@@ -116,14 +124,9 @@ export default function ModalSharedComponent({
     },
     exit: (customDir?: 'down' | 'up') => {
       const dir = customDir || activeExitDirection;
-      const targetY =
-        dir === 'up'
-          ? -(typeof window !== 'undefined' ? window.innerHeight + 600 : 1200)
-          : typeof window !== 'undefined'
-          ? window.innerHeight + 600
-          : 1200;
+      const distance = getExitDistance(dir);
       return {
-        y: isSlideUp ? targetY : 8,
+        y: isSlideUp ? distance : (dir === 'up' ? -16 : 16),
         opacity: isSlideUp ? 1 : 0,
         scale: isSlideUp ? 1 : 0.96,
         transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] as const },
@@ -136,12 +139,17 @@ export default function ModalSharedComponent({
   return createPortal(
     <AnimatePresence custom={activeExitDirection}>
       {isOpen && (
-        <div
+        <motion.div
+          key="modal-portal-container"
           ref={scrollContainerRef}
           style={{ zIndex }}
           className="fixed inset-0 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-y-auto overflow-x-hidden w-[100dvw] h-[100dvh]"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 1, transition: { duration: 0.55 } }}
         >
           <motion.div
+            key="modal-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -151,6 +159,7 @@ export default function ModalSharedComponent({
           />
 
           <motion.div
+            key="modal-dialog-card"
             ref={dialogCardRef}
             custom={activeExitDirection}
             variants={modalVariants}
@@ -192,7 +201,7 @@ export default function ModalSharedComponent({
               </div>
             )}
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>,
     document.body

@@ -16,15 +16,19 @@ export default function CreateWorkLocationModalController({
   onClose,
   onCreated,
 }: CreateWorkLocationModalControllerProps): React.JSX.Element {
+  const [internalIsOpen, setInternalIsOpen] = useState(isOpen);
   const [locationName, setLocationName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [exitDirection, setExitDirection] = useState<'down' | 'up'>('down');
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const isClosingRef = React.useRef(false);
 
   const addWorkLocationMutation = TanstackQueryClientService.current.configurationConstant.useAddWorkLocationMutation();
 
   useEffect(() => {
+    setInternalIsOpen(isOpen);
     if (isOpen) {
+      isClosingRef.current = false;
       setLocationName('');
       setErrorMessage(null);
       setExitDirection('down');
@@ -36,9 +40,24 @@ export default function CreateWorkLocationModalController({
     }
   }, [isOpen]);
 
+  const handleHeaderOrBackdropClose = () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+    setExitDirection('down');
+    setInternalIsOpen(false);
+    setTimeout(() => {
+      onClose();
+    }, 550);
+  };
+
   const handleCancel = () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
     setExitDirection('up');
-    onClose();
+    setInternalIsOpen(false);
+    setTimeout(() => {
+      onClose();
+    }, 550);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -58,8 +77,7 @@ export default function CreateWorkLocationModalController({
       if (onCreated) {
         onCreated(trimmedLocation);
       }
-      setExitDirection('down');
-      onClose();
+      handleHeaderOrBackdropClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create work location.';
       setErrorMessage(msg);
@@ -68,8 +86,8 @@ export default function CreateWorkLocationModalController({
 
   return (
     <ModalSharedComponent
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={internalIsOpen}
+      onClose={handleHeaderOrBackdropClose}
       exitDirection={exitDirection}
       headerCloseDirection="down"
       title="Create New Work Location"

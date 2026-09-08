@@ -16,15 +16,19 @@ export default function CreateDepartmentModalController({
   onClose,
   onCreated,
 }: CreateDepartmentModalControllerProps): React.JSX.Element {
+  const [internalIsOpen, setInternalIsOpen] = useState(isOpen);
   const [departmentName, setDepartmentName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [exitDirection, setExitDirection] = useState<'down' | 'up'>('down');
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const isClosingRef = React.useRef(false);
 
   const addDepartmentMutation = TanstackQueryClientService.current.configurationConstant.useAddDepartmentMutation();
 
   useEffect(() => {
+    setInternalIsOpen(isOpen);
     if (isOpen) {
+      isClosingRef.current = false;
       setDepartmentName('');
       setErrorMessage(null);
       setExitDirection('down');
@@ -36,9 +40,24 @@ export default function CreateDepartmentModalController({
     }
   }, [isOpen]);
 
+  const handleHeaderOrBackdropClose = () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+    setExitDirection('down');
+    setInternalIsOpen(false);
+    setTimeout(() => {
+      onClose();
+    }, 550);
+  };
+
   const handleCancel = () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
     setExitDirection('up');
-    onClose();
+    setInternalIsOpen(false);
+    setTimeout(() => {
+      onClose();
+    }, 550);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -58,8 +77,7 @@ export default function CreateDepartmentModalController({
       if (onCreated) {
         onCreated(trimmedDepartment);
       }
-      setExitDirection('down');
-      onClose();
+      handleHeaderOrBackdropClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create department.';
       setErrorMessage(msg);
@@ -68,8 +86,8 @@ export default function CreateDepartmentModalController({
 
   return (
     <ModalSharedComponent
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={internalIsOpen}
+      onClose={handleHeaderOrBackdropClose}
       exitDirection={exitDirection}
       headerCloseDirection="down"
       title="Create New Department"

@@ -27,16 +27,20 @@ export default function CreateDesignationModalController({
     label: dept,
   }));
 
+  const [internalIsOpen, setInternalIsOpen] = useState(isOpen);
   const [department, setDepartment] = useState<string>(initialDepartment);
   const [designationName, setDesignationName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [exitDirection, setExitDirection] = useState<'down' | 'up'>('down');
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const isClosingRef = React.useRef(false);
 
   const addDesignationMutation = TanstackQueryClientService.current.configurationConstant.useAddDesignationMutation();
 
   useEffect(() => {
+    setInternalIsOpen(isOpen);
     if (isOpen) {
+      isClosingRef.current = false;
       setDepartment(initialDepartment || (departmentKeys.length > 0 ? departmentKeys[0] : 'Engineering'));
       setDesignationName('');
       setErrorMessage(null);
@@ -49,9 +53,24 @@ export default function CreateDesignationModalController({
     }
   }, [isOpen, initialDepartment, departmentKeys]);
 
+  const handleHeaderOrBackdropClose = () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+    setExitDirection('down');
+    setInternalIsOpen(false);
+    setTimeout(() => {
+      onClose();
+    }, 550);
+  };
+
   const handleCancel = () => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
     setExitDirection('up');
-    onClose();
+    setInternalIsOpen(false);
+    setTimeout(() => {
+      onClose();
+    }, 550);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -72,8 +91,7 @@ export default function CreateDesignationModalController({
       if (onCreated) {
         onCreated(department.trim(), trimmedDesignation);
       }
-      setExitDirection('down');
-      onClose();
+      handleHeaderOrBackdropClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create designation.';
       setErrorMessage(msg);
@@ -82,8 +100,8 @@ export default function CreateDesignationModalController({
 
   return (
     <ModalSharedComponent
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={internalIsOpen}
+      onClose={handleHeaderOrBackdropClose}
       exitDirection={exitDirection}
       headerCloseDirection="down"
       title="Create New Designation"
