@@ -58,7 +58,13 @@ export default function CreatableCustomSelectSharedComponent({
       setSearchTerm('');
       return;
     }
-    if (searchInputRef.current) {
+    const isMobileOrTouch =
+      typeof window !== 'undefined' &&
+      (window.innerWidth < 768 ||
+        window.matchMedia('(pointer: coarse)').matches ||
+        'ontouchstart' in window);
+
+    if (searchInputRef.current && !isMobileOrTouch) {
       searchInputRef.current.focus();
     }
     const handlePointerDown = (event: MouseEvent | TouchEvent) => {
@@ -179,25 +185,25 @@ export default function CreatableCustomSelectSharedComponent({
                         }
                       }}
                       placeholder={searchPlaceholder}
-                      className="w-full h-8 pl-8 pr-2.5 text-xs bg-slate-50 dark:bg-zinc-800/70 border border-slate-200 dark:border-zinc-700/60 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#0C2086]/50 focus:border-[#0C2086]"
+                      className="w-full h-9 sm:h-8 pl-8 pr-3 sm:pr-2.5 text-sm sm:text-xs bg-slate-50 dark:bg-zinc-800/70 border border-slate-200 dark:border-zinc-700/60 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#0C2086]/50 focus:border-[#0C2086]"
                     />
                   </div>
                 </div>
               )}
 
-              <div className={`overflow-y-auto space-y-0.5 ${enableSearch ? 'max-h-52' : 'max-h-60'} pr-0.5`}>
+              <div className={`overflow-y-auto space-y-1 sm:space-y-0.5 ${enableSearch ? 'max-h-64 sm:max-h-52' : 'max-h-72 sm:max-h-60'} pr-0.5`}>
                 {enableCustomCreation && searchTerm.trim().length > 0 && !exactMatchExists && (
                   <button
                     type="button"
                     onClick={handleApplyCustomValue}
-                    className="w-full flex items-center gap-2 p-2 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 text-[#0C2086] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors text-left font-medium mb-1 cursor-pointer"
+                    className="w-full min-h-[44px] sm:min-h-0 flex items-center gap-2.5 sm:gap-2 p-2.5 sm:p-2 rounded-xl sm:rounded-lg bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60 text-[#0C2086] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors text-left font-medium mb-1 cursor-pointer"
                   >
                     <Plus className="w-4 h-4 shrink-0 text-[#0C2086] dark:text-blue-400" />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-xs font-semibold">
+                      <div className="truncate text-sm sm:text-xs font-semibold">
                         Use custom: <span className="underline italic">"{searchTerm.trim()}"</span>
                       </div>
-                      <div className="text-[10px] text-blue-600/70 dark:text-blue-400/70 font-mono">
+                      <div className="text-xs sm:text-[10px] text-blue-600/70 dark:text-blue-400/70 font-mono">
                         Press Enter or click to apply
                       </div>
                     </div>
@@ -211,24 +217,24 @@ export default function CreatableCustomSelectSharedComponent({
                       key={opt.value}
                       type="button"
                       onClick={() => handleSelectOption(opt.value)}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left cursor-pointer ${
+                      className={`w-full min-h-[48px] sm:min-h-0 flex items-center justify-between px-3.5 sm:px-2.5 py-3 sm:py-1.5 rounded-xl sm:rounded-lg text-sm sm:text-xs transition-colors text-left cursor-pointer ${
                         isSelected
                           ? 'bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white font-bold'
                           : 'text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800/50'
                       }`}
                     >
-                      <div className="flex items-center gap-2 truncate min-w-0 pr-2">
+                      <div className="flex items-center gap-2.5 sm:gap-2 truncate min-w-0 pr-2">
                         {opt.icon}
                         <div className="truncate min-w-0">
-                          <div className="truncate font-medium">{opt.label}</div>
+                          <div className="truncate font-medium leading-snug">{opt.label}</div>
                           {opt.sublabel && (
-                            <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono">
+                            <div className="text-xs sm:text-[10px] text-slate-400 dark:text-zinc-500 font-mono mt-0.5">
                               {opt.sublabel}
                             </div>
                           )}
                         </div>
                       </div>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-[#0C2086] dark:text-blue-400 shrink-0" />}
+                      {isSelected && <Check className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#0C2086] dark:text-blue-400 shrink-0" />}
                     </button>
                   );
                 })}
