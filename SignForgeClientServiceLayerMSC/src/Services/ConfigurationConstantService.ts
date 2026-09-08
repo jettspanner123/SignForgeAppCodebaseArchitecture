@@ -2,16 +2,26 @@ import ApplicationNetworkAPIConfiguration from '../Configurations/ApplicationNet
 import ApplicationLocalStorageService from './ApplicationLocalStorageService';
 
 export interface ConfigurationConstantDTO {
-  id: string;
-  configurationKey: string;
-  configurationValue: string;
+  id?: string;
+  Id?: string;
+  configurationKey?: string;
+  ConfigurationKey?: string;
+  configurationValue?: string;
+  ConfigurationValue?: string;
   description?: string | null;
+  Description?: string | null;
   notes?: string | null;
-  isActive: boolean;
-  createdBy: string;
+  Notes?: string | null;
+  isActive?: boolean;
+  Active?: boolean;
+  createdBy?: string;
+  CreatedBy?: string;
   updatedBy?: string | null;
-  createdAt: string;
+  UpdatedBy?: string | null;
+  createdAt?: string;
+  CreatedAt?: string;
   updatedAt?: string | null;
+  UpdatedAt?: string | null;
 }
 
 export default class ConfigurationConstantService {
@@ -41,7 +51,7 @@ export default class ConfigurationConstantService {
     }
 
     const json = await response.json();
-    return json.data || [];
+    return (json.data || json.Data || json) as ConfigurationConstantDTO[];
   }
 
   public async getConstantByKey(key: string): Promise<ConfigurationConstantDTO> {
@@ -56,15 +66,20 @@ export default class ConfigurationConstantService {
     }
 
     const json = await response.json();
-    return json.data;
+    return (json.data || json.Data || json) as ConfigurationConstantDTO;
   }
 
   public async getWorkLocations(): Promise<string[]> {
     const dto = await this.getConstantByKey('WORK_LOCATIONS');
-    if (dto && dto.configurationValue) {
-      const parsed = JSON.parse(dto.configurationValue);
-      if (Array.isArray(parsed)) {
-        return parsed;
+    const rawVal = dto?.configurationValue || dto?.ConfigurationValue;
+    if (rawVal) {
+      try {
+        const parsed = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
+        if (Array.isArray(parsed)) {
+          return parsed.map((item: unknown) => String(item).trim()).filter(Boolean);
+        }
+      } catch (err) {
+        console.error('Failed to parse WORK_LOCATIONS JSON:', err);
       }
     }
     return [];
@@ -72,10 +87,15 @@ export default class ConfigurationConstantService {
 
   public async getDesignations(): Promise<Record<string, string[]>> {
     const dto = await this.getConstantByKey('EMPLOYEE_DESIGNATIONS');
-    if (dto && dto.configurationValue) {
-      const parsed = JSON.parse(dto.configurationValue);
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        return parsed as Record<string, string[]>;
+    const rawVal = dto?.configurationValue || dto?.ConfigurationValue;
+    if (rawVal) {
+      try {
+        const parsed = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          return parsed as Record<string, string[]>;
+        }
+      } catch (err) {
+        console.error('Failed to parse EMPLOYEE_DESIGNATIONS JSON:', err);
       }
     }
     return {};
@@ -94,15 +114,16 @@ export default class ConfigurationConstantService {
 
     if (!response.ok) {
       const errorJson = await response.json().catch(() => null);
-      const msg = errorJson?.message || `Failed to add designation (HTTP ${response.status})`;
+      const msg = errorJson?.message || errorJson?.Message || `Failed to add designation (HTTP ${response.status})`;
       throw new Error(msg);
     }
 
     const json = await response.json();
-    const dto: ConfigurationConstantDTO = json.data;
-    if (dto && dto.configurationValue) {
+    const dto: ConfigurationConstantDTO = json.data || json.Data || json;
+    const rawVal = dto?.configurationValue || dto?.ConfigurationValue;
+    if (rawVal) {
       try {
-        const parsed = JSON.parse(dto.configurationValue);
+        const parsed = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           return parsed as Record<string, string[]>;
         }
@@ -126,15 +147,16 @@ export default class ConfigurationConstantService {
 
     if (!response.ok) {
       const errorJson = await response.json().catch(() => null);
-      const msg = errorJson?.message || `Failed to add department (HTTP ${response.status})`;
+      const msg = errorJson?.message || errorJson?.Message || `Failed to add department (HTTP ${response.status})`;
       throw new Error(msg);
     }
 
     const json = await response.json();
-    const dto: ConfigurationConstantDTO = json.data;
-    if (dto && dto.configurationValue) {
+    const dto: ConfigurationConstantDTO = json.data || json.Data || json;
+    const rawVal = dto?.configurationValue || dto?.ConfigurationValue;
+    if (rawVal) {
       try {
-        const parsed = JSON.parse(dto.configurationValue);
+        const parsed = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           return parsed as Record<string, string[]>;
         }
@@ -158,17 +180,18 @@ export default class ConfigurationConstantService {
 
     if (!response.ok) {
       const errorJson = await response.json().catch(() => null);
-      const msg = errorJson?.message || `Failed to add work location (HTTP ${response.status})`;
+      const msg = errorJson?.message || errorJson?.Message || `Failed to add work location (HTTP ${response.status})`;
       throw new Error(msg);
     }
 
     const json = await response.json();
-    const dto: ConfigurationConstantDTO = json.data;
-    if (dto && dto.configurationValue) {
+    const dto: ConfigurationConstantDTO = json.data || json.Data || json;
+    const rawVal = dto?.configurationValue || dto?.ConfigurationValue;
+    if (rawVal) {
       try {
-        const parsed = JSON.parse(dto.configurationValue);
+        const parsed = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
         if (Array.isArray(parsed)) {
-          return parsed as string[];
+          return (parsed as unknown[]).map((item) => String(item).trim()).filter(Boolean);
         }
       } catch {
         // Fallback
