@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Plus } from 'lucide-react';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
+import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
 import TanstackQueryClientService from '../Services/TanstackQueryClientService';
 
 export interface CreateWorkLocationModalControllerProps {
@@ -33,8 +34,8 @@ export default function CreateWorkLocationModalController({
     }
   }, [isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const trimmedLocation = locationName.trim();
     if (!trimmedLocation) {
       setErrorMessage('Please enter a location name.');
@@ -61,19 +62,33 @@ export default function CreateWorkLocationModalController({
     <ModalSharedComponent
       isOpen={isOpen}
       onClose={onClose}
-      title={
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <MapPin className="w-4 h-4" />
-          </div>
-          <span>Create New Work Location</span>
-        </div>
-      }
+      title="Create New Work Location"
       subtitle="Register a new corporate office or remote work hub into the enterprise directory"
       maxWidth="md"
-      scrollMode="backdrop"
-      animationType="slide-up"
       zIndex={60}
+      footer={
+        <div className="flex items-center justify-end gap-2.5 w-full">
+          <ButtonSharedComponent
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            disabled={addWorkLocationMutation.isPending}
+          >
+            Cancel
+          </ButtonSharedComponent>
+          <PrimaryActionButtonSharedComponent
+            type="submit"
+            size="sm"
+            onClick={() => handleSubmit()}
+            isLoading={addWorkLocationMutation.isPending}
+            loadingText="Creating..."
+            icon={<Plus className="w-3.5 h-3.5 !text-white" />}
+          >
+            Create Work Location
+          </PrimaryActionButtonSharedComponent>
+        </div>
+      }
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         {errorMessage && (
@@ -83,7 +98,7 @@ export default function CreateWorkLocationModalController({
         )}
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300 mb-1">
+          <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300 mb-1.5">
             Work Location Name <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
@@ -95,33 +110,12 @@ export default function CreateWorkLocationModalController({
               value={locationName}
               onChange={(e) => setLocationName(e.target.value)}
               placeholder="e.g. Pune / Innovation Hub"
-              className="w-full bg-slate-50 dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 rounded-lg pl-8 pr-3 py-2 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-hidden focus:ring-1 focus:ring-zinc-900 dark:focus:ring-emerald-500 transition-all"
+              className="w-full bg-slate-50 dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 rounded-lg pl-8 pr-3 py-2 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] transition-all"
             />
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
+          <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1.5">
             This location will be permanently saved in AS_ConfigurationConstantTBL and immediately selectable across all offer letter templates.
           </p>
-        </div>
-
-        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-200 dark:border-zinc-800 mt-5">
-          <ButtonSharedComponent
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onClose}
-            disabled={addWorkLocationMutation.isPending}
-          >
-            Cancel
-          </ButtonSharedComponent>
-          <ButtonSharedComponent
-            type="submit"
-            variant="primary"
-            size="sm"
-            isLoading={addWorkLocationMutation.isPending}
-            icon={<Plus className="w-3.5 h-3.5" />}
-          >
-            Create Work Location
-          </ButtonSharedComponent>
         </div>
       </form>
     </ModalSharedComponent>

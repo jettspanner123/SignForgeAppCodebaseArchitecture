@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Briefcase, Plus, Sparkles } from 'lucide-react';
+import { Briefcase, Plus } from 'lucide-react';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
+import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
 import CustomSelectSharedComponent, { SelectOption } from '../Shared/Components/CustomSelectSharedComponent';
 import TanstackQueryClientService from '../Services/TanstackQueryClientService';
 
@@ -46,8 +47,8 @@ export default function CreateDesignationModalController({
     }
   }, [isOpen, initialDepartment, departmentKeys]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const trimmedDesignation = designationName.trim();
     if (!trimmedDesignation) {
       setErrorMessage('Please enter a designation title.');
@@ -75,19 +76,33 @@ export default function CreateDesignationModalController({
     <ModalSharedComponent
       isOpen={isOpen}
       onClose={onClose}
-      title={
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <span>Create New Designation</span>
-        </div>
-      }
+      title="Create New Designation"
       subtitle="Register a new job role title mapped directly to an enterprise department"
       maxWidth="md"
-      scrollMode="backdrop"
-      animationType="slide-up"
       zIndex={60}
+      footer={
+        <div className="flex items-center justify-end gap-2.5 w-full">
+          <ButtonSharedComponent
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+            disabled={addDesignationMutation.isPending}
+          >
+            Cancel
+          </ButtonSharedComponent>
+          <PrimaryActionButtonSharedComponent
+            type="submit"
+            size="sm"
+            onClick={() => handleSubmit()}
+            isLoading={addDesignationMutation.isPending}
+            loadingText="Creating..."
+            icon={<Plus className="w-3.5 h-3.5 !text-white" />}
+          >
+            Create Designation
+          </PrimaryActionButtonSharedComponent>
+        </div>
+      }
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         {errorMessage && (
@@ -97,7 +112,7 @@ export default function CreateDesignationModalController({
         )}
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300 mb-1">
+          <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300 mb-1.5">
             Target Department <span className="text-rose-500">*</span>
           </label>
           <CustomSelectSharedComponent
@@ -111,7 +126,7 @@ export default function CreateDesignationModalController({
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300 mb-1">
+          <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300 mb-1.5">
             Designation / Role Title <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
@@ -123,33 +138,12 @@ export default function CreateDesignationModalController({
               value={designationName}
               onChange={(e) => setDesignationName(e.target.value)}
               placeholder="e.g. Lead AI Systems Architect"
-              className="w-full bg-slate-50 dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 rounded-lg pl-8 pr-3 py-2 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-hidden focus:ring-1 focus:ring-zinc-900 dark:focus:ring-blue-500 transition-all"
+              className="w-full bg-slate-50 dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 rounded-lg pl-8 pr-3 py-2 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] transition-all"
             />
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
+          <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1.5">
             This title will be permanently registered and instantly selectable under the {department} department.
           </p>
-        </div>
-
-        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-200 dark:border-zinc-800 mt-5">
-          <ButtonSharedComponent
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onClose}
-            disabled={addDesignationMutation.isPending}
-          >
-            Cancel
-          </ButtonSharedComponent>
-          <ButtonSharedComponent
-            type="submit"
-            variant="primary"
-            size="sm"
-            isLoading={addDesignationMutation.isPending}
-            icon={<Plus className="w-3.5 h-3.5" />}
-          >
-            Create Designation
-          </ButtonSharedComponent>
         </div>
       </form>
     </ModalSharedComponent>
