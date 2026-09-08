@@ -46,33 +46,25 @@ export default function CustomSelectSharedComponent({
   dropdownClassName,
   size = 'md',
   searchable = false,
-  searchPlaceholder = 'Search options...',
+  searchPlaceholder = 'Search options or enter custom value...',
   enableCustomValue = false,
-  customValuePlaceholder = 'e.g. Custom value',
-  customValueLabel = 'Or Enter Custom Value',
   formatDisplayValue,
   footerAction,
 }: CustomSelectSharedComponentProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [customInputValue, setCustomInputValue] = useState('');
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const customInputRef = useRef<HTMLInputElement | null>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
 
   useEffect(() => {
     if (!isOpen) {
       setSearchTerm('');
-      setCustomInputValue('');
       return;
     }
-    if (searchable && searchInputRef.current) {
+    if ((searchable || enableCustomValue) && searchInputRef.current) {
       searchInputRef.current.focus();
-    }
-    if (enableCustomValue && !selectedOption && value) {
-      setCustomInputValue(value);
     }
     const handlePointerDown = (event: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -88,10 +80,10 @@ export default function CustomSelectSharedComponent({
       document.removeEventListener('mousedown', handlePointerDown);
       document.removeEventListener('touchstart', handlePointerDown);
     };
-  }, [isOpen, searchable]);
+  }, [isOpen, searchable, enableCustomValue]);
 
   const filteredOptions = React.useMemo(() => {
-    if (!searchable || !searchTerm.trim()) return options;
+    if (!searchTerm.trim()) return options;
     const term = searchTerm.toLowerCase().trim();
     return options.filter(
       (opt) =>
@@ -99,7 +91,19 @@ export default function CustomSelectSharedComponent({
         opt.value.toLowerCase().includes(term) ||
         (opt.sublabel && opt.sublabel.toLowerCase().includes(term))
     );
-  }, [options, searchable, searchTerm]);
+  }, [options, searchTerm]);
+
+  const exactMatchExists = options.some(
+    (opt) =>
+      opt.label.toLowerCase().trim() === searchTerm.toLowerCase().trim() ||
+      opt.value.toLowerCase().trim() === searchTerm.toLowerCase().trim()
+  );
+
+  const handleApplyCustom = (customVal: string) => {
+    if (!customVal.trim()) return;
+    onChange(customVal.trim());
+    setIsOpen(false);
+  };
 
   const heightClass = size === 'sm' ? 'h-11 sm:h-9 px-3.5 sm:px-2.5 text-sm sm:text-xs' : 'h-11 sm:h-10 px-3.5 sm:px-3 text-sm sm:text-xs';
 
@@ -111,6 +115,8 @@ export default function CustomSelectSharedComponent({
     }
     return placeholder;
   };
+
+  const isSearchActive = searchable || enableCustomValue;
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -148,7 +154,7 @@ export default function CustomSelectSharedComponent({
             transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className={`absolute left-0 right-0 min-w-[200px] top-full mt-1.5 z-50 bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl p-1 text-xs space-y-0.5 max-h-72 overflow-y-auto ${dropdownClassName || ''}`}
           >
-            {searchable && (
+            {isSearchActive && (
               <div className="p-1.5 border-b border-slate-100 dark:border-zinc-800/80 mb-1">
                 <div className="relative flex items-center">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 text-slate-400 dark:text-zinc-500 pointer-events-none" />
@@ -160,13 +166,37 @@ export default function CustomSelectSharedComponent({
                     placeholder={searchPlaceholder}
                     className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 rounded-lg pl-8 pr-2.5 py-1.5 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] transition-all"
                     onClick={(e) => e.stopPropagation()}
-                    onKeyDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (filteredOptions.length === 1 && exactMatchExists) {
+                          onChange(filteredOptions[0].value);
+                          setIsOpen(false);
+                        } else if (enableCustomValue && searchTerm.trim()) {
+                          handleApplyCustom(searchTerm);
+                        }
+                      }
+                    }}
                   />
                 </div>
               </div>
             )}
 
-            {filteredOptions.length === 0 ? (
+            {enableCustomValue && searchTerm.trim() && !exactMatchExists && (
+              <button
+                type="button"
+                onClick={() => handleApplyCustom(searchTerm)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50 text-[#0C2086] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors cursor-pointer text-left font-medium mb-1"
+              >
+                <Sparkles className="w-3.5 h-3.5 shrink-0 text-[#0C2086] dark:text-blue-400" />
+                <span className="truncate">
+                  Use custom: <span className="font-bold underline italic">"{searchTerm.trim()}"</span>
+                </span>
+              </button>
+            )}
+
+            {filteredOptions.length === 0 && (!enableCustomValue || !searchTerm.trim()) ? (
               <div className="py-3 px-2 text-center text-xs text-slate-400 dark:text-zinc-500">
                 No results found
               </div>
@@ -204,50 +234,6 @@ export default function CustomSelectSharedComponent({
                   </button>
                 );
               })
-            )}
-
-            {enableCustomValue && (
-              <div className="p-2 border-t border-slate-100 dark:border-zinc-800/80 mt-1 space-y-1.5 bg-slate-50/50 dark:bg-zinc-900/50 rounded-b-lg">
-                <div className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400 flex items-center gap-1 font-mono uppercase tracking-wider">
-                  <Sparkles className="w-3 h-3 text-[#0C2086] dark:text-blue-400" />
-                  <span>{customValueLabel}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    ref={customInputRef}
-                    type="text"
-                    value={customInputValue}
-                    onChange={(e) => setCustomInputValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (customInputValue.trim()) {
-                          onChange(customInputValue.trim());
-                          setIsOpen(false);
-                        }
-                      }
-                    }}
-                    placeholder={customValuePlaceholder}
-                    className="w-full bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] transition-all"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                  <button
-                    type="button"
-                    onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (customInputValue.trim()) {
-                        onChange(customInputValue.trim());
-                        setIsOpen(false);
-                      }
-                    }}
-                    className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#0C2086] text-white hover:bg-[#091866] transition-colors shrink-0 cursor-pointer shadow-xs"
-                  >
-                    Set
-                  </button>
-                </div>
-              </div>
             )}
 
             {footerAction && (

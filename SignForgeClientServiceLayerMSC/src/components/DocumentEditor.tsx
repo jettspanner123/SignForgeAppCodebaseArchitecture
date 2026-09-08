@@ -898,15 +898,14 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                           setProbationMonths(!isNaN(num) && num > 0 ? num : (val || 3));
                         }}
                         options={[
-                          { value: '1', label: '1 Month', sublabel: '1 month trial period' },
-                          { value: '2', label: '2 Months', sublabel: '2 months probation' },
-                          { value: '3', label: '3 Months', sublabel: '3 months standard corporate' },
-                          { value: '6', label: '6 Months', sublabel: '6 months extended evaluation' },
-                          { value: '12', label: '12 Months', sublabel: '1 year probation' },
+                          { value: '1', label: '1 Month' },
+                          { value: '2', label: '2 Months' },
+                          { value: '3', label: '3 Months' },
+                          { value: '6', label: '6 Months' },
+                          { value: '12', label: '12 Months' },
                         ]}
                         enableCustomValue={true}
-                        customValuePlaceholder="e.g. 4 or 90 Days"
-                        customValueLabel="Enter Custom Probation"
+                        searchPlaceholder="Search or type custom probation..."
                         formatDisplayValue={(val) => {
                           const num = parseInt(val.replace(/[^0-9]/g, ''), 10);
                           if (!isNaN(num) && num > 0 && !val.toLowerCase().includes('month') && !val.toLowerCase().includes('day')) {
