@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: SignForgeOrchestratorServiceLayerMSC
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: ${SIGNFORGE_DATABASE_URL:jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require}
     username: ${SIGNFORGE_DB_USERNAME:signforge_app.apzfodnvbvvpxalsxltv}
