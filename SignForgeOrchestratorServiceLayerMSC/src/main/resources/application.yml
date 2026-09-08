@@ -6,8 +6,8 @@ spring:
     name: SignForgeOrchestratorServiceLayerMSC
   datasource:
     url: ${SIGNFORGE_DATABASE_URL:jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require}
-    username: ${SIGNFORGE_DB_USERNAME:postgres.apzfodnvbvvpxalsxltv}
-    password: ${SIGNFORGE_DB_PASSWORD:}
+    username: ${SIGNFORGE_DB_USERNAME:signforge_app.apzfodnvbvvpxalsxltv}
+    password: ${SIGNFORGE_DB_PASSWORD:SignForge@2026}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -32,6 +32,18 @@ spring:
     serialization:
       indent-output: true
       write-dates-as-timestamps: false
+
+assetsphere:
+  datasource:
+    url: ${ASSETSPHERE_DATABASE_URL:jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require}
+    username: ${ASSETSPHERE_DB_USERNAME:postgres.ygcuihwpjeibxuvyjjbe}
+    password: ${ASSETSPHERE_DB_PASSWORD:Jettspanner123j}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 30000
+      connection-timeout: 10000
 
 management:
   endpoints:
