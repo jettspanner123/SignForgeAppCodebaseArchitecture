@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown, Check, Search } from 'lucide-react';
+import { ChevronDown, Check, Search, Sparkles } from 'lucide-react';
 import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 
 export interface SelectOption {
@@ -28,6 +28,10 @@ export interface CustomSelectSharedComponentProps {
   size?: 'sm' | 'md';
   searchable?: boolean;
   searchPlaceholder?: string;
+  enableCustomValue?: boolean;
+  customValuePlaceholder?: string;
+  customValueLabel?: string;
+  formatDisplayValue?: (val: string) => string;
   footerAction?: SelectFooterAction;
 }
 
@@ -43,22 +47,32 @@ export default function CustomSelectSharedComponent({
   size = 'md',
   searchable = false,
   searchPlaceholder = 'Search options...',
+  enableCustomValue = false,
+  customValuePlaceholder = 'e.g. Custom value',
+  customValueLabel = 'Or Enter Custom Value',
+  formatDisplayValue,
   footerAction,
 }: CustomSelectSharedComponentProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [customInputValue, setCustomInputValue] = useState('');
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const customInputRef = useRef<HTMLInputElement | null>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
 
   useEffect(() => {
     if (!isOpen) {
       setSearchTerm('');
+      setCustomInputValue('');
       return;
     }
     if (searchable && searchInputRef.current) {
       searchInputRef.current.focus();
+    }
+    if (enableCustomValue && !selectedOption && value) {
+      setCustomInputValue(value);
     }
     const handlePointerDown = (event: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -89,6 +103,15 @@ export default function CustomSelectSharedComponent({
 
   const heightClass = size === 'sm' ? 'h-11 sm:h-9 px-3.5 sm:px-2.5 text-sm sm:text-xs' : 'h-11 sm:h-10 px-3.5 sm:px-3 text-sm sm:text-xs';
 
+  const getDisplayLabel = () => {
+    if (selectedOption) return selectedOption.label;
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      if (formatDisplayValue) return formatDisplayValue(String(value));
+      return String(value);
+    }
+    return placeholder;
+  };
+
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       {label && (
@@ -106,7 +129,7 @@ export default function CustomSelectSharedComponent({
         <div className="flex items-center gap-2 truncate font-medium">
           {selectedOption?.icon}
           <span className="truncate font-semibold">
-            {selectedOption ? selectedOption.label : placeholder}
+            {getDisplayLabel()}
           </span>
         </div>
         <ChevronDown
@@ -123,7 +146,7 @@ export default function CustomSelectSharedComponent({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 4 }}
             transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className={`absolute left-0 right-0 min-w-[200px] top-full mt-1.5 z-50 bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl p-1 text-xs space-y-0.5 max-h-64 overflow-y-auto ${dropdownClassName || ''}`}
+            className={`absolute left-0 right-0 min-w-[200px] top-full mt-1.5 z-50 bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl p-1 text-xs space-y-0.5 max-h-72 overflow-y-auto ${dropdownClassName || ''}`}
           >
             {searchable && (
               <div className="p-1.5 border-b border-slate-100 dark:border-zinc-800/80 mb-1">
@@ -181,6 +204,50 @@ export default function CustomSelectSharedComponent({
                   </button>
                 );
               })
+            )}
+
+            {enableCustomValue && (
+              <div className="p-2 border-t border-slate-100 dark:border-zinc-800/80 mt-1 space-y-1.5 bg-slate-50/50 dark:bg-zinc-900/50 rounded-b-lg">
+                <div className="text-[10px] font-semibold text-slate-500 dark:text-zinc-400 flex items-center gap-1 font-mono uppercase tracking-wider">
+                  <Sparkles className="w-3 h-3 text-[#0C2086] dark:text-blue-400" />
+                  <span>{customValueLabel}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    ref={customInputRef}
+                    type="text"
+                    value={customInputValue}
+                    onChange={(e) => setCustomInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (customInputValue.trim()) {
+                          onChange(customInputValue.trim());
+                          setIsOpen(false);
+                        }
+                      }
+                    }}
+                    placeholder={customValuePlaceholder}
+                    className="w-full bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-hidden focus:ring-1 focus:ring-[#0C2086] transition-all"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <button
+                    type="button"
+                    onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (customInputValue.trim()) {
+                        onChange(customInputValue.trim());
+                        setIsOpen(false);
+                      }
+                    }}
+                    className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#0C2086] text-white hover:bg-[#091866] transition-colors shrink-0 cursor-pointer shadow-xs"
+                  >
+                    Set
+                  </button>
+                </div>
+              </div>
             )}
 
             {footerAction && (

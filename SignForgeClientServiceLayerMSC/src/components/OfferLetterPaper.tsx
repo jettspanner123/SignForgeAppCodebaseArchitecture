@@ -4,6 +4,31 @@ import { PenTool, ShieldCheck, UserCheck, Mail, Building2, Calendar, MapPin, Dol
 import { WePlmLogo } from './WePlmLogo';
 import OfferLetterInteractiveStateInterfaceModel from '../Models/OfferLetterInteractiveStateInterfaceModel';
 
+export const formatSalaryDisplay = (salary: string | number | undefined): string => {
+  if (salary === undefined || salary === null || salary === '') return '[Annual Salary]';
+  const str = String(salary).trim();
+  if (!str) return '[Annual Salary]';
+
+  const cleaned = str.replace(/[^0-9.]/g, '');
+  const num = parseFloat(cleaned);
+  if (!isNaN(num) && num > 0) {
+    const formatted = num.toLocaleString('en-IN');
+    return `${formatted} CTC`;
+  }
+  return str;
+};
+
+export const formatProbationDisplay = (probation: string | number | undefined): string => {
+  if (probation === undefined || probation === null || probation === '') return '3 Months';
+  const str = String(probation).trim();
+  const num = parseInt(str.replace(/[^0-9]/g, ''), 10);
+  if (!isNaN(num) && num > 0) {
+    if (str.toLowerCase().includes('day')) return str;
+    return `${num} Month${num === 1 ? '' : 's'}`;
+  }
+  return str;
+};
+
 interface OfferLetterPaperProps {
   document: OfferDocument;
   onOpenSignModal?: () => void;
@@ -262,7 +287,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
                 />
               </div>
             ) : (
-              <span className="text-emerald-700 font-extrabold text-sm">{document.offerDetails.annualSalary || '[Annual Salary]'}</span>
+              <span className="text-emerald-700 font-extrabold text-sm">{formatSalaryDisplay(document.offerDetails.annualSalary)}</span>
             )}
           </div>
 
@@ -345,7 +370,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
               </div>
               <div className="bg-white p-2.5 rounded-lg border border-slate-200/90 flex flex-col justify-center">
                 <span className="text-slate-500 block text-[10px] font-semibold uppercase tracking-wider">Probation Period</span>
-                <span className="font-bold text-slate-900 text-xs sm:text-[13px] mt-0.5">{document.offerDetails.probationMonths || 3} Month(s)</span>
+                <span className="font-bold text-slate-900 text-xs sm:text-[13px] mt-0.5">{formatProbationDisplay(document.offerDetails.probationMonths)}</span>
               </div>
               <div className="bg-white p-2.5 rounded-lg border border-slate-200/90 flex flex-col justify-center">
                 <span className="text-slate-500 block text-[10px] font-semibold uppercase tracking-wider">Work Location</span>

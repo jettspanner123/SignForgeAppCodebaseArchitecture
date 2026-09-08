@@ -23,6 +23,7 @@ import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
 import InputSharedComponent from '../Shared/Components/InputSharedComponent';
+import CustomSelectSharedComponent from '../Shared/Components/CustomSelectSharedComponent';
 import ApplicationHapticsUtility from '../Utilities/ApplicationHapticsUtility';
 import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
 import DocumentEditorFormModeEnumModel from '../Models/DocumentEditorFormModeEnumModel';
@@ -93,7 +94,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   const [reportingManager, setReportingManager] = useState(
     initialDocument?.offerDetails.reportingManager || ''
   );
-  const [probationMonths, setProbationMonths] = useState(
+  const [probationMonths, setProbationMonths] = useState<number | string>(
     initialDocument?.offerDetails.probationMonths || 3
   );
   const [equityUnits, setEquityUnits] = useState(
@@ -213,7 +214,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
         joiningDate: joiningDate.trim(),
         workLocation: workLocation.trim() || 'Pune office',
         reportingManager: reportingManager.trim(),
-        probationMonths: probationMonths,
+        probationMonths: typeof probationMonths === 'number' ? probationMonths : (parseInt(String(probationMonths).replace(/[^0-9]/g, ''), 10) || 3),
         equityUnits: equityUnits.trim(),
         signOnBonus: signOnBonus.trim(),
         directorName: signatureCount === 3 ? directorName.trim() : undefined,
@@ -889,21 +890,31 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         placeholder="e.g. Shantanu Jagtap"
                       />
 
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
-                          Probation Period (Months)
-                        </label>
-                        <select
-                          value={probationMonths}
-                          onChange={(e) => setProbationMonths(Number(e.target.value))}
-                          className="w-full h-9 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-xs text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#0C2086]/20 transition-all font-sans cursor-pointer"
-                        >
-                          <option value={1}>1 Month</option>
-                          <option value={2}>2 Months</option>
-                          <option value={3}>3 Months</option>
-                          <option value={6}>6 Months</option>
-                        </select>
-                      </div>
+                      <CustomSelectSharedComponent
+                        label="Probation Period"
+                        value={String(probationMonths)}
+                        onChange={(val) => {
+                          const num = parseInt(val.replace(/[^0-9]/g, ''), 10);
+                          setProbationMonths(!isNaN(num) && num > 0 ? num : (val || 3));
+                        }}
+                        options={[
+                          { value: '1', label: '1 Month', sublabel: '1 month trial period' },
+                          { value: '2', label: '2 Months', sublabel: '2 months probation' },
+                          { value: '3', label: '3 Months', sublabel: '3 months standard corporate' },
+                          { value: '6', label: '6 Months', sublabel: '6 months extended evaluation' },
+                          { value: '12', label: '12 Months', sublabel: '1 year probation' },
+                        ]}
+                        enableCustomValue={true}
+                        customValuePlaceholder="e.g. 4 or 90 Days"
+                        customValueLabel="Enter Custom Probation"
+                        formatDisplayValue={(val) => {
+                          const num = parseInt(val.replace(/[^0-9]/g, ''), 10);
+                          if (!isNaN(num) && num > 0 && !val.toLowerCase().includes('month') && !val.toLowerCase().includes('day')) {
+                            return `${num} Month${num === 1 ? '' : 's'}`;
+                          }
+                          return val;
+                        }}
+                      />
 
                       <InputSharedComponent
                         label="Work Location"
