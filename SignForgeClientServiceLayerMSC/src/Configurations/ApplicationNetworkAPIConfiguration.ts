@@ -47,6 +47,9 @@ export interface NetworkAPIEndpoints {
     getAll: string;
     getByKey: (key: string) => string;
     update: (key: string) => string;
+    addDesignation: string;
+    addDepartment: string;
+    addWorkLocation: string;
   };
   users: {
     base: string;
@@ -187,6 +190,9 @@ export default class ApplicationNetworkAPIConfiguration {
           getAll: `${activeBaseUrl}/Api/V1/ConfigurationConstant`,
           getByKey: (key: string) => `${activeBaseUrl}/Api/V1/ConfigurationConstant/${key}`,
           update: (key: string) => `${activeBaseUrl}/Api/V1/ConfigurationConstant/${key}`,
+          addDesignation: `${activeBaseUrl}/Api/V1/ConfigurationConstant/AddDesignation`,
+          addDepartment: `${activeBaseUrl}/Api/V1/ConfigurationConstant/AddDepartment`,
+          addWorkLocation: `${activeBaseUrl}/Api/V1/ConfigurationConstant/AddWorkLocation`,
         },
         users: {
           base: `${activeBaseUrl}/Api/V1/Users`,

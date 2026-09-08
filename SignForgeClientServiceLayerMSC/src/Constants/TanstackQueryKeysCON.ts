@@ -10,4 +10,6 @@ export default class TanstackQueryKeysCON {
   public static readonly EMPLOYMENT_OFFER_DETAIL = (id: string) => ['employment-offers', id] as const;
   public static readonly CONFIGURATION_CONSTANTS = ['configuration-constants'] as const;
   public static readonly CONFIGURATION_CONSTANT_DETAIL = (key: string) => ['configuration-constants', key] as const;
+  public static readonly DESIGNATIONS = ['designations'] as const;
+  public static readonly WORK_LOCATIONS = ['work-locations'] as const;
 }

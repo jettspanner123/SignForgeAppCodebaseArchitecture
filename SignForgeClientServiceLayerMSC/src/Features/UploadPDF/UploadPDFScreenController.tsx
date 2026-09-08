@@ -7,7 +7,8 @@ import {
   User, 
   Mail, 
   Sparkles, 
-  Send
+  Send,
+  Plus
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { OfferDocument, OfferDetails, OfferDocumentField } from '../../Types';
@@ -17,6 +18,11 @@ import UploadPdfViewerStaticComponent from './Components/static/UploadPdfViewerS
 import ButtonSharedComponent from '../../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../../Shared/Components/PrimaryActionButtonSharedComponent';
 import InputSharedComponent from '../../Shared/Components/InputSharedComponent';
+import CustomSelectSharedComponent, { SelectOption } from '../../Shared/Components/CustomSelectSharedComponent';
+import TanstackQueryClientService from '../../Services/TanstackQueryClientService';
+import CreateDepartmentModalController from '../../components/CreateDepartmentModalController';
+import CreateDesignationModalController from '../../components/CreateDesignationModalController';
+import CreateWorkLocationModalController from '../../components/CreateWorkLocationModalController';
 import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 import ApplicationCryptoUtility from '../../Utilities/ApplicationCryptoUtility';
 import ConfigurationConstantCON from '../../Constants/ConfigurationConstantCON';
@@ -75,6 +81,81 @@ export default function UploadPDFScreenController({
   const [hrHeadEmail, setHrHeadEmail] = useState(UploadPDFCON.DEFAULT_HR_HEAD_EMAIL);
   const [ctoName, setCtoName] = useState(UploadPDFCON.DEFAULT_CTO_NAME);
   const [ctoEmail, setCtoEmail] = useState(UploadPDFCON.DEFAULT_CTO_EMAIL);
+
+  // Live Designations & Work Locations from AS_ConfigurationConstantTBL (1:1 with AssetSphere)
+  const { data: designationsMap = {
+    'Engineering': ['Software Engineer', 'Senior Software Engineer', 'Lead Systems Architect', 'Principal Engineer'],
+    'Product Design': ['Product Designer', 'UI/UX Designer', 'Design Lead'],
+    'Operations': ['Operations Manager', 'Project Manager', 'Technical Delivery Lead'],
+    'Human Resources': ['HR Generalist', 'HR Head', 'Talent Acquisition Specialist'],
+  } } = TanstackQueryClientService.current.configurationConstant.useDesignationsQuery();
+
+  const { data: workLocations = ['Pune, Maharastra', 'Bengaluru, Karnataka', 'Hyderabad, Telangana'] } =
+    TanstackQueryClientService.current.configurationConstant.useWorkLocationsQuery();
+
+  const departmentKeys = React.useMemo(() => Object.keys(designationsMap), [designationsMap]);
+
+  const [isCreateDepartmentOpen, setIsCreateDepartmentOpen] = useState(false);
+  const [isCreateDesignationOpen, setIsCreateDesignationOpen] = useState(false);
+  const [isCreateWorkLocationOpen, setIsCreateWorkLocationOpen] = useState(false);
+
+  const departmentOptions: SelectOption[] = React.useMemo(() => {
+    const list = departmentKeys.length > 0 ? departmentKeys : ['Engineering', 'Product Design', 'Operations', 'Human Resources'];
+    const opts = list.map((dept) => ({ value: dept, label: dept }));
+    if (department && !opts.some((o) => o.value === department)) {
+      opts.unshift({ value: department, label: department });
+    }
+    return opts;
+  }, [departmentKeys, department]);
+
+  const currentDepartmentDesignations = React.useMemo(() => {
+    if (department && designationsMap[department]) {
+      return designationsMap[department];
+    }
+    const all = Object.values(designationsMap).flat();
+    return Array.from(new Set(all));
+  }, [department, designationsMap]);
+
+  const designationOptions: SelectOption[] = React.useMemo(() => {
+    const opts = currentDepartmentDesignations.map((des) => ({ value: des, label: des }));
+    if (jobTitle && !opts.some((o) => o.value === jobTitle)) {
+      opts.unshift({ value: jobTitle, label: jobTitle });
+    }
+    return opts;
+  }, [currentDepartmentDesignations, jobTitle]);
+
+  const locationOptions: SelectOption[] = React.useMemo(() => {
+    const opts = workLocations.map((loc) => ({ value: loc, label: loc }));
+    if (workLocation && !opts.some((o) => o.value === workLocation)) {
+      opts.unshift({ value: workLocation, label: workLocation });
+    }
+    return opts;
+  }, [workLocations, workLocation]);
+
+  const handleDepartmentChange = (newDept: string) => {
+    setDepartment(newDept);
+    const available = designationsMap[newDept] || [];
+    if (available.length > 0 && (!jobTitle || !available.includes(jobTitle))) {
+      setJobTitle(available[0]);
+    }
+  };
+
+  const handleDepartmentCreated = (newDept: string) => {
+    setDepartment(newDept);
+    const available = designationsMap[newDept] || [];
+    if (available.length > 0) {
+      setJobTitle(available[0]);
+    }
+  };
+
+  const handleDesignationCreated = (createdDept: string, createdDesignation: string) => {
+    setDepartment(createdDept);
+    setJobTitle(createdDesignation);
+  };
+
+  const handleWorkLocationCreated = (newLoc: string) => {
+    setWorkLocation(newLoc);
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -726,22 +807,40 @@ export default function UploadPDFScreenController({
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InputSharedComponent
-                  label="Official Designation / Job Title *"
-                  name="jobTitle"
-                  required
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                  placeholder="e.g. Principal Solutions Architect"
-                  error={errors.jobTitle}
+                <CustomSelectSharedComponent
+                  label="Department"
+                  value={department}
+                  onChange={handleDepartmentChange}
+                  options={departmentOptions}
+                  placeholder="Select department..."
+                  searchable={true}
+                  searchPlaceholder="Search departments..."
+                  size="md"
+                  footerAction={{
+                    label: '+ Create New Department',
+                    icon: <Plus className="w-3.5 h-3.5" />,
+                    onClick: () => setIsCreateDepartmentOpen(true),
+                  }}
                 />
 
-                <InputSharedComponent
-                  label="Department"
-                  name="department"
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  placeholder="e.g. Enterprise Engineering"
+                <CustomSelectSharedComponent
+                  label="Official Designation / Job Title *"
+                  value={jobTitle}
+                  onChange={setJobTitle}
+                  options={designationOptions}
+                  placeholder={
+                    designationOptions.length === 0
+                      ? 'No roles yet — click below to add'
+                      : 'Select designation...'
+                  }
+                  searchable={true}
+                  searchPlaceholder="Search designations..."
+                  size="md"
+                  footerAction={{
+                    label: '+ Create New Designation',
+                    icon: <Plus className="w-3.5 h-3.5" />,
+                    onClick: () => setIsCreateDesignationOpen(true),
+                  }}
                 />
 
                 <InputSharedComponent
@@ -788,12 +887,20 @@ export default function UploadPDFScreenController({
                   </select>
                 </div>
 
-                <InputSharedComponent
+                <CustomSelectSharedComponent
                   label="Work Location"
-                  name="workLocation"
                   value={workLocation}
-                  onChange={(e) => setWorkLocation(e.target.value)}
-                  placeholder="e.g. Pune Office / Client Onsite"
+                  onChange={setWorkLocation}
+                  options={locationOptions}
+                  placeholder="Select work location..."
+                  searchable={true}
+                  searchPlaceholder="Search work locations..."
+                  size="md"
+                  footerAction={{
+                    label: '+ Create New Work Location',
+                    icon: <Plus className="w-3.5 h-3.5" />,
+                    onClick: () => setIsCreateWorkLocationOpen(true),
+                  }}
                 />
 
                 <InputSharedComponent
@@ -969,6 +1076,31 @@ export default function UploadPDFScreenController({
         </div>
 
       </div>
+
+      {isCreateDepartmentOpen && (
+        <CreateDepartmentModalController
+          isOpen={isCreateDepartmentOpen}
+          onClose={() => setIsCreateDepartmentOpen(false)}
+          onCreated={handleDepartmentCreated}
+        />
+      )}
+
+      {isCreateDesignationOpen && (
+        <CreateDesignationModalController
+          isOpen={isCreateDesignationOpen}
+          initialDepartment={department || (departmentKeys[0] || 'Engineering')}
+          onClose={() => setIsCreateDesignationOpen(false)}
+          onCreated={handleDesignationCreated}
+        />
+      )}
+
+      {isCreateWorkLocationOpen && (
+        <CreateWorkLocationModalController
+          isOpen={isCreateWorkLocationOpen}
+          onClose={() => setIsCreateWorkLocationOpen(false)}
+          onCreated={handleWorkLocationCreated}
+        />
+      )}
 
     </div>
   );
