@@ -67,32 +67,29 @@ export class DashboardInfoGrabQueryService {
         try {
           const result = await DashboardInfoGrabService.current.getDashboardData();
           if (result) {
-            if (result.offers && result.offers.length > 0) {
-              useOfferDocumentStore.getState().setDocuments(result.offers);
-            }
+            useOfferDocumentStore.getState().setDocuments(result.offers || []);
             if (result.configurationConstants) {
               useOfferDocumentStore.getState().setConfigurationConstants(result.configurationConstants);
             }
           }
           return result;
         } catch (err) {
-          console.warn('Backend DashboardInfoGrab API unavailable, falling back to local state:', err);
-          const localDocs = useOfferDocumentStore.getState().documents;
+          console.warn('Backend DashboardInfoGrab API unavailable:', err);
           return {
             metrics: {
-              totalPipeline: localDocs.length,
-              awaitingCandidate: localDocs.filter((d) => d.status === 'SENT' || d.status === 'OUT_FOR_CANDIDATE_SIGN').length,
-              awaitingCountersign: localDocs.filter((d) => d.status === 'CANDIDATE_SIGNED').length,
-              awaitingThirdPartySign: localDocs.filter((d) => d.status === 'HR_COUNTERSIGNED').length,
-              fullyExecuted: localDocs.filter((d) => d.status === 'FULLY_EXECUTED').length,
-              drafts: localDocs.filter((d) => d.status === 'DRAFT').length,
-              cancelled: localDocs.filter((d) => d.status === 'VOID').length,
-              expired: localDocs.filter((d) => d.status === 'EXPIRED').length,
+              totalPipeline: 0,
+              awaitingCandidate: 0,
+              awaitingCountersign: 0,
+              awaitingThirdPartySign: 0,
+              fullyExecuted: 0,
+              drafts: 0,
+              cancelled: 0,
+              expired: 0,
               totalCompensationValue: 0,
               executionRatePercentage: 0,
             },
             recentActivities: [],
-            offers: localDocs,
+            offers: [],
           };
         }
       },
@@ -114,14 +111,12 @@ export class EmploymentOfferQueryService {
       queryFn: async (): Promise<OfferDocument[]> => {
         try {
           const liveOffers = await EmploymentOfferService.current.getAllOffers();
-          if (liveOffers && liveOffers.length > 0) {
-            useOfferDocumentStore.getState().setDocuments(liveOffers);
-            return liveOffers;
-          }
-          return useOfferDocumentStore.getState().documents;
+          const offers = liveOffers || [];
+          useOfferDocumentStore.getState().setDocuments(offers);
+          return offers;
         } catch (err) {
-          console.warn('Backend EmploymentOffer API unavailable, using local cache:', err);
-          return useOfferDocumentStore.getState().documents;
+          console.warn('Backend EmploymentOffer API unavailable:', err);
+          return [];
         }
       },
       staleTime: 1000 * 30,

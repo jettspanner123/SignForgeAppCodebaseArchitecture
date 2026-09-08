@@ -6,30 +6,11 @@ export default class OfferDocumentsService {
   public static readonly current = new OfferDocumentsService();
 
   public getDocuments(): OfferDocument[] {
-    try {
-      const raw = localStorage.getItem(ApplicationThemeCON.STORAGE_KEY_DOCUMENTS);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.error('Failed to load documents from storage:', e);
-    }
-    
-    // Seed initial high-fidelity DataObjects if empty
-    const initial = MockDataSeederService.current.getInitialOfferDocuments();
-    this.saveDocuments(initial);
-    return initial;
+    return [];
   }
 
-  public saveDocuments(documents: OfferDocument[]): void {
-    try {
-      localStorage.setItem(ApplicationThemeCON.STORAGE_KEY_DOCUMENTS, JSON.stringify(documents));
-    } catch (e) {
-      console.error('Failed to persist documents to storage:', e);
-    }
+  public saveDocuments(_documents: OfferDocument[]): void {
+    // No-op: client side local storage persistence disabled
   }
 
   public getDocumentById(id: string): OfferDocument | undefined {

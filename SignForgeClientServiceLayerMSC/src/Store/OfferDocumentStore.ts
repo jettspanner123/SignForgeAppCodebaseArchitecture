@@ -1,31 +1,19 @@
 import { create } from 'zustand';
 import { OfferDocument } from '../Types';
-import { SAMPLE_DOCUMENTS } from '../Constants/SampleDocumentsCON';
 import ApplicationRouteCON from '../Constants/ApplicationRouteCON';
 import ApplicationThemeUtility from '../Utilities/ApplicationThemeUtility';
 import UserPreferencesUtility from '../Utilities/UserPreferencesUtility';
 
-const STORAGE_KEY = 'signcorp_documents';
-
-const loadDocuments = (): OfferDocument[] => {
+// Purge any legacy client-side offline document cache on startup
+if (typeof window !== 'undefined' && window.localStorage) {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error('Failed to load documents from local storage', e);
+    localStorage.removeItem('signcorp_documents');
+    localStorage.removeItem('signcorp_documents_v2');
+    localStorage.removeItem('signcorp_documents_storage');
+  } catch {
+    // Ignore storage access errors
   }
-  return SAMPLE_DOCUMENTS;
-};
-
-const saveDocuments = (docs: OfferDocument[]) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(docs));
-  } catch (e) {
-    console.error('Failed to save documents to local storage', e);
-  }
-};
+}
 
 interface OfferDocumentState {
   documents: OfferDocument[];
@@ -60,7 +48,7 @@ interface OfferDocumentState {
 }
 
 export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
-  documents: loadDocuments(),
+  documents: [],
   currentView: ApplicationRouteCON.fromPathname(window.location.pathname, window.location.hash).view,
   selectedDocId: ApplicationRouteCON.fromPathname(window.location.pathname, window.location.hash).docId || null,
   searchQuery: '',
@@ -118,31 +106,26 @@ export const useOfferDocumentStore = create<OfferDocumentState>((set, get) => ({
   },
 
   setDocuments: (docs) => {
-    saveDocuments(docs);
     set({ documents: docs });
   },
 
   addDocument: (doc) => {
-    const updated = [doc, ...get().documents];
-    saveDocuments(updated);
+    const updated = [doc, ...get().documents.filter((d) => d.id !== doc.id)];
     set({ documents: updated });
   },
 
   updateDocument: (doc) => {
     const updated = get().documents.map((d) => (d.id === doc.id ? doc : d));
-    saveDocuments(updated);
     set({ documents: updated });
   },
 
   deleteDocument: (id) => {
     const updated = get().documents.filter((d) => d.id !== id);
-    saveDocuments(updated);
     set({ documents: updated });
   },
 
   resetToSampleData: () => {
-    saveDocuments(SAMPLE_DOCUMENTS);
-    set({ documents: SAMPLE_DOCUMENTS });
+    set({ documents: [] });
   },
 
   toggleTheme: () => {

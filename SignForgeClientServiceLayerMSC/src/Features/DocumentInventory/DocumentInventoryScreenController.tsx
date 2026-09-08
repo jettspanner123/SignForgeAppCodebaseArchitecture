@@ -90,7 +90,7 @@ export default function DocumentInventoryScreenController({
 
   // Active Documents Source (Live Query response prioritised with Store fallback)
   const activeDocs = useMemo(() => {
-    if (dashboardData?.offers && dashboardData.offers.length > 0) {
+    if (dashboardData?.offers !== undefined) {
       return dashboardData.offers;
     }
     return documents;
