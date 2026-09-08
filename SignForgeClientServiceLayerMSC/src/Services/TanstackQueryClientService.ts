@@ -137,11 +137,35 @@ export class EmploymentOfferQueryService {
         useOfferDocumentStore.getState().addDocument(persisted);
         return persisted;
       },
-      onSuccess: async (...args) => {
+      onSuccess: async (persisted, ...args) => {
+        queryClient.setQueryData<DashboardInfoGrabResponseInterfaceModel>(
+          TanstackQueryKeysCON.DASHBOARD_INFO_GRAB,
+          (old) => {
+            if (!old) return old;
+            const existingOffers = old.offers || [];
+            return {
+              ...old,
+              offers: [persisted, ...existingOffers.filter((o) => o.id !== persisted.id)],
+              metrics: old.metrics
+                ? {
+                    ...old.metrics,
+                    totalPipeline: old.metrics.totalPipeline + 1,
+                  }
+                : old.metrics,
+            };
+          }
+        );
+        queryClient.setQueryData<OfferDocument[]>(
+          TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
+          (old) => {
+            if (!old) return [persisted];
+            return [persisted, ...old.filter((o) => o.id !== persisted.id)];
+          }
+        );
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
         if (options?.onSuccess) {
-          (options.onSuccess as (...a: unknown[]) => unknown)(...args);
+          (options.onSuccess as (...a: unknown[]) => unknown)(persisted, ...args);
         }
       },
     });
@@ -159,11 +183,25 @@ export class EmploymentOfferQueryService {
         useOfferDocumentStore.getState().updateDocument(updated);
         return updated;
       },
-      onSuccess: async (...args) => {
+      onSuccess: async (updated, ...args) => {
+        queryClient.setQueryData<DashboardInfoGrabResponseInterfaceModel>(
+          TanstackQueryKeysCON.DASHBOARD_INFO_GRAB,
+          (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              offers: (old.offers || []).map((o) => (o.id === updated.id ? updated : o)),
+            };
+          }
+        );
+        queryClient.setQueryData<OfferDocument[]>(
+          TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
+          (old) => (old || []).map((o) => (o.id === updated.id ? updated : o))
+        );
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
         if (options?.onSuccess) {
-          (options.onSuccess as (...a: unknown[]) => unknown)(...args);
+          (options.onSuccess as (...a: unknown[]) => unknown)(updated, ...args);
         }
       },
     });
@@ -181,11 +219,25 @@ export class EmploymentOfferQueryService {
         useOfferDocumentStore.getState().updateDocument(updated);
         return updated;
       },
-      onSuccess: async (...args) => {
+      onSuccess: async (updated, ...args) => {
+        queryClient.setQueryData<DashboardInfoGrabResponseInterfaceModel>(
+          TanstackQueryKeysCON.DASHBOARD_INFO_GRAB,
+          (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              offers: (old.offers || []).map((o) => (o.id === updated.id ? updated : o)),
+            };
+          }
+        );
+        queryClient.setQueryData<OfferDocument[]>(
+          TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
+          (old) => (old || []).map((o) => (o.id === updated.id ? updated : o))
+        );
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
         if (options?.onSuccess) {
-          (options.onSuccess as (...a: unknown[]) => unknown)(...args);
+          (options.onSuccess as (...a: unknown[]) => unknown)(updated, ...args);
         }
       },
     });
@@ -203,39 +255,116 @@ export class EmploymentOfferQueryService {
         useOfferDocumentStore.getState().updateDocument(updated);
         return updated;
       },
-      onSuccess: async (...args) => {
+      onSuccess: async (updated, ...args) => {
+        queryClient.setQueryData<DashboardInfoGrabResponseInterfaceModel>(
+          TanstackQueryKeysCON.DASHBOARD_INFO_GRAB,
+          (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              offers: (old.offers || []).map((o) => (o.id === updated.id ? updated : o)),
+            };
+          }
+        );
+        queryClient.setQueryData<OfferDocument[]>(
+          TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
+          (old) => (old || []).map((o) => (o.id === updated.id ? updated : o))
+        );
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
         await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
         if (options?.onSuccess) {
-          (options.onSuccess as (...a: unknown[]) => unknown)(...args);
+          (options.onSuccess as (...a: unknown[]) => unknown)(updated, ...args);
         }
       },
     });
   }
 
   public useDeleteEmploymentOfferMutation(
-    options?: UseMutationOptions<string, Error, string>
+    options?: UseMutationOptions<string, Error, string, { previousDashboard?: DashboardInfoGrabResponseInterfaceModel; previousOffers?: OfferDocument[] }>
   ) {
     const queryClient = useQueryClient();
 
     return useMutation({
-      ...options,
       mutationFn: async (offerId: string): Promise<string> => {
         try {
           await EmploymentOfferService.current.deleteOffer(offerId);
         } catch (err) {
           console.warn('Backend delete sync warning:', err);
         }
-        useOfferDocumentStore.getState().deleteDocument(offerId);
         return offerId;
       },
-      onSuccess: async (...args) => {
-        await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
-        await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
-        if (options?.onSuccess) {
-          (options.onSuccess as (...a: unknown[]) => unknown)(...args);
+      onMutate: async (offerId: string) => {
+        // Cancel outgoing queries so they don't overwrite optimistic update
+        await queryClient.cancelQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
+        await queryClient.cancelQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
+
+        const previousDashboard = queryClient.getQueryData<DashboardInfoGrabResponseInterfaceModel>(
+          TanstackQueryKeysCON.DASHBOARD_INFO_GRAB
+        );
+        const previousOffers = queryClient.getQueryData<OfferDocument[]>(
+          TanstackQueryKeysCON.EMPLOYMENT_OFFERS
+        );
+
+        // Optimistically remove from dashboard data immediately (0ms latency in UI)
+        if (previousDashboard) {
+          const remainingOffers = (previousDashboard.offers || []).filter((o) => o.id !== offerId);
+          queryClient.setQueryData<DashboardInfoGrabResponseInterfaceModel>(
+            TanstackQueryKeysCON.DASHBOARD_INFO_GRAB,
+            {
+              ...previousDashboard,
+              offers: remainingOffers,
+              metrics: previousDashboard.metrics
+                ? {
+                    ...previousDashboard.metrics,
+                    totalPipeline: Math.max(0, previousDashboard.metrics.totalPipeline - 1),
+                  }
+                : previousDashboard.metrics,
+            }
+          );
+        }
+
+        // Optimistically remove from offers data
+        if (previousOffers) {
+          queryClient.setQueryData<OfferDocument[]>(
+            TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
+            previousOffers.filter((o) => o.id !== offerId)
+          );
+        }
+
+        // Optimistically remove from client state
+        useOfferDocumentStore.getState().deleteDocument(offerId);
+
+        if (options?.onMutate) {
+          await options.onMutate(offerId);
+        }
+
+        return { previousDashboard, previousOffers };
+      },
+      onError: (err, offerId, context) => {
+        if (context?.previousDashboard) {
+          queryClient.setQueryData(
+            TanstackQueryKeysCON.DASHBOARD_INFO_GRAB,
+            context.previousDashboard
+          );
+        }
+        if (context?.previousOffers) {
+          queryClient.setQueryData(
+            TanstackQueryKeysCON.EMPLOYMENT_OFFERS,
+            context.previousOffers
+          );
+        }
+        if (options?.onError) {
+          options.onError(err, offerId, context);
         }
       },
+      onSettled: async (data, error, variables, context) => {
+        await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
+        await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
+        if (options?.onSettled) {
+          options.onSettled(data, error, variables, context);
+        }
+      },
+      ...options,
     });
   }
 }
