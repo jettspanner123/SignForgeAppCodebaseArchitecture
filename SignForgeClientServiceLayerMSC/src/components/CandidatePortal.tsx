@@ -33,24 +33,60 @@ import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActi
 import BadgeSharedComponent from '../Shared/Components/BadgeSharedComponent';
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import EmptyStateSharedComponent from '../Shared/Components/EmptyStateSharedComponent';
+import TanstackQueryClientService from '../Services/TanstackQueryClientService';
+import useAuthenticationStateStore from '../Store/AuthenticationStateStore';
 
-interface CandidatePortalProps {
-  document: OfferDocument;
+export interface CandidatePortalProps {
+  documentId?: string | null;
+  document?: OfferDocument | null;
   onUpdateDocument: (updatedDoc: OfferDocument) => void;
   onSwitchToHRView?: () => void;
 }
 
 export const CandidatePortal: React.FC<CandidatePortalProps> = ({
-  document,
+  documentId,
+  document: propDocument,
   onUpdateDocument,
   onSwitchToHRView
 }) => {
+  const docId = propDocument?.id || documentId;
+  const { data: remoteDoc, isLoading: isRemoteLoading } =
+    TanstackQueryClientService.current.employmentOffer.useEmploymentOfferByIdQuery(
+      !propDocument && docId ? docId : null
+    );
+
+  const document = propDocument || remoteDoc;
+
+  const candidateSignMutation =
+    TanstackQueryClientService.current.employmentOffer.useCandidateSignMutation();
+
+  const isAuthenticated = useAuthenticationStateStore((s) => s.isAuthenticated);
+  const user = useAuthenticationStateStore((s) => s.user);
+  const canSwitchToHR =
+    isAuthenticated &&
+    Boolean(
+      user?.role &&
+      ['HR', 'ADMIN', 'MANAGER', 'SUPER_ADMIN'].some((r) =>
+        user.role.toUpperCase().includes(r)
+      )
+    );
+
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectTab, setRejectTab] = useState<'DECLINE' | 'REVISION'>('DECLINE');
   const [rejectReason, setRejectReason] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadReady, setDownloadReady] = useState<{ blobUrl: string; fileName: string } | null>(null);
+
+  if (isRemoteLoading && !document) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-4 animate-in fade-in">
+        <div className="w-10 h-10 border-3 border-[#0C2086] border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-sm font-semibold text-slate-700 dark:text-zinc-300 font-serif-headline">Loading Secure Employment Offer Package...</p>
+        <p className="text-xs text-slate-400 font-mono">Retrieving cryptographic payload</p>
+      </div>
+    );
+  }
 
   if (!document) {
     return (
@@ -88,8 +124,6 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
 
   const handleApplySignature = async (sigData: SignatureData) => {
     const now = new Date().toISOString();
-    const ip = ApplicationCryptoUtility.current.getSimulatedIP();
-    const signatureId = `sig-${Date.now()}`;
     const auditChecksum = await ApplicationCryptoUtility.current.generateSHA256(`CANDIDATE_SIGNED-${document.id}-${sigData.sha256Hash}`);
 
     const newAuditItem = {
@@ -114,6 +148,19 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
 
     onUpdateDocument(updatedDoc);
     triggerCelebration();
+
+    try {
+      await candidateSignMutation.mutateAsync({
+        offerId: document.id,
+        signatureData: sigData.value,
+        signMode: sigData.type?.toUpperCase() === 'TYPE' ? 'TYPE' : 'DRAW',
+        updatedHtml: document.offerLetterHtml,
+        ipAddress: sigData.ipAddress,
+        userAgent: navigator.userAgent,
+      });
+    } catch (err) {
+      console.warn('Backend candidate sign sync warning:', err);
+    }
   };
 
   const handleRejectOffer = async () => {
@@ -261,7 +308,7 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
               </div>
             </div>
 
-            {onSwitchToHRView && (
+            {onSwitchToHRView && canSwitchToHR && (
               <ButtonSharedComponent
                 variant="primary"
                 size="sm"

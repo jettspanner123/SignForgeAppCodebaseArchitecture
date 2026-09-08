@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { 
   PenTool, 
   Type, 
-  Upload, 
   RotateCcw, 
   Check, 
   ShieldCheck, 
@@ -53,7 +52,6 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
   const [typedName, setTypedName] = useState<string>(signerName || '');
   const [selectedFont, setSelectedFont] = useState<string>('Caveat');
   const [selectedInk, setSelectedInk] = useState<string>('#0f172a');
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [hasAgreedTerms, setHasAgreedTerms] = useState<boolean>(true);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const [hasDrawnContent, setHasDrawnContent] = useState<boolean>(false);
@@ -184,17 +182,6 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
     ctx.stroke();
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setUploadedImage(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleHeaderOrBackdropClose = () => {
     setExitDirection('down');
     setInternalIsOpen(false);
@@ -221,9 +208,6 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
     } else if (activeTab === 'TYPE') {
       if (!typedName.trim()) return;
       sigValue = typedName.trim();
-    } else if (activeTab === 'UPLOAD') {
-      if (!uploadedImage) return;
-      sigValue = uploadedImage;
     }
 
     const timestamp = new Date().toISOString();
@@ -254,8 +238,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
   const isSaveDisabled =
     !hasAgreedTerms ||
     (activeTab === 'DRAW' && !hasDrawnContent) ||
-    (activeTab === 'TYPE' && !typedName.trim()) ||
-    (activeTab === 'UPLOAD' && !uploadedImage);
+    (activeTab === 'TYPE' && !typedName.trim());
 
   return (
     <ModalSharedComponent
@@ -303,7 +286,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
           </span>
         </div>
 
-        {/* Segmented Capsule Tabs (1:1 AssetSphere Animated Segmented Controller) */}
+        {/* Segmented Capsule Tabs (Draw and Type) */}
         <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9 w-full">
           <button
             type="button"
@@ -352,31 +335,6 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
             }`}>
               <Type className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" />
               <span>Text</span>
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
-            onClick={() => setActiveTab('UPLOAD')}
-            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none ${
-              activeTab === 'UPLOAD' ? 'bg-white dark:bg-zinc-700 shadow-xs sm:bg-transparent sm:dark:bg-transparent sm:shadow-none' : ''
-            }`}
-          >
-            {activeTab === 'UPLOAD' && (
-              <motion.div
-                layoutId="activeSignatureTabPill"
-                className="hidden sm:block absolute inset-0 bg-white dark:bg-zinc-700 rounded-lg sm:rounded-md shadow-xs"
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-              />
-            )}
-            <span className={`relative z-10 flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'UPLOAD'
-                ? 'text-slate-900 dark:text-white font-bold'
-                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
-            }`}>
-              <Upload className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" />
-              <span>Upload</span>
             </span>
           </button>
         </div>
@@ -477,45 +435,6 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
                   </button>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: UPLOAD IMAGE */}
-        {activeTab === 'UPLOAD' && (
-          <div className="space-y-3">
-            <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300">
-              Upload Transparent Signature Image (PNG/JPG)
-            </label>
-            <div className="relative border-2 border-dashed border-slate-200/80 dark:border-zinc-800 rounded-xl p-6 text-center bg-slate-50 dark:bg-zinc-900/40 hover:border-blue-500 transition-colors">
-              {uploadedImage ? (
-                <div className="space-y-3">
-                  <img
-                    src={uploadedImage}
-                    alt="Uploaded Signature"
-                    className="max-h-24 mx-auto object-contain bg-white p-2 rounded-lg border border-slate-200 shadow-xs"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setUploadedImage(null)}
-                    className="text-xs text-rose-600 dark:text-rose-400 hover:underline font-semibold cursor-pointer"
-                  >
-                    Remove & Choose Different Image
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <Upload className="w-8 h-8 text-slate-400 dark:text-zinc-500 mx-auto mb-2" />
-                  <p className="text-xs text-slate-800 dark:text-zinc-200 font-bold">Click to browse or drag file here</p>
-                  <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">Recommended: PNG with transparent background</p>
-                  <input
-                    type="file"
-                    accept="image/png, image/jpeg, image/webp"
-                    onChange={handleFileUpload}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-                </div>
-              )}
             </div>
           </div>
         )}

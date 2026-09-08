@@ -24,20 +24,44 @@ import { OfferLetterPaper } from './OfferLetterPaper';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
 import CardSharedComponent from '../Shared/Components/CardSharedComponent';
+import TanstackQueryClientService from '../Services/TanstackQueryClientService';
 
-interface HRCounterSignPortalProps {
-  document: OfferDocument;
+export interface HRCounterSignPortalProps {
+  documentId?: string | null;
+  document?: OfferDocument | null;
   onUpdateDocument: (updatedDoc: OfferDocument) => void;
 }
 
 export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
-  document,
+  documentId,
+  document: propDocument,
   onUpdateDocument
 }) => {
+  const docId = propDocument?.id || documentId;
+  const { data: remoteDoc, isLoading: isRemoteLoading } =
+    TanstackQueryClientService.current.employmentOffer.useEmploymentOfferByIdQuery(
+      !propDocument && docId ? docId : null
+    );
+
+  const document = propDocument || remoteDoc;
+
+  const counterSignMutation =
+    TanstackQueryClientService.current.employmentOffer.useCounterSignMutation();
+
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [showDispatchModal, setShowDispatchModal] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadReady, setDownloadReady] = useState<{ blobUrl: string; fileName: string } | null>(null);
+
+  if (isRemoteLoading && !document) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-4 animate-in fade-in">
+        <div className="w-10 h-10 border-3 border-[#0C2086] border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-sm font-semibold text-slate-700 dark:text-zinc-300 font-serif-headline">Loading Pending Counter-Signature Document...</p>
+        <p className="text-xs text-slate-400 font-mono">Retrieving cryptographic payload</p>
+      </div>
+    );
+  }
 
   if (!document) {
     return (
@@ -126,6 +150,17 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
     onUpdateDocument(updatedDoc);
     // Automatically launch executive dispatch modal preview!
     setShowDispatchModal(true);
+
+    try {
+      await counterSignMutation.mutateAsync({
+        offerId: document.id,
+        signatureData: sigData.value,
+        signMode: sigData.type?.toUpperCase() === 'TYPE' ? 'TYPE' : 'DRAW',
+        updatedHtml: document.offerLetterHtml,
+      });
+    } catch (err) {
+      console.warn('Backend HR countersign sync warning:', err);
+    }
   };
 
   return (

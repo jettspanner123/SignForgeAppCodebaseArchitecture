@@ -271,17 +271,19 @@ export default function App() {
         )}
 
         {/* Candidate Signing Portal */}
-        {currentView === ApplicationRouteCON.CANDIDATE_VIEW && activeDoc && (
+        {currentView === ApplicationRouteCON.CANDIDATE_VIEW && (
           <CandidatePortal
+            documentId={resolvedRoute.docId || selectedDocId}
             document={activeDoc}
             onUpdateDocument={(updated) => updateDocument(updated)}
-            onSwitchToHRView={() => setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN, activeDoc.id)}
+            onSwitchToHRView={() => setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN, activeDoc?.id || resolvedRoute.docId || selectedDocId || undefined)}
           />
         )}
 
         {/* HR Countersigning Portal */}
-        {currentView === ApplicationRouteCON.HR_COUNTERSIGN && activeDoc && (
+        {currentView === ApplicationRouteCON.HR_COUNTERSIGN && (
           <HRCounterSignPortal
+            documentId={resolvedRoute.docId || selectedDocId}
             document={activeDoc}
             onUpdateDocument={(updated) => updateDocument(updated)}
           />

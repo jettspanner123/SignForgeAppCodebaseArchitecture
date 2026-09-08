@@ -125,6 +125,25 @@ export class EmploymentOfferQueryService {
     });
   }
 
+  public useEmploymentOfferByIdQuery(
+    id: string | null | undefined,
+    options?: Partial<UseQueryOptions<OfferDocument, Error>>
+  ): UseQueryResult<OfferDocument, Error> {
+    return useQuery({
+      queryKey: [TanstackQueryKeysCON.EMPLOYMENT_OFFERS, id],
+      queryFn: async (): Promise<OfferDocument> => {
+        if (!id) throw new Error('Document ID is required');
+        const offer = await EmploymentOfferService.current.getOfferById(id);
+        useOfferDocumentStore.getState().updateDocument(offer);
+        return offer;
+      },
+      enabled: Boolean(id),
+      staleTime: 1000 * 30,
+      refetchOnWindowFocus: true,
+      ...options,
+    });
+  }
+
   public useCreateEmploymentOfferMutation(
     options?: UseMutationOptions<OfferDocument, Error, OfferDocument>
   ): UseMutationResult<OfferDocument, Error, OfferDocument> {
@@ -172,13 +191,24 @@ export class EmploymentOfferQueryService {
   }
 
   public useCandidateSignMutation(
-    options?: UseMutationOptions<OfferDocument, Error, { offerId: string; signatureData: string; signMode?: string; updatedHtml?: string }>
+    options?: UseMutationOptions<
+      OfferDocument,
+      Error,
+      { offerId: string; signatureData: string; signMode?: string; updatedHtml?: string; ipAddress?: string; userAgent?: string }
+    >
   ) {
     const queryClient = useQueryClient();
 
     return useMutation({
       ...options,
-      mutationFn: async (params: { offerId: string; signatureData: string; signMode?: string; updatedHtml?: string }): Promise<OfferDocument> => {
+      mutationFn: async (params: {
+        offerId: string;
+        signatureData: string;
+        signMode?: string;
+        updatedHtml?: string;
+        ipAddress?: string;
+        userAgent?: string;
+      }): Promise<OfferDocument> => {
         const updated = await EmploymentOfferService.current.candidateSign(params);
         useOfferDocumentStore.getState().updateDocument(updated);
         return updated;
