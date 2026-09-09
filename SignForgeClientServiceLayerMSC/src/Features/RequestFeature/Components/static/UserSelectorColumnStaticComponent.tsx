@@ -77,32 +77,6 @@ export default function UserSelectorColumnStaticComponent({
             Requests are audited and linked directly to this account.
           </p>
         </div>
-
-        {/* Selected User Detail Strip */}
-        {selectedUser ? (
-          <div className="rounded-lg border border-slate-200 dark:border-zinc-800 px-3 py-2.5 flex items-start gap-2.5 animate-in fade-in duration-150">
-            <div className="w-12 h-12 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
-              {getInitials(selectedUser)}
-            </div>
-            <div className="min-w-0 flex-1 space-y-0.5">
-              <p className="text-xs text-slate-900 dark:text-zinc-100 truncate">
-                <span className="font-semibold">
-                  {`${selectedUser.firstName || ''} ${selectedUser.lastName || ''}`.trim() || 'Enterprise User'}
-                </span>
-                <span className="text-slate-400 dark:text-zinc-500"> · {selectedUser.email}</span>
-              </p>
-              <p className="text-[11px] text-slate-400 dark:text-zinc-500 truncate">
-                {selectedUser.role || 'Member'} · {selectedUser.department || 'General'}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-lg border border-dashed border-slate-200 dark:border-zinc-800 px-3 py-2.5 text-center">
-            <p className="text-[11px] text-slate-400 dark:text-zinc-500">
-              No account selected yet — choose one above to unlock proposal fields.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
