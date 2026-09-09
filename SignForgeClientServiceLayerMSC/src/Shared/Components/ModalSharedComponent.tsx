@@ -155,7 +155,7 @@ export default function ModalSharedComponent({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
             onClick={handleBackdropClick}
-            className="fixed inset-0 bg-black/60 backdrop-blur-none sm:backdrop-blur-sm w-[100dvw] h-[100dvh] cursor-pointer"
+            className="fixed inset-0 bg-slate-900/60 dark:bg-black/60 backdrop-blur-sm w-[100dvw] h-[100dvh] cursor-pointer"
           />
 
           <motion.div
