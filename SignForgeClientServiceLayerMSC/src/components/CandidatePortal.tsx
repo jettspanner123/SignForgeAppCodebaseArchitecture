@@ -12,8 +12,7 @@ import {
   Building2, 
   MapPin, 
   Download,
-  Sparkles, 
-  ArrowRight, 
+  ArrowRight,
   X, 
   ExternalLink,
   Lock,
@@ -308,31 +307,32 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
         </div>
       </div>
 
-      {/* Post-Signature Next Steps Card */}
+      {/* Post-Signature Confirmation */}
       {isAlreadySigned && (
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-6 space-y-4 shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 font-serif-headline">Congratulations, {document.offerDetails.candidateName}!</h3>
-                <p className="text-xs text-emerald-800 dark:text-emerald-300 font-medium mt-0.5">Your electronic signature has been cryptographically recorded with SHA-256 seal.</p>
-              </div>
-            </div>
-
-            {onSwitchToHRView && canSwitchToHR && (
-              <ButtonSharedComponent
-                variant="primary"
-                size="sm"
-                onClick={onSwitchToHRView}
-                rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-              >
-                Switch to HR Counter-Sign Step
-              </ButtonSharedComponent>
-            )}
+        <div className="hairline-border-strong rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+            <p className="text-xs min-w-0 truncate">
+              <span className="font-bold text-slate-900 dark:text-zinc-100">
+                Congratulations, {document.offerDetails.candidateName}.
+              </span>
+              <span className="text-slate-400 dark:text-zinc-500">
+                {' '}Your signature is SHA-256 sealed and awaiting HR counter-sign.
+              </span>
+            </p>
           </div>
+
+          {onSwitchToHRView && canSwitchToHR && (
+            <ButtonSharedComponent
+              variant="primary"
+              size="sm"
+              onClick={onSwitchToHRView}
+              rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+              className="shrink-0 w-full sm:w-auto justify-center"
+            >
+              Switch to HR Counter-Sign Step
+            </ButtonSharedComponent>
+          )}
         </div>
       )}
 
