@@ -44,6 +44,10 @@ _Avoid_: Checksum (the verification endpoint is named `verifyChecksum`, but the 
 The append-only record, kept per Employment Offer, of every action taken against it — creation, each signature, every status change.
 _Avoid_: History, activity log
 
+**Executive Routing**:
+The HR Head and CTO recipients configured on an Employment Offer at creation time, who are meant to receive the executed document once signing completes. Distinct from Third-Party Sign: a routing recipient is informed of the outcome, not asked to sign — the same person could hold both roles, but being named here never by itself grants signing authority.
+_Avoid_: Executive Dispatch, Auto-Dispatch (the app does not automatically send anything to these recipients — see the routing UI's own copy, which no longer claims otherwise)
+
 **Configuration Constant**:
 A piece of reference data — a department, designation, or work location — used to populate Employment Offer creation forms. SignForge does not own this data; it is sourced from AssetSphere's database (see AssetSphere below).
 _Avoid_: Dropdown option, lookup value
