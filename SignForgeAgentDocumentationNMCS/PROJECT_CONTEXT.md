@@ -25,7 +25,7 @@ The final signature an Executive Director applies to an Employment Offer that re
 _Avoid_: Final approval, exec sign-off, co-sign
 
 **Sign Mode**:
-How a given signer captured their signature: drawn, typed, or (for HR and Executive signers only, not Candidates) uploaded as an image.
+How a given signer captured their signature: drawn, typed, or (for HR and Executive signers only, not Candidates) uploaded as an image. For a typed signature, the signer's chosen typeface and ink color are part of the signature itself, not incidental styling — they're captured and preserved exactly as chosen, since the document a signer saw and executed is what must be reproduced later, not a generic re-rendering of their name.
 _Avoid_: Signature type, signature method
 
 **Status**:
