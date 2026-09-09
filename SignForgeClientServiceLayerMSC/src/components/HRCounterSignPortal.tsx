@@ -202,14 +202,14 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
         {/* Action Status Controls Widget */}
         <div className="grid grid-cols-2 gap-3 w-full sm:flex sm:items-center sm:w-auto sm:shrink-0">
           {isFullyExecuted ? (
-            <button
+            <PrimaryActionButtonSharedComponent
+              color="green"
+              label="Dispatch Logs"
+              icon={<Send className="h-4 w-4 shrink-0 !text-white" />}
               onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
               onClick={() => setShowDispatchModal(true)}
-              className="col-span-1 flex items-center justify-center space-x-2 px-4 py-2.5 !h-11 sm:!h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-xs shadow-sm transition-colors cursor-pointer w-full sm:w-auto"
-            >
-              <Send className="h-4 w-4 shrink-0" />
-              <span className="truncate">Dispatch Logs</span>
-            </button>
+              className="col-span-1 w-full sm:w-auto justify-center !h-11 sm:!h-9 px-4 text-sm sm:text-xs font-bold"
+            />
           ) : isCandidateSigned ? (
             <PrimaryActionButtonSharedComponent
               id="hr-countersign-btn"

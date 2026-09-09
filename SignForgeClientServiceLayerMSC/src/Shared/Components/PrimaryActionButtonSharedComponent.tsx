@@ -14,6 +14,7 @@ export interface PrimaryActionButtonSharedComponentProps {
   type?: 'button' | 'submit' | 'reset';
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  color?: 'navy' | 'green';
   id?: string;
 }
 
@@ -29,8 +30,14 @@ export default function PrimaryActionButtonSharedComponent({
   type = 'button',
   className = '',
   size = 'sm',
+  color = 'navy',
   id,
 }: PrimaryActionButtonSharedComponentProps): React.JSX.Element {
+  const colorStyles =
+    color === 'green'
+      ? '!bg-emerald-600 hover:!bg-emerald-700'
+      : '!bg-[#0C2086] hover:!bg-[#081765]';
+
   return (
     <ButtonSharedComponent
       variant="primary"
@@ -42,7 +49,7 @@ export default function PrimaryActionButtonSharedComponent({
       disabled={disabled}
       isLoading={isLoading}
       loadingText={loadingText}
-      className={`!bg-[#0C2086] hover:!bg-[#081765] !text-white border-none shadow-sm font-semibold shrink-0 ${className}`}
+      className={`${colorStyles} !text-white border-none shadow-sm font-semibold shrink-0 ${className}`}
       icon={icon}
     >
       <span className="!text-white font-medium">{children || label}</span>
