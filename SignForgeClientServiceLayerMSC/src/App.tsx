@@ -309,8 +309,9 @@ export default function App() {
         />
       )}
 
-      {showDispatchModal && activeDoc && (
+      {activeDoc && (
         <ExecutiveDispatchModal
+          isOpen={showDispatchModal}
           document={activeDoc}
           onClose={() => setShowDispatchModal(false)}
         />

@@ -593,9 +593,10 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
         signerRole="HR_REPRESENTATIVE"
       />
 
-      {/* Executive Dispatch Simulation Modal */}
-      {showDispatchModal && (
+      {/* Executive Routing Modal */}
+      {document && (
         <ExecutiveDispatchModal
+          isOpen={showDispatchModal}
           document={document}
           onClose={() => setShowDispatchModal(false)}
         />
