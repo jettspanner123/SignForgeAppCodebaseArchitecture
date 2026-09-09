@@ -50,13 +50,20 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
   onSwitchToHRView
 }) => {
   const docId = propDocument?.id || documentId;
+  // Always fetch the authoritative record for this exact offer, even if a possibly-stale
+  // copy is already sitting in the shared document store (populated by unrelated dashboard/
+  // list queries). Force a fresh network check on every mount so the signed status shown
+  // here can never lag behind reality.
   const { data: remoteDoc, isLoading: isRemoteLoading } =
-    TanstackQueryClientService.current.employmentOffer.useEmploymentOfferByIdQuery(
-      !propDocument && docId ? docId : null
-    );
+    TanstackQueryClientService.current.employmentOffer.useEmploymentOfferByIdQuery(docId, {
+      refetchOnMount: 'always',
+    });
 
   const [localSignedDoc, setLocalSignedDoc] = useState<OfferDocument | null>(null);
-  const document = localSignedDoc || propDocument || remoteDoc;
+  // Precedence: this session's own just-applied signature > the freshly-fetched record for
+  // THIS offer > the caller-supplied document, which may be a stale snapshot from an
+  // unrelated dashboard/list query and must never override a fresher, targeted fetch.
+  const document = localSignedDoc || remoteDoc || (isRemoteLoading ? null : propDocument);
 
   const candidateSignMutation =
     TanstackQueryClientService.current.employmentOffer.useCandidateSignMutation();
