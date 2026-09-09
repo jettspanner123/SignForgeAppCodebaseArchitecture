@@ -117,6 +117,8 @@ public class EmploymentOfferService implements IEmploymentOfferService {
         offer.setCandidateSignedAt(Instant.now());
         offer.setCandidateSignMode(request.getSignMode() != null ? request.getSignMode() : EmploymentOfferCON.SIGN_MODE_DRAW);
         offer.setCandidateSignatureData(request.getSignatureData());
+        offer.setCandidateSignFontFamily(request.getFontFamily());
+        offer.setCandidateSignInkColor(request.getInkColor());
         offer.setCandidateSignIp(request.getIpAddress());
         offer.setCandidateSignUserAgent(request.getUserAgent());
         offer.setStatus(EmploymentOfferCON.STATUS_AWAITING_COUNTERSIGN);
@@ -148,6 +150,8 @@ public class EmploymentOfferService implements IEmploymentOfferService {
         offer.setCounterSignedByUserName(currentUserName);
         offer.setCounterSignMode(request.getSignMode() != null ? request.getSignMode() : EmploymentOfferCON.SIGN_MODE_DRAW);
         offer.setCounterSignatureData(request.getSignatureData());
+        offer.setCounterSignFontFamily(request.getFontFamily());
+        offer.setCounterSignInkColor(request.getInkColor());
 
         if (request.getUpdatedHtml() != null && !request.getUpdatedHtml().trim().isEmpty()) {
             offer.setOfferLetterHtml(request.getUpdatedHtml());
@@ -183,6 +187,8 @@ public class EmploymentOfferService implements IEmploymentOfferService {
         offer.setThirdPartySignedByUserName(currentUserName);
         offer.setThirdPartySignMode(request.getSignMode() != null ? request.getSignMode() : EmploymentOfferCON.SIGN_MODE_DRAW);
         offer.setThirdPartySignatureData(request.getSignatureData());
+        offer.setThirdPartySignFontFamily(request.getFontFamily());
+        offer.setThirdPartySignInkColor(request.getInkColor());
 
         if (request.getUpdatedHtml() != null && !request.getUpdatedHtml().trim().isEmpty()) {
             offer.setOfferLetterHtml(request.getUpdatedHtml());
@@ -277,6 +283,8 @@ public class EmploymentOfferService implements IEmploymentOfferService {
                 .candidateSignedAt(entity.getCandidateSignedAt())
                 .candidateSignMode(entity.getCandidateSignMode())
                 .candidateSignatureData(entity.getCandidateSignatureData())
+                .candidateSignFontFamily(entity.getCandidateSignFontFamily())
+                .candidateSignInkColor(entity.getCandidateSignInkColor())
                 .candidateSignIp(entity.getCandidateSignIp())
                 .candidateSignUserAgent(entity.getCandidateSignUserAgent())
                 .counterSignedAt(entity.getCounterSignedAt())
@@ -284,11 +292,15 @@ public class EmploymentOfferService implements IEmploymentOfferService {
                 .counterSignedByUserName(entity.getCounterSignedByUserName())
                 .counterSignMode(entity.getCounterSignMode())
                 .counterSignatureData(entity.getCounterSignatureData())
+                .counterSignFontFamily(entity.getCounterSignFontFamily())
+                .counterSignInkColor(entity.getCounterSignInkColor())
                 .thirdPartySignedAt(entity.getThirdPartySignedAt())
                 .thirdPartySignedByUserId(entity.getThirdPartySignedByUserId())
                 .thirdPartySignedByUserName(entity.getThirdPartySignedByUserName())
                 .thirdPartySignMode(entity.getThirdPartySignMode())
                 .thirdPartySignatureData(entity.getThirdPartySignatureData())
+                .thirdPartySignFontFamily(entity.getThirdPartySignFontFamily())
+                .thirdPartySignInkColor(entity.getThirdPartySignInkColor())
                 .offerLetterHtml(entity.getOfferLetterHtml())
                 .generatedCandidateUrl(entity.getGeneratedCandidateUrl())
                 .generatedCountersignUrl(entity.getGeneratedCountersignUrl())

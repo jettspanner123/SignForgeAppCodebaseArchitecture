@@ -194,7 +194,7 @@ export class EmploymentOfferQueryService {
     options?: UseMutationOptions<
       OfferDocument,
       Error,
-      { offerId: string; signatureData: string; signMode?: string; updatedHtml?: string; ipAddress?: string; userAgent?: string }
+      { offerId: string; signatureData: string; signMode?: string; fontFamily?: string; inkColor?: string; updatedHtml?: string; ipAddress?: string; userAgent?: string }
     >
   ) {
     const queryClient = useQueryClient();
@@ -205,6 +205,8 @@ export class EmploymentOfferQueryService {
         offerId: string;
         signatureData: string;
         signMode?: string;
+        fontFamily?: string;
+        inkColor?: string;
         updatedHtml?: string;
         ipAddress?: string;
         userAgent?: string;
@@ -242,13 +244,13 @@ export class EmploymentOfferQueryService {
   }
 
   public useCounterSignMutation(
-    options?: UseMutationOptions<OfferDocument, Error, { offerId: string; signatureData: string; signMode?: string; updatedHtml?: string }>
+    options?: UseMutationOptions<OfferDocument, Error, { offerId: string; signatureData: string; signMode?: string; fontFamily?: string; inkColor?: string; updatedHtml?: string }>
   ) {
     const queryClient = useQueryClient();
 
     return useMutation({
       ...options,
-      mutationFn: async (params: { offerId: string; signatureData: string; signMode?: string; updatedHtml?: string }): Promise<OfferDocument> => {
+      mutationFn: async (params: { offerId: string; signatureData: string; signMode?: string; fontFamily?: string; inkColor?: string; updatedHtml?: string }): Promise<OfferDocument> => {
         const updated = await EmploymentOfferService.current.counterSign(params);
         useOfferDocumentStore.getState().updateDocument(updated);
         return updated;
@@ -282,13 +284,13 @@ export class EmploymentOfferQueryService {
   }
 
   public useThirdPartySignMutation(
-    options?: UseMutationOptions<OfferDocument, Error, { offerId: string; signatureData: string; signMode?: string; updatedHtml?: string }>
+    options?: UseMutationOptions<OfferDocument, Error, { offerId: string; signatureData: string; signMode?: string; fontFamily?: string; inkColor?: string; updatedHtml?: string }>
   ) {
     const queryClient = useQueryClient();
 
     return useMutation({
       ...options,
-      mutationFn: async (params: { offerId: string; signatureData: string; signMode?: string; updatedHtml?: string }): Promise<OfferDocument> => {
+      mutationFn: async (params: { offerId: string; signatureData: string; signMode?: string; fontFamily?: string; inkColor?: string; updatedHtml?: string }): Promise<OfferDocument> => {
         const updated = await EmploymentOfferService.current.thirdPartySign(params);
         useOfferDocumentStore.getState().updateDocument(updated);
         return updated;

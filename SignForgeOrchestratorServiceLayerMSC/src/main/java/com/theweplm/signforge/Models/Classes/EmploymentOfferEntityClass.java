@@ -143,6 +143,12 @@ public class EmploymentOfferEntityClass {
     @Column(name = "candidate_signature_data", columnDefinition = "TEXT")
     private String candidateSignatureData;
 
+    @Column(name = "candidate_sign_font_family", length = 100)
+    private String candidateSignFontFamily;
+
+    @Column(name = "candidate_sign_ink_color", length = 20)
+    private String candidateSignInkColor;
+
     @Column(name = "candidate_sign_ip", length = 100)
     private String candidateSignIp;
 
@@ -165,6 +171,12 @@ public class EmploymentOfferEntityClass {
     @Column(name = "counter_signature_data", columnDefinition = "TEXT")
     private String counterSignatureData;
 
+    @Column(name = "counter_sign_font_family", length = 100)
+    private String counterSignFontFamily;
+
+    @Column(name = "counter_sign_ink_color", length = 20)
+    private String counterSignInkColor;
+
     // Third-Party Sign (Executive / Approver 2)
     @Column(name = "third_party_signed_at")
     private Instant thirdPartySignedAt;
@@ -180,6 +192,12 @@ public class EmploymentOfferEntityClass {
 
     @Column(name = "third_party_signature_data", columnDefinition = "TEXT")
     private String thirdPartySignatureData;
+
+    @Column(name = "third_party_sign_font_family", length = 100)
+    private String thirdPartySignFontFamily;
+
+    @Column(name = "third_party_sign_ink_color", length = 20)
+    private String thirdPartySignInkColor;
 
     // Document HTML, Generated URLs & Hashes
     @Column(name = "offer_letter_html", columnDefinition = "TEXT")

@@ -17,6 +17,8 @@ public class CandidateSignRequestDTO {
     private String documentHash;
     private String signMode;
     private String signatureData;
+    private String fontFamily;
+    private String inkColor;
     private String updatedHtml;
     private String ipAddress;
     private String userAgent;

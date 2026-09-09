@@ -18,6 +18,7 @@ export interface SignatureData {
   value: string;
   signatureImage?: string;
   fontFamily?: string;
+  inkColor?: string;
   signedBy: string;
   signerName?: string;
   email?: string;

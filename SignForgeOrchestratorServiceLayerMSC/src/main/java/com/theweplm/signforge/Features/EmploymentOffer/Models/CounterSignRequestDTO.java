@@ -16,5 +16,7 @@ public class CounterSignRequestDTO {
     private UUID offerId;
     private String signMode;
     private String signatureData;
+    private String fontFamily;
+    private String inkColor;
     private String updatedHtml;
 }

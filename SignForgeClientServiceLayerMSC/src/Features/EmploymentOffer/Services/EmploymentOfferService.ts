@@ -75,6 +75,10 @@ export interface BackendEmploymentOfferDTO {
   candidateSignMode?: string;
   CandidateSignatureData?: string;
   candidateSignatureData?: string;
+  CandidateSignFontFamily?: string;
+  candidateSignFontFamily?: string;
+  CandidateSignInkColor?: string;
+  candidateSignInkColor?: string;
   CandidateSignIp?: string;
   candidateSignIp?: string;
   CandidateSignUserAgent?: string;
@@ -90,6 +94,10 @@ export interface BackendEmploymentOfferDTO {
   counterSignMode?: string;
   CounterSignatureData?: string;
   counterSignatureData?: string;
+  CounterSignFontFamily?: string;
+  counterSignFontFamily?: string;
+  CounterSignInkColor?: string;
+  counterSignInkColor?: string;
 
   ThirdPartySignedAt?: string;
   thirdPartySignedAt?: string;
@@ -101,6 +109,10 @@ export interface BackendEmploymentOfferDTO {
   thirdPartySignMode?: string;
   ThirdPartySignatureData?: string;
   thirdPartySignatureData?: string;
+  ThirdPartySignFontFamily?: string;
+  thirdPartySignFontFamily?: string;
+  ThirdPartySignInkColor?: string;
+  thirdPartySignInkColor?: string;
 
   OfferLetterHtml?: string;
   offerLetterHtml?: string;
@@ -238,6 +250,8 @@ export default class EmploymentOfferService {
         signedBy: candidateName,
         timestamp: dto.CandidateSignedAt || dto.candidateSignedAt || new Date().toISOString(),
         type: (dto.CandidateSignMode || dto.candidateSignMode || 'DRAW') as any,
+        fontFamily: dto.CandidateSignFontFamily || dto.candidateSignFontFamily,
+        inkColor: dto.CandidateSignInkColor || dto.candidateSignInkColor,
         ipAddress: dto.CandidateSignIp || dto.candidateSignIp,
         userAgent: dto.CandidateSignUserAgent || dto.candidateSignUserAgent,
       };
@@ -251,6 +265,8 @@ export default class EmploymentOfferService {
         signedBy: dto.CounterSignedByUserName || dto.counterSignedByUserName || 'HR Countersigner',
         timestamp: dto.CounterSignedAt || dto.counterSignedAt || new Date().toISOString(),
         type: (dto.CounterSignMode || dto.counterSignMode || 'DRAW') as any,
+        fontFamily: dto.CounterSignFontFamily || dto.counterSignFontFamily,
+        inkColor: dto.CounterSignInkColor || dto.counterSignInkColor,
       };
     }
 
@@ -262,6 +278,8 @@ export default class EmploymentOfferService {
         signedBy: dto.ThirdPartySignedByUserName || dto.thirdPartySignedByUserName || 'Executive Signatory',
         timestamp: dto.ThirdPartySignedAt || dto.thirdPartySignedAt || new Date().toISOString(),
         type: (dto.ThirdPartySignMode || dto.thirdPartySignMode || 'DRAW') as any,
+        fontFamily: dto.ThirdPartySignFontFamily || dto.thirdPartySignFontFamily,
+        inkColor: dto.ThirdPartySignInkColor || dto.thirdPartySignInkColor,
       };
     }
 
@@ -410,6 +428,8 @@ export default class EmploymentOfferService {
     offerId: string;
     signatureData: string;
     signMode?: string;
+    fontFamily?: string;
+    inkColor?: string;
     updatedHtml?: string;
     ipAddress?: string;
     userAgent?: string;
@@ -424,6 +444,8 @@ export default class EmploymentOfferService {
         OfferId: params.offerId,
         SignMode: params.signMode || 'DRAW',
         SignatureData: params.signatureData,
+        FontFamily: params.fontFamily,
+        InkColor: params.inkColor,
         UpdatedHtml: params.updatedHtml,
         IpAddress: params.ipAddress || '127.0.0.1',
         UserAgent: params.userAgent || navigator.userAgent,
@@ -443,6 +465,8 @@ export default class EmploymentOfferService {
     offerId: string;
     signatureData: string;
     signMode?: string;
+    fontFamily?: string;
+    inkColor?: string;
     updatedHtml?: string;
   }): Promise<OfferDocument> {
     const config = ApplicationNetworkAPIConfiguration.current.getConfiguration();
@@ -455,6 +479,8 @@ export default class EmploymentOfferService {
         OfferId: params.offerId,
         SignMode: params.signMode || 'DRAW',
         SignatureData: params.signatureData,
+        FontFamily: params.fontFamily,
+        InkColor: params.inkColor,
         UpdatedHtml: params.updatedHtml,
       }),
     });
@@ -472,6 +498,8 @@ export default class EmploymentOfferService {
     offerId: string;
     signatureData: string;
     signMode?: string;
+    fontFamily?: string;
+    inkColor?: string;
     updatedHtml?: string;
   }): Promise<OfferDocument> {
     const config = ApplicationNetworkAPIConfiguration.current.getConfiguration();
@@ -484,6 +512,8 @@ export default class EmploymentOfferService {
         OfferId: params.offerId,
         SignMode: params.signMode || 'DRAW',
         SignatureData: params.signatureData,
+        FontFamily: params.fontFamily,
+        InkColor: params.inkColor,
         UpdatedHtml: params.updatedHtml,
       }),
     });

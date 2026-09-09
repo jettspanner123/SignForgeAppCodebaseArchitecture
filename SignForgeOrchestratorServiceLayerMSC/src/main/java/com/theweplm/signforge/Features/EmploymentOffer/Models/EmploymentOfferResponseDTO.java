@@ -60,6 +60,8 @@ public class EmploymentOfferResponseDTO {
     private Instant candidateSignedAt;
     private String candidateSignMode;
     private String candidateSignatureData;
+    private String candidateSignFontFamily;
+    private String candidateSignInkColor;
     private String candidateSignIp;
     private String candidateSignUserAgent;
 
@@ -69,6 +71,8 @@ public class EmploymentOfferResponseDTO {
     private String counterSignedByUserName;
     private String counterSignMode;
     private String counterSignatureData;
+    private String counterSignFontFamily;
+    private String counterSignInkColor;
 
     // Third-Party Sign (Executive)
     private Instant thirdPartySignedAt;
@@ -76,6 +80,8 @@ public class EmploymentOfferResponseDTO {
     private String thirdPartySignedByUserName;
     private String thirdPartySignMode;
     private String thirdPartySignatureData;
+    private String thirdPartySignFontFamily;
+    private String thirdPartySignInkColor;
 
     // Document & Security
     private String offerLetterHtml;

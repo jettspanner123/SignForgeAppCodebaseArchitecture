@@ -163,6 +163,8 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
         offerId: document.id,
         signatureData: sigData.value,
         signMode: sigData.type?.toUpperCase() === 'TYPE' ? 'TYPE' : 'DRAW',
+        fontFamily: sigData.fontFamily,
+        inkColor: sigData.inkColor,
         updatedHtml: document.offerLetterHtml,
         ipAddress: sigData.ipAddress,
         userAgent: navigator.userAgent,

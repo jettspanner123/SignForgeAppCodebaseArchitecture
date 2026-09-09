@@ -222,6 +222,7 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
       type: activeTab,
       value: sigValue,
       fontFamily: activeTab === 'TYPE' ? selectedFont : undefined,
+      inkColor: activeTab === 'TYPE' ? selectedInk : undefined,
       signedBy: signerName,
       email: signerEmail,
       role: signerRole,

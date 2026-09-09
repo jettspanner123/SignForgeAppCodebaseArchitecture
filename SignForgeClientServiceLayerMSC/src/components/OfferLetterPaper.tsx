@@ -635,7 +635,13 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
             {document.candidateSignature ? (
               <div className="space-y-1">
                 {document.candidateSignature.type === 'TYPE' ? (
-                  <p className="text-2xl font-bold text-slate-900 py-2 border-b border-slate-200" style={{ fontFamily: document.candidateSignature.fontFamily }}>
+                  <p
+                    className="text-2xl font-bold py-2 border-b border-slate-200"
+                    style={{
+                      fontFamily: document.candidateSignature.fontFamily,
+                      color: document.candidateSignature.inkColor || '#0f172a',
+                    }}
+                  >
                     {document.candidateSignature.value}
                   </p>
                 ) : (
@@ -688,7 +694,13 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
             {document.hrSignature ? (
               <div className="space-y-1">
                 {document.hrSignature.type === 'TYPE' ? (
-                  <p className="text-2xl font-bold text-slate-900 py-2 border-b border-slate-200" style={{ fontFamily: document.hrSignature.fontFamily }}>
+                  <p
+                    className="text-2xl font-bold py-2 border-b border-slate-200"
+                    style={{
+                      fontFamily: document.hrSignature.fontFamily,
+                      color: document.hrSignature.inkColor || '#0f172a',
+                    }}
+                  >
                     {document.hrSignature.value}
                   </p>
                 ) : (

@@ -38,7 +38,7 @@ function truncateText(text: string, font: any, size: number, maxWidth: number): 
 /**
  * Converts a typed signature string (with font name) into a transparent PNG data URL on a hidden HTML canvas.
  */
-function renderTypedSignatureToPNG(text: string, fontName: string = 'Dancing Script'): string {
+function renderTypedSignatureToPNG(text: string, fontName: string = 'Dancing Script', inkColor: string = '#1e293b'): string {
   const canvas = document.createElement('canvas');
   canvas.width = 600;
   canvas.height = 160;
@@ -46,7 +46,7 @@ function renderTypedSignatureToPNG(text: string, fontName: string = 'Dancing Scr
   if (ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = `60px "${fontName}", cursive, sans-serif`;
-    ctx.fillStyle = '#1e293b'; // Enterprise slate ink
+    ctx.fillStyle = inkColor;
     ctx.textBaseline = 'middle';
     ctx.fillText(text, 20, 80);
     // Draw a subtle baseline signature stroke
@@ -352,7 +352,11 @@ export default class ApplicationPDFGeneratorUtility {
         }
       } else {
         try {
-          const typedPngUrl = renderTypedSignatureToPNG(doc.candidateSignature.signedBy || doc.offerDetails.candidateName);
+          const typedPngUrl = renderTypedSignatureToPNG(
+            doc.candidateSignature.signedBy || doc.offerDetails.candidateName,
+            doc.candidateSignature.fontFamily || 'Dancing Script',
+            doc.candidateSignature.inkColor || '#1e293b'
+          );
           const sigPngBytes = await fetch(typedPngUrl).then((r) => r.arrayBuffer());
           const sigImg = await pdfDoc.embedPng(sigPngBytes);
           page1.drawImage(sigImg, {
@@ -437,7 +441,11 @@ export default class ApplicationPDFGeneratorUtility {
         }
       } else {
         try {
-          const typedPngUrl = renderTypedSignatureToPNG(doc.hrSignature.signedBy || 'Pooja Sharma');
+          const typedPngUrl = renderTypedSignatureToPNG(
+            doc.hrSignature.signedBy || 'Pooja Sharma',
+            doc.hrSignature.fontFamily || 'Dancing Script',
+            doc.hrSignature.inkColor || '#1e293b'
+          );
           const sigPngBytes = await fetch(typedPngUrl).then((r) => r.arrayBuffer());
           const sigImg = await pdfDoc.embedPng(sigPngBytes);
           page1.drawImage(sigImg, {
