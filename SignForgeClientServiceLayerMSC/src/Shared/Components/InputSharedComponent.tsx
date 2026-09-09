@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertCircle } from 'lucide-react';
 
 export interface InputSharedComponentProps {
   label?: string;
@@ -70,7 +71,12 @@ export default function InputSharedComponent({
           } ${error ? 'border-red-500 dark:border-red-500' : ''} ${className} ${widthStyle}`}
         />
       </div>
-      {error && <span className="text-xs text-rose-500 mt-0.5">{error}</span>}
+      {error && (
+        <p className="text-[11px] text-rose-500 dark:text-rose-400 flex items-center gap-1 mt-1">
+          <AlertCircle className="w-3 h-3 shrink-0" />
+          <span>{error}</span>
+        </p>
+      )}
       {helperText && !error && <span className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5">{helperText}</span>}
     </div>
   );

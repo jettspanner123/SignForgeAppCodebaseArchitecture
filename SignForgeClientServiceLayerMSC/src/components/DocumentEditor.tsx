@@ -15,7 +15,8 @@ import {
   Upload,
   CheckCircle2,
   Award,
-  Plus
+  Plus,
+  AlertCircle
 } from 'lucide-react';
 import { OfferDocument, OfferDetails } from '../Types';
 import ApplicationCryptoUtility from '../Utilities/ApplicationCryptoUtility';
@@ -881,18 +882,28 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <InputSharedComponent
                         label="Candidate Full Name *"
+                        name="candidateName"
                         required
                         value={candidateName}
-                        onChange={(e) => setCandidateName(e.target.value)}
+                        onChange={(e) => {
+                          setCandidateName(e.target.value);
+                          setErrors((prev) => ({ ...prev, candidateName: '' }));
+                        }}
+                        error={errors.candidateName}
                         placeholder="e.g. Uddeshya Singh"
                       />
 
                       <InputSharedComponent
                         label="Candidate Email *"
+                        name="candidateEmail"
                         type="email"
                         required
                         value={candidateEmail}
-                        onChange={(e) => setCandidateEmail(e.target.value)}
+                        onChange={(e) => {
+                          setCandidateEmail(e.target.value);
+                          setErrors((prev) => ({ ...prev, candidateEmail: '' }));
+                        }}
+                        error={errors.candidateEmail}
                         placeholder="e.g. uddeshya.singh@example.com"
                       />
 
@@ -946,40 +957,62 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         }}
                       />
 
-                      <CustomSelectSharedComponent
-                        label="Official Designation / Job Title *"
-                        value={jobTitle}
-                        onChange={setJobTitle}
-                        options={designationOptions}
-                        placeholder={
-                          designationOptions.length === 0
-                            ? 'No roles yet — click below to add'
-                            : 'Select designation...'
-                        }
-                        searchable={true}
-                        searchPlaceholder="Search designations..."
-                        size="md"
-                        footerAction={{
-                          label: 'Create New Designation',
-                          icon: <Plus className="w-3.5 h-3.5" />,
-                          onClick: () => setIsCreateDesignationOpen(true),
-                        }}
-                      />
+                      <div>
+                        <CustomSelectSharedComponent
+                          label="Official Designation / Job Title *"
+                          value={jobTitle}
+                          onChange={(val) => {
+                            setJobTitle(val);
+                            setErrors((prev) => ({ ...prev, jobTitle: '' }));
+                          }}
+                          options={designationOptions}
+                          placeholder={
+                            designationOptions.length === 0
+                              ? 'No roles yet — click below to add'
+                              : 'Select designation...'
+                          }
+                          searchable={true}
+                          searchPlaceholder="Search designations..."
+                          size="md"
+                          triggerClassName={errors.jobTitle ? '!border-rose-300 dark:!border-rose-800' : ''}
+                          footerAction={{
+                            label: 'Create New Designation',
+                            icon: <Plus className="w-3.5 h-3.5" />,
+                            onClick: () => setIsCreateDesignationOpen(true),
+                          }}
+                        />
+                        {errors.jobTitle && (
+                          <p className="text-[11px] text-rose-500 dark:text-rose-400 flex items-center gap-1 mt-1">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            <span>{errors.jobTitle}</span>
+                          </p>
+                        )}
+                      </div>
 
                       <InputSharedComponent
                         label="Annual CTC Compensation *"
+                        name="annualSalary"
                         required
                         value={annualSalary}
-                        onChange={(e) => setAnnualSalary(e.target.value)}
+                        onChange={(e) => {
+                          setAnnualSalary(e.target.value);
+                          setErrors((prev) => ({ ...prev, annualSalary: '' }));
+                        }}
+                        error={errors.annualSalary}
                         placeholder="e.g. 2400000"
                       />
 
                       <InputSharedComponent
                         label="Joining Date *"
+                        name="joiningDate"
                         type="date"
                         required
                         value={joiningDate}
-                        onChange={(e) => setJoiningDate(e.target.value)}
+                        onChange={(e) => {
+                          setJoiningDate(e.target.value);
+                          setErrors((prev) => ({ ...prev, joiningDate: '' }));
+                        }}
+                        error={errors.joiningDate}
                       />
 
                       <InputSharedComponent
@@ -1066,27 +1099,42 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <InputSharedComponent
                           label="Director Full Name *"
+                          name="directorName"
                           required={signatureCount === 3}
                           value={directorName}
-                          onChange={(e) => setDirectorName(e.target.value)}
+                          onChange={(e) => {
+                            setDirectorName(e.target.value);
+                            setErrors((prev) => ({ ...prev, directorName: '' }));
+                          }}
+                          error={errors.directorName}
                           placeholder="e.g. Shantanu Jagtap"
                         />
 
                         <InputSharedComponent
                           label="Official Designation *"
+                          name="directorTitle"
                           required={signatureCount === 3}
                           value={directorTitle}
-                          onChange={(e) => setDirectorTitle(e.target.value)}
+                          onChange={(e) => {
+                            setDirectorTitle(e.target.value);
+                            setErrors((prev) => ({ ...prev, directorTitle: '' }));
+                          }}
+                          error={errors.directorTitle}
                           placeholder="e.g. Director & VP"
                         />
 
                         <div className="sm:col-span-2">
                           <InputSharedComponent
                             label="Director Email *"
+                            name="directorEmail"
                             type="email"
                             required={signatureCount === 3}
                             value={directorEmail}
-                            onChange={(e) => setDirectorEmail(e.target.value)}
+                            onChange={(e) => {
+                              setDirectorEmail(e.target.value);
+                              setErrors((prev) => ({ ...prev, directorEmail: '' }));
+                            }}
+                            error={errors.directorEmail}
                             placeholder="e.g. director@weplm.com"
                           />
                         </div>
@@ -1121,10 +1169,15 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
                         <InputSharedComponent
                           label="HR Head Email *"
+                          name="hrHeadEmail"
                           type="email"
                           required
                           value={hrHeadEmail}
-                          onChange={(e) => setHrHeadEmail(e.target.value)}
+                          onChange={(e) => {
+                            setHrHeadEmail(e.target.value);
+                            setErrors((prev) => ({ ...prev, hrHeadEmail: '' }));
+                          }}
+                          error={errors.hrHeadEmail}
                           placeholder="e.g. s.jenkins@weplm.com"
                         />
                       </div>
@@ -1148,10 +1201,15 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
                         <InputSharedComponent
                           label="CTO Email *"
+                          name="ctoEmail"
                           type="email"
                           required
                           value={ctoEmail}
-                          onChange={(e) => setCtoEmail(e.target.value)}
+                          onChange={(e) => {
+                            setCtoEmail(e.target.value);
+                            setErrors((prev) => ({ ...prev, ctoEmail: '' }));
+                          }}
+                          error={errors.ctoEmail}
                           placeholder="e.g. d.miller@weplm.com"
                         />
                       </div>
