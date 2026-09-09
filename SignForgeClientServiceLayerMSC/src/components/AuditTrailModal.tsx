@@ -2,11 +2,13 @@ import EmptyStateSharedComponent from '../Shared/Components/EmptyStateSharedComp
 import ModalSharedComponent from '../Shared/Components/ModalSharedComponent';
 import ButtonSharedComponent from '../Shared/Components/ButtonSharedComponent';
 import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActionButtonSharedComponent';
+import BadgeSharedComponent from '../Shared/Components/BadgeSharedComponent';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Clock,
   Download,
-  ExternalLink
+  ExternalLink,
+  Mail
 } from 'lucide-react';
 import { OfferDocument } from '../Types';
 import ApplicationPDFGeneratorUtility from '../Utilities/ApplicationPDFGeneratorUtility';
@@ -109,49 +111,58 @@ export const AuditTrailModal: React.FC<AuditTrailModalProps> = ({ isOpen, docume
       }
     >
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl p-4">
-          <div>
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 block mb-0.5">Document Title & ID</span>
-            <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">{document.title}</p>
-            <p className="text-[10px] font-mono text-slate-500 dark:text-zinc-400">GUID: {document.id}</p>
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 block mb-0.5">Status & Execution</span>
-            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60">
-              {document.status}
-            </span>
-            <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1">Ref: {document.documentNumber}</p>
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 block mb-0.5">SHA-256 Cryptographic Hash</span>
-            <p className="text-[10px] font-mono text-[#0C2086] dark:text-blue-400 break-all leading-tight font-semibold">
-              {document.sha256Checksum || 'HASH_PENDING_COUNTER_SIGN'}
+        {/* Document Overview Strip */}
+        <div className="hairline-border-strong rounded-lg px-4 py-3 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
+              {document.documentNumber}
+              <span className="font-normal text-slate-400 dark:text-zinc-500"> · {document.title}</span>
+            </p>
+            <p className="text-[11px] font-mono text-slate-400 dark:text-zinc-500 mt-0.5 truncate">
+              SHA-256 {document.sha256Checksum || 'HASH_PENDING_COUNTER_SIGN'}
             </p>
           </div>
+          <BadgeSharedComponent status={document.status} size="sm" className="shrink-0" />
         </div>
 
-        {/* Executive Contact Status Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-2">
-            <div className="flex justify-between items-center text-xs font-semibold text-emerald-800 dark:text-emerald-400">
-              <span>HR Head Routing: {document.executives?.hrHead?.name || 'HR Head'}</span>
-              <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 font-bold">
-                {document.executives?.hrHead?.status === 'SENT_SUCCESSFULLY' ? 'NOTIFIED & SENT' : 'PENDING COUNTERSIGN'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-700 dark:text-zinc-300 font-medium">Email: {document.executives?.hrHead?.email || document.hrHeadEmail || 'hr@theweplm.com'}</p>
-            <p className="text-[10px] text-slate-500 dark:text-zinc-400">Auto-Dispatches PDF payload immediately upon final HR signature.</p>
-          </div>
-
-          <div className="bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-2">
-            <div className="flex justify-between items-center text-xs font-semibold text-blue-800 dark:text-blue-400">
-              <span>CTO Routing: {document.executives?.cto?.name || 'CTO'}</span>
-              <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 font-bold">
-                {document.executives?.cto?.status === 'SENT_SUCCESSFULLY' ? 'NOTIFIED & SENT' : 'PENDING COUNTERSIGN'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-700 dark:text-zinc-300 font-medium">Email: {document.executives?.cto?.email || document.ctoEmail || 'cto@theweplm.com'}</p>
-            <p className="text-[10px] text-slate-500 dark:text-zinc-400">Auto-Dispatches PDF payload immediately upon final HR signature.</p>
+        {/* Executive Routing */}
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider flex items-center gap-2">
+            <Mail className="h-4 w-4 text-[#0C2086] dark:text-blue-400" />
+            <span>Executive Routing</span>
+          </h4>
+          <div className="bg-white dark:bg-[#0a0a0c] border border-slate-200 dark:border-zinc-800 rounded-xl overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
+              <thead className="bg-slate-50 dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 text-[11px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider">
+                <tr>
+                  <th className="px-4 py-3 whitespace-nowrap">Role</th>
+                  <th className="px-4 py-3">Recipient</th>
+                  <th className="px-4 py-3 whitespace-nowrap">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-zinc-800">
+                <tr className="hover:bg-slate-50 dark:hover:bg-zinc-900/60 transition-colors">
+                  <td className="px-4 py-3 font-bold text-slate-900 dark:text-zinc-100 whitespace-nowrap">HR Head</td>
+                  <td className="px-4 py-3">
+                    <span className="text-slate-900 dark:text-zinc-100 font-medium">{document.executives?.hrHead?.name || 'HR Head'}</span>
+                    <span className="block text-[10px] text-slate-400 dark:text-zinc-500">{document.executives?.hrHead?.email || document.hrHeadEmail || 'hr@theweplm.com'}</span>
+                  </td>
+                  <td className={`px-4 py-3 font-semibold text-[11px] whitespace-nowrap ${document.executives?.hrHead?.status === 'SENT_SUCCESSFULLY' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-zinc-500'}`}>
+                    {document.executives?.hrHead?.status === 'SENT_SUCCESSFULLY' ? 'Notified & Sent' : 'Pending Countersign'}
+                  </td>
+                </tr>
+                <tr className="hover:bg-slate-50 dark:hover:bg-zinc-900/60 transition-colors">
+                  <td className="px-4 py-3 font-bold text-slate-900 dark:text-zinc-100 whitespace-nowrap">CTO</td>
+                  <td className="px-4 py-3">
+                    <span className="text-slate-900 dark:text-zinc-100 font-medium">{document.executives?.cto?.name || 'CTO'}</span>
+                    <span className="block text-[10px] text-slate-400 dark:text-zinc-500">{document.executives?.cto?.email || document.ctoEmail || 'cto@theweplm.com'}</span>
+                  </td>
+                  <td className={`px-4 py-3 font-semibold text-[11px] whitespace-nowrap ${document.executives?.cto?.status === 'SENT_SUCCESSFULLY' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-zinc-500'}`}>
+                    {document.executives?.cto?.status === 'SENT_SUCCESSFULLY' ? 'Notified & Sent' : 'Pending Countersign'}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
