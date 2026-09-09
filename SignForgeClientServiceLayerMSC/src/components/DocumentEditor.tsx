@@ -594,15 +594,15 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
             transition={{ type: 'spring', duration: 0.8, bounce: 0.25 }}
             className="overflow-hidden sticky top-4 z-20 max-w-4xl mx-auto w-full"
           >
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-xl border border-slate-200/80 dark:border-zinc-800/80 shadow-md">
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col items-center gap-3 p-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-xl border border-slate-200/80 dark:border-zinc-800/80 shadow-md">
+              <div className="flex items-center gap-3 w-full">
                 {/* Document Type Segmented Control */}
-                <div className="flex items-center p-1 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9">
+                <div className="flex-1 flex items-center p-1 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9">
                   <button
                     type="button"
                     onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={() => handleDocTypeChange('OFFER_LETTER')}
-                    className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                    className="flex-1 relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
                     {documentType === 'OFFER_LETTER' && (
                       <motion.div
@@ -624,7 +624,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                     type="button"
                     onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={() => handleDocTypeChange('JOINING_LETTER')}
-                    className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                    className="flex-1 relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
                     {documentType === 'JOINING_LETTER' && (
                       <motion.div
@@ -645,12 +645,12 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                 </div>
 
                 {/* Workflow Signatures Segmented Control */}
-                <div className="flex items-center p-1 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9">
+                <div className="flex-1 flex items-center p-1 rounded-xl sm:rounded-lg bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60 h-11 sm:h-9">
                   <button
                     type="button"
                     onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={() => setSignatureCount(2)}
-                    className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                    className="flex-1 relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
                     {signatureCount === 2 && (
                       <motion.div
@@ -673,7 +673,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                     type="button"
                     onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
                     onClick={() => setSignatureCount(3)}
-                    className="relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
+                    className="flex-1 relative flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1 h-9 sm:h-7 rounded-lg sm:rounded-md text-xs font-bold transition-colors cursor-pointer select-none"
                   >
                     {signatureCount === 3 && (
                       <motion.div
@@ -696,7 +696,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
               </div>
 
               {/* Quick Jump Multi-Page Anchors */}
-              <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-zinc-400">
+              <div className="flex items-center justify-center flex-wrap gap-1.5 text-xs font-medium text-slate-500 dark:text-zinc-400">
                 <span className="text-[11px] font-semibold text-slate-400 mr-1">Quick Jump:</span>
                 <button
                   type="button"
