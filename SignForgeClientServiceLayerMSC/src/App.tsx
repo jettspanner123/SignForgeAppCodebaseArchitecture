@@ -296,8 +296,9 @@ export default function App() {
       </div>
 
       {/* 2. Global Dialog Modals */}
-      {showAuditModal && activeDoc && (
+      {activeDoc && (
         <AuditTrailModal
+          isOpen={showAuditModal}
           document={activeDoc}
           onClose={() => {
             setShowAuditModal(false);
