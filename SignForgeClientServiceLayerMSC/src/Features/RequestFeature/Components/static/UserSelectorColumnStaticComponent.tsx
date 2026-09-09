@@ -30,7 +30,7 @@ export default function UserSelectorColumnStaticComponent({
         label: `${fullName} (${u.email}) - ${u.role || 'Member'}`,
         sublabel: u.department ? `Department: ${u.department}` : undefined,
         icon: (
-          <div className="w-5 h-5 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center font-bold text-[9px] shrink-0 shadow-2xs">
+          <div className="w-7 h-7 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-2xs">
             {getInitials(u)}
           </div>
         ),
@@ -81,7 +81,7 @@ export default function UserSelectorColumnStaticComponent({
         {/* Selected User Detail Strip */}
         {selectedUser ? (
           <div className="rounded-lg border border-slate-200 dark:border-zinc-800 px-3 py-2.5 flex items-start gap-2.5 animate-in fade-in duration-150">
-            <div className="w-8 h-8 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
+            <div className="w-12 h-12 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
               {getInitials(selectedUser)}
             </div>
             <div className="min-w-0 flex-1 space-y-0.5">
