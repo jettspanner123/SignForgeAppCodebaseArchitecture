@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Users, CheckCircle2 } from 'lucide-react';
+import { User, Users } from 'lucide-react';
 import { UserSummaryModel } from '../../Models/RequestFeatureModel';
 import CustomSelectSharedComponent, { SelectOption } from '../../../../Shared/Components/CustomSelectSharedComponent';
 
@@ -22,17 +22,6 @@ export default function UserSelectorColumnStaticComponent({
     return first || last ? `${first}${last}` : user.email.slice(0, 2).toUpperCase();
   };
 
-  const getRoleBadgeColor = (role: string): string => {
-    const r = (role || '').toUpperCase();
-    if (r.includes('ADMIN') || r.includes('EXECUTIVE')) {
-      return 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800';
-    }
-    if (r.includes('HR')) {
-      return 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800';
-    }
-    return 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700';
-  };
-
   const userSelectOptions: SelectOption[] = React.useMemo(() => {
     return users.map((u) => {
       const fullName = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Enterprise User';
@@ -40,13 +29,7 @@ export default function UserSelectorColumnStaticComponent({
         value: u.id,
         label: `${fullName} (${u.email}) - ${u.role || 'Member'}`,
         sublabel: u.department ? `Department: ${u.department}` : undefined,
-        icon: u.avatarUrl ? (
-          <img
-            src={u.avatarUrl}
-            alt={fullName}
-            className="w-5 h-5 rounded-full object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
-          />
-        ) : (
+        icon: (
           <div className="w-5 h-5 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center font-bold text-[9px] shrink-0 shadow-2xs">
             {getInitials(u)}
           </div>
@@ -95,67 +78,28 @@ export default function UserSelectorColumnStaticComponent({
           </p>
         </div>
 
-        {/* Selected User Detail Card */}
+        {/* Selected User Detail Strip */}
         {selectedUser ? (
-          <div className="rounded-xl p-3.5 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/80 dark:border-blue-900/40 space-y-3 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center gap-3">
-              {selectedUser.avatarUrl ? (
-                <img
-                  src={selectedUser.avatarUrl}
-                  alt={selectedUser.firstName}
-                  className="w-10 h-10 rounded-full object-cover border border-blue-200 dark:border-blue-800 shadow-2xs"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center font-bold text-xs tracking-wider shadow-2xs">
-                  {getInitials(selectedUser)}
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
-                    {`${selectedUser.firstName || ''} ${selectedUser.lastName || ''}`.trim() || 'Enterprise User'}
-                  </span>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
-                  {selectedUser.email}
-                </p>
-              </div>
+          <div className="rounded-lg border border-slate-200 dark:border-zinc-800 px-3 py-2.5 flex items-start gap-2.5 animate-in fade-in duration-150">
+            <div className="w-8 h-8 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0">
+              {getInitials(selectedUser)}
             </div>
-
-            <div className="pt-2 border-t border-blue-100/60 dark:border-blue-900/30 grid grid-cols-2 gap-2 text-[11px]">
-              <div>
-                <span className="text-[10px] text-slate-400 dark:text-zinc-500 block uppercase font-mono tracking-wider">
-                  Role
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <p className="text-xs text-slate-900 dark:text-zinc-100 truncate">
+                <span className="font-semibold">
+                  {`${selectedUser.firstName || ''} ${selectedUser.lastName || ''}`.trim() || 'Enterprise User'}
                 </span>
-                <span
-                  className={`inline-block mt-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold border truncate max-w-full ${getRoleBadgeColor(
-                    selectedUser.role
-                  )}`}
-                >
-                  {selectedUser.role || 'Member'}
-                </span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 dark:text-zinc-500 block uppercase font-mono tracking-wider">
-                  Department
-                </span>
-                <span className="text-slate-700 dark:text-zinc-300 font-medium truncate block mt-0.5">
-                  {selectedUser.department || 'General'}
-                </span>
-              </div>
+                <span className="text-slate-400 dark:text-zinc-500"> · {selectedUser.email}</span>
+              </p>
+              <p className="text-[11px] text-slate-400 dark:text-zinc-500 truncate">
+                {selectedUser.role || 'Member'} · {selectedUser.department || 'General'}
+              </p>
             </div>
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-slate-200 dark:border-zinc-800 p-4 text-center space-y-2">
-            <div className="p-2.5 rounded-full bg-slate-50 dark:bg-zinc-900 text-slate-400 dark:text-zinc-600 inline-flex">
-              <User className="w-5 h-5" />
-            </div>
-            <p className="text-xs font-medium text-slate-500 dark:text-zinc-400">
-              No account selected yet
-            </p>
-            <p className="text-[11px] text-slate-400 dark:text-zinc-500 leading-snug">
-              Choose an active enterprise user from the dropdown above to unlock proposal fields.
+          <div className="rounded-lg border border-dashed border-slate-200 dark:border-zinc-800 px-3 py-2.5 text-center">
+            <p className="text-[11px] text-slate-400 dark:text-zinc-500">
+              No account selected yet — choose one above to unlock proposal fields.
             </p>
           </div>
         )}
