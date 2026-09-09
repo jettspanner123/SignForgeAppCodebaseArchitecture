@@ -1101,7 +1101,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                       <span>Executive Dispatch Routing</span>
                     </h4>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                       <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900/50 border border-slate-200/80 dark:border-zinc-800 space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-slate-900 dark:text-zinc-100 font-mono">
