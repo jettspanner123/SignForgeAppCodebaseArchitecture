@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import SplashScreenLogoStaticComponent from './Components/static/SplashScreenLogoStaticComponent';
 import SplashScreenCON from './Constants/SplashScreenCON';
@@ -30,16 +30,20 @@ export default function SplashScreenController({
     !designationsQuery.isLoading &&
     (designationsQuery.isFetched || designationsQuery.isError);
 
+  const [isReadyToDismiss, setIsReadyToDismiss] = useState(false);
+
   useEffect(() => {
-    // When all queries settle (loaded or errored), hold splash screen for minimum duration before dismissing
+    // When all queries settle (loaded or errored), wait out the minimum display duration,
+    // then signal the animation to dismiss at the end of its CURRENT loop rather than
+    // cutting it off mid-playback.
     if (allQueriesSettled) {
       const timer = setTimeout(() => {
-        onReady();
+        setIsReadyToDismiss(true);
       }, SplashScreenCON.MINIMUM_DISPLAY_DURATION_MS);
 
       return () => clearTimeout(timer);
     }
-  }, [allQueriesSettled, onReady]);
+  }, [allQueriesSettled]);
 
   return (
     <AnimatePresence>
@@ -51,7 +55,10 @@ export default function SplashScreenController({
         transition={{ duration: 0.35, ease: 'easeInOut' }}
         className={`fixed inset-0 z-50 flex items-center justify-center min-h-screen w-screen overflow-hidden ${SplashScreenCON.BG_LIGHT} ${SplashScreenCON.BG_DARK}`}
       >
-        <SplashScreenLogoStaticComponent />
+        <SplashScreenLogoStaticComponent
+          isReadyToDismiss={isReadyToDismiss}
+          onLoopComplete={onReady}
+        />
       </motion.div>
     </AnimatePresence>
   );
