@@ -22,6 +22,7 @@ export default function SplashScreenLogoStaticComponent({
         playsInline
         className="w-full max-w-xs sm:max-w-sm h-auto object-contain pointer-events-none"
       >
+        <source src="/splash-screen-logo-animation.webm" type="video/webm" />
         <source src="/splash-screen-logo-animation.mp4" type="video/mp4" />
       </video>
     </motion.div>
