@@ -179,6 +179,21 @@ export default class ApplicationPDFGeneratorUtility {
       color: cDark,
     });
 
+    const addressLines = (doc.offerDetails.candidateAddress || '')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+    for (const addressLine of addressLines) {
+      curY -= 12;
+      page1.drawText(cleanStr(addressLine), {
+        x: 48,
+        y: curY,
+        size: 8.5,
+        font: fontRegular,
+        color: cDark,
+      });
+    }
+
     curY -= 16;
     const introLine1 = `On behalf of ${cleanStr(doc.companyName || 'We.PLM Global Technologies')}, we are pleased to extend this offer of employment`;
     const introLine2 = `for the position of ${cleanStr(doc.offerDetails.jobTitle)}. We were thoroughly impressed with your experience,`;

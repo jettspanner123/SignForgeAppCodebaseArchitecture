@@ -78,10 +78,23 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   const [candidateDob, setCandidateDob] = useState(
     initialDocument?.offerDetails.candidateDob || ''
   );
-  const [candidateAddress, setCandidateAddress] = useState(
-    initialDocument?.offerDetails.candidateAddress || ''
+  const initialAddressLines = (initialDocument?.offerDetails.candidateAddress || '').split('\n');
+  const [candidateAddressLine1, setCandidateAddressLine1] = useState(initialAddressLines[0] || '');
+  const [candidateAddressLine2, setCandidateAddressLine2] = useState(initialAddressLines[1] || '');
+  const [candidateAddressLine3, setCandidateAddressLine3] = useState(
+    initialAddressLines.slice(2).join('\n') || ''
   );
-  
+  const candidateAddress = [candidateAddressLine1, candidateAddressLine2, candidateAddressLine3]
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join('\n');
+  const setCandidateAddress = (fullAddress: string) => {
+    const parts = fullAddress.split('\n');
+    setCandidateAddressLine1(parts[0] || '');
+    setCandidateAddressLine2(parts[1] || '');
+    setCandidateAddressLine3(parts.slice(2).join('\n') || '');
+  };
+
   const [jobTitle, setJobTitle] = useState(
     initialDocument?.offerDetails.jobTitle || ''
   );
@@ -215,6 +228,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
     const newErrors: Record<string, string> = {};
     if (!candidateName.trim()) newErrors.candidateName = 'Candidate Name is required';
     if (!candidateEmail.trim()) newErrors.candidateEmail = 'Candidate Email is required';
+    if (!candidateAddressLine1.trim()) newErrors.candidateAddressLine1 = 'Candidate Address Line 1 is required';
     if (!jobTitle.trim()) newErrors.jobTitle = 'Job Title is required';
     if (!annualSalary.trim()) newErrors.annualSalary = 'Annual Salary is required';
     if (!joiningDate.trim()) newErrors.joiningDate = 'Joining Date is required';
@@ -924,10 +938,34 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
                       <div className="sm:col-span-2">
                         <InputSharedComponent
-                          label="Candidate Residential Address"
-                          value={candidateAddress}
-                          onChange={(e) => setCandidateAddress(e.target.value)}
-                          placeholder="e.g. Flat 402, Royal Palms, Pimple Saudagar, Pune - 411027"
+                          label="Candidate Address Line 1 *"
+                          name="candidateAddressLine1"
+                          required
+                          value={candidateAddressLine1}
+                          onChange={(e) => {
+                            setCandidateAddressLine1(e.target.value);
+                            setErrors((prev) => ({ ...prev, candidateAddressLine1: '' }));
+                          }}
+                          error={errors.candidateAddressLine1}
+                          placeholder="e.g. Flat 402, Royal Palms, Pimple Saudagar"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <InputSharedComponent
+                          label="Candidate Address Line 2"
+                          value={candidateAddressLine2}
+                          onChange={(e) => setCandidateAddressLine2(e.target.value)}
+                          placeholder="e.g. Near Aundh-Ravet BRTS Road"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <InputSharedComponent
+                          label="Candidate Address Line 3"
+                          value={candidateAddressLine3}
+                          onChange={(e) => setCandidateAddressLine3(e.target.value)}
+                          placeholder="e.g. Pune, Maharashtra - 411027"
                         />
                       </div>
                     </div>
