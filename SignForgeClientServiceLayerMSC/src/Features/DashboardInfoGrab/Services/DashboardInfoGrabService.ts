@@ -83,6 +83,7 @@ export default class DashboardInfoGrabService {
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: this.getAuthHeaders(),
+      cache: 'no-store',
     });
 
     if (!response.ok) {

@@ -319,6 +319,7 @@ export default class EmploymentOfferService {
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: this.getAuthHeaders(),
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -337,6 +338,7 @@ export default class EmploymentOfferService {
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: this.getAuthHeaders(),
+      cache: 'no-store',
     });
 
     if (!response.ok) {
