@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { OfferDocument } from '../Types';
 import { PenTool, ShieldCheck, UserCheck, Mail, Building2, Calendar, MapPin, DollarSign, Award, Briefcase, User } from 'lucide-react';
 import { WePlmLogo } from './WePlmLogo';
@@ -105,6 +105,25 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
     : document.signatureCount || 2;
 
   const errors = interactive?.errors || {};
+
+  // Uncontrolled by design: the editable terms block below is seeded via this ref/effect
+  // exactly once per document, then left alone. Feeding `interactive.termsAndConditionsOverride`
+  // back into the DOM via dangerouslySetInnerHTML on every keystroke (the previous approach)
+  // forces the browser to rebuild the div's child nodes on every render, which resets the caret
+  // to the start of the block — so continuous typing appears to scramble/reverse itself.
+  const termsEditableRef = useRef<HTMLDivElement>(null);
+  const termsSeededForDocId = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!interactive || !termsEditableRef.current) return;
+    if (termsSeededForDocId.current === document.id) return;
+    termsEditableRef.current.innerHTML =
+      interactive.termsAndConditionsOverride || getDefaultTermsAndConditionsHtml(currentCompanyName);
+    termsSeededForDocId.current = document.id;
+    // Intentionally depends only on document.id: re-seeding on every keystroke would
+    // reproduce the caret-reset bug this effect exists to avoid.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [document.id]);
 
   return (
     <div className={`${layoutMode === 'stack' ? 'flex flex-col gap-8' : 'grid grid-cols-1 lg:grid-cols-2 gap-8'} w-full font-sans text-slate-900`}>
@@ -468,16 +487,16 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
           <p className="font-semibold text-slate-700">Hereby agree to the following terms and conditions:</p>
         </div>
 
-        {/* Terms Bullet Points — editable in Interactive Form mode, read-only elsewhere */}
-        {isInteractiveForm && interactive ? (
+        {/* Terms Bullet Points — editable in both Standard and Interactive Form modes within the
+            Offer Builder (wherever `interactive` state is wired up); read-only in Candidate/HR
+            portals, which never pass `interactive` at all. */}
+        {interactive ? (
           <div
+            ref={termsEditableRef}
             contentEditable
             suppressContentEditableWarning
             onInput={(e) => interactive.setTermsAndConditionsOverride(e.currentTarget.innerHTML)}
             className="space-y-3 text-xs text-slate-800 leading-relaxed text-justify outline-none rounded-md -m-1 p-1 focus:ring-1 focus:ring-[#0C2086] cursor-text"
-            dangerouslySetInnerHTML={{
-              __html: interactive.termsAndConditionsOverride || getDefaultTermsAndConditionsHtml(currentCompanyName),
-            }}
           />
         ) : (
           <div
