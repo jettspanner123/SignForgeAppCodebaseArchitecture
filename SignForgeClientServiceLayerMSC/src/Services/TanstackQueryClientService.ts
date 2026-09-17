@@ -181,8 +181,12 @@ export class EmploymentOfferQueryService {
             return [persisted, ...old.filter((o) => o.id !== persisted.id)];
           }
         );
-        await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.DASHBOARD_INFO_GRAB });
-        await queryClient.invalidateQueries({ queryKey: TanstackQueryKeysCON.EMPLOYMENT_OFFERS });
+        // Deliberately no invalidateQueries here: the optimistic writes above already hold
+        // the exact, correct record straight from the create response. An immediate
+        // invalidate-triggered refetch can race the backend's own read-after-write
+        // visibility and land a split second before the new offer is visible there,
+        // silently overwriting this correct data with a stale snapshot. Ordinary staleTime
+        // expiry / window-focus refetches will reconcile with the server soon enough.
         if (options?.onSuccess) {
           (options.onSuccess as (...a: unknown[]) => unknown)(persisted, ...args);
         }

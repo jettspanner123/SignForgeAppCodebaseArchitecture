@@ -58,7 +58,6 @@ export default function DocumentInventoryScreenController({
     setSearchQuery,
     activeStatusFilter,
     setActiveStatusFilter,
-    setSelectedDocId,
     setCurrentView,
     deleteDocument,
   } = useOfferDocumentStore();
@@ -178,13 +177,11 @@ export default function DocumentInventoryScreenController({
   }, [activeDocs, activeStatusFilter, searchQuery]);
 
   const handleOpenCandidatePortal = (doc: OfferDocument) => {
-    setSelectedDocId(doc.id);
-    setCurrentView(ApplicationRouteCON.CANDIDATE_VIEW);
+    setCurrentView(ApplicationRouteCON.CANDIDATE_VIEW, doc.id);
   };
 
   const handleOpenCountersignPortal = (doc: OfferDocument) => {
-    setSelectedDocId(doc.id);
-    setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN);
+    setCurrentView(ApplicationRouteCON.HR_COUNTERSIGN, doc.id);
   };
 
   const handleDownloadPdf = async (doc: OfferDocument) => {
