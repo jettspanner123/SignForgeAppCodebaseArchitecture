@@ -411,31 +411,31 @@ export default function DocumentInventoryScreenController({
       <CardSharedComponent className="p-4 space-y-4">
         {/* Row 1: Search Input & Primary Actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Search Box */}
-          <div className="relative flex-1 max-w-full sm:max-w-md">
-            <Search className="w-4.5 h-4.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by candidate, role, doc #, or email..."
-              className="w-full h-11 sm:h-9 pl-11 pr-4 text-base sm:text-xs rounded-xl sm:rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-300 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
+          {/* Search Box + Refresh Button */}
+          <div className="flex items-center gap-4 flex-1 min-w-0 sm:flex-initial sm:max-w-md">
+            <div className="relative flex-1 min-w-0">
+              <Search className="w-4.5 h-4.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by candidate, role, doc #, or email..."
+                className="w-full h-11 sm:h-9 pl-11 pr-4 text-base sm:text-xs rounded-xl sm:rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-300 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
+              />
+            </div>
+
+            <ButtonSharedComponent
+              variant="outline"
+              size="sm"
+              disabled={isRefetchingDocuments}
+              isLoading={isRefetchingDocuments}
+              loadingText="Refetching..."
+              onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
+              onClick={() => refetchDocuments()}
+              icon={<RefreshCw className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-500 dark:text-zinc-400" />}
+              className="shrink-0 !px-3 sm:!px-2.5 !h-11 sm:!h-9"
             />
           </div>
-
-          <ButtonSharedComponent
-            variant="outline"
-            size="sm"
-            disabled={isRefetchingDocuments}
-            isLoading={isRefetchingDocuments}
-            loadingText="Refetching..."
-            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
-            onClick={() => refetchDocuments()}
-            icon={<RefreshCw className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-500 dark:text-zinc-400" />}
-            className="shrink-0 !px-3 sm:!px-2.5 !h-11 sm:!h-9"
-          >
-            {null}
-          </ButtonSharedComponent>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">

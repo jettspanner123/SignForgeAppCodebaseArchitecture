@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 
 export interface ButtonSharedComponentProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onClick?: () => void;
   onPointerDown?: React.PointerEventHandler<HTMLButtonElement>;
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger';
@@ -93,7 +93,9 @@ export default function ButtonSharedComponent({
       ) : (
         icon && <span className="inline-flex items-center shrink-0">{leftIcon || icon}</span>
       )}
-      <span className="inline-flex items-center whitespace-nowrap">{isLoading && loadingText ? loadingText : children}</span>
+      {(isLoading ? loadingText : children) != null && (
+        <span className="inline-flex items-center whitespace-nowrap">{isLoading && loadingText ? loadingText : children}</span>
+      )}
       {!isLoading && rightIcon && (
         <span className="inline-flex items-center shrink-0">{rightIcon}</span>
       )}
