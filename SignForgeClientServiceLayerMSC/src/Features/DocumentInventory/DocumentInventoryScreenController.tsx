@@ -24,7 +24,8 @@ import {
   Activity,
   TrendingUp,
   Sparkles,
-  Zap
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
 import { OfferDocument } from '../../Types';
@@ -72,7 +73,7 @@ export default function DocumentInventoryScreenController({
   } = useOfferDocumentStore();
 
   // TanStack Query: Live Backend Dashboard Data & Auto-Sync
-  const { data: dashboardData, isLoading: isDashboardLoading } =
+  const { data: dashboardData, isLoading: isDashboardLoading, isFetching: isRefetchingDocuments, refetch: refetchDocuments } =
     TanstackQueryClientService.current.dashboardInfoGrab.useDashboardInfoQuery();
   const deleteOfferMutation =
     TanstackQueryClientService.current.employmentOffer.useDeleteEmploymentOfferMutation();
@@ -421,6 +422,20 @@ export default function DocumentInventoryScreenController({
               className="w-full h-11 sm:h-9 pl-11 pr-4 text-base sm:text-xs rounded-xl sm:rounded-lg bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 border border-slate-300 dark:border-zinc-800 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition-colors"
             />
           </div>
+
+          <ButtonSharedComponent
+            variant="outline"
+            size="sm"
+            disabled={isRefetchingDocuments}
+            isLoading={isRefetchingDocuments}
+            loadingText="Refetching..."
+            onPointerDown={() => ApplicationHapticsUtility.current.triggerHapticFeedback(12)}
+            onClick={() => refetchDocuments()}
+            icon={<RefreshCw className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-500 dark:text-zinc-400" />}
+            className="shrink-0 !px-3 sm:!px-2.5 !h-11 sm:!h-9"
+          >
+            {null}
+          </ButtonSharedComponent>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
