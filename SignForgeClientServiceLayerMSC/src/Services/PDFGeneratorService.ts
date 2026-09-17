@@ -49,28 +49,18 @@ export default class PDFGeneratorService {
           backgroundColor: '#ffffff',
           imageTimeout: 15000,
           onclone: (clonedDoc) => {
-            // Inject print-only styling for tighter horizontal padding and scaled typography
+            // Strip on-screen chrome only (shadow/border) so the exported PDF is a faithful,
+            // pixel-parity capture of the same page the candidate/HR already see. Deliberately
+            // does NOT touch font-size/line-height/text-align: overriding those here reflows
+            // the justified paragraphs at capture time, which causes html2canvas to mismeasure
+            // inter-word gaps and collapse spaces (words visibly running together in the PDF).
             const printStyle = clonedDoc.createElement('style');
             printStyle.innerHTML = `
               #offer-letter-page-1,
               #offer-letter-page-2,
               #offer-letter-page-3 {
-                padding: 32px 38px !important;
-                line-height: 1.4 !important;
                 box-shadow: none !important;
                 border: none !important;
-                background-color: #ffffff !important;
-                color: #0f172a !important;
-                width: 100% !important;
-                max-width: none !important;
-              }
-              #offer-letter-page-1 {
-                font-size: 0.80em !important;
-                text-align: justify !important;
-              }
-              #offer-letter-page-2,
-              #offer-letter-page-3 {
-                font-size: 0.86em !important;
               }
             `;
             clonedDoc.head.appendChild(printStyle);
