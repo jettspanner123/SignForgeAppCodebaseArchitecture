@@ -107,6 +107,18 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
     );
   }
 
+  if (document.status === 'CANCELLED' || document.status === 'VOID') {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-20">
+        <EmptyStateSharedComponent
+          icon={<XCircle className="w-6 h-6" />}
+          title="This Offer Is No Longer Available"
+          description="This employment offer has been withdrawn or cancelled by the issuing organization. Please contact HR if you believe this is a mistake."
+        />
+      </div>
+    );
+  }
+
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
     const result = await PDFGeneratorService.current.generateAndDownloadOfferLetterPDF(document);

@@ -334,11 +334,7 @@ export class EmploymentOfferQueryService {
 
     return useMutation({
       mutationFn: async (offerId: string): Promise<string> => {
-        try {
-          await EmploymentOfferService.current.deleteOffer(offerId);
-        } catch (err) {
-          console.warn('Backend delete sync warning:', err);
-        }
+        await EmploymentOfferService.current.deleteOffer(offerId);
         return offerId;
       },
       onMutate: async (offerId: string) => {
@@ -401,6 +397,16 @@ export class EmploymentOfferQueryService {
             context.previousOffers
           );
         }
+
+        // Restore into local Zustand store since the optimistic removal in onMutate isn't
+        // covered by the query-cache rollback above (the store is a separate source of truth)
+        const restoredDoc =
+          context?.previousDashboard?.offers?.find((o) => o.id === offerId) ||
+          context?.previousOffers?.find((o) => o.id === offerId);
+        if (restoredDoc) {
+          useOfferDocumentStore.getState().addDocument(restoredDoc);
+        }
+
         if (options?.onError) {
           options.onError(err, offerId, context);
         }

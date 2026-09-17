@@ -43,6 +43,7 @@ import ApplicationCryptoUtility from '../../Utilities/ApplicationCryptoUtility';
 import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
 import TanstackQueryClientService from '../../Services/TanstackQueryClientService';
 import DocumentInventorySkeletonStaticComponent from './Components/static/DocumentInventorySkeletonStaticComponent';
+import ToastSharedComponent from '../../Shared/Components/ToastSharedComponent';
 
 export interface DocumentInventoryScreenControllerProps {
   onOpenAuditModalForDoc: (doc: OfferDocument) => void;
@@ -75,8 +76,13 @@ export default function DocumentInventoryScreenController({
   // TanStack Query: Live Backend Dashboard Data & Auto-Sync
   const { data: dashboardData, isLoading: isDashboardLoading, isFetching: isRefetchingDocuments, refetch: refetchDocuments } =
     TanstackQueryClientService.current.dashboardInfoGrab.useDashboardInfoQuery();
+  const [deleteErrorToast, setDeleteErrorToast] = useState<string | null>(null);
   const deleteOfferMutation =
-    TanstackQueryClientService.current.employmentOffer.useDeleteEmploymentOfferMutation();
+    TanstackQueryClientService.current.employmentOffer.useDeleteEmploymentOfferMutation({
+      onError: () => {
+        setDeleteErrorToast('The document could not be deleted. Please check your connection and try again.');
+      },
+    });
 
   const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
   const [docToDelete, setDocToDelete] = useState<OfferDocument | null>(null);
@@ -954,6 +960,15 @@ export default function DocumentInventoryScreenController({
         confirmText="Delete Document"
         cancelText="Cancel"
         variant="danger"
+      />
+
+      {/* 6. Delete Failure Toast (surfaces genuine backend delete failures instead of the doc silently reappearing) */}
+      <ToastSharedComponent
+        isOpen={Boolean(deleteErrorToast)}
+        onClose={() => setDeleteErrorToast(null)}
+        variant="error"
+        title="Delete Failed"
+        message={deleteErrorToast || undefined}
       />
     </div>
   );

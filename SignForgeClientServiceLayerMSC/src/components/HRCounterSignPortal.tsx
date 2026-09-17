@@ -1,18 +1,19 @@
 import EmptyStateSharedComponent from '../Shared/Components/EmptyStateSharedComponent';
 import React, { useState } from 'react';
 import { 
-  ShieldCheck, 
-  PenTool, 
-  Send, 
-  CheckCircle2, 
-  UserCheck, 
-  FileCheck, 
+  ShieldCheck,
+  PenTool,
+  Send,
+  CheckCircle2,
+  UserCheck,
+  FileCheck,
   Download,
   Mail,
   Sparkles,
   Lock,
   X,
-  ExternalLink
+  ExternalLink,
+  XCircle
 } from 'lucide-react';
 import { OfferDocument, SignatureData } from '../Types';
 import { SignatureCanvasModal } from './SignatureCanvas';
@@ -83,6 +84,18 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
           icon={<ShieldCheck className="w-6 h-6" />}
           title="No Offer Selected for Counter-Signing"
           description="There are currently no documents pending HR counter-signature. Please select or create an offer letter in the main dashboard."
+        />
+      </div>
+    );
+  }
+
+  if (document.status === 'CANCELLED' || document.status === 'VOID') {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-20">
+        <EmptyStateSharedComponent
+          icon={<XCircle className="w-6 h-6" />}
+          title="This Offer Is No Longer Available"
+          description="This employment offer has been withdrawn or cancelled and can no longer be counter-signed."
         />
       </div>
     );
