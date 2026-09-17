@@ -145,6 +145,7 @@ export interface OfferDocument {
   pdfFileSize?: number;
   notes?: string;
   offerLetterHtml?: string;
+  termsAndConditionsOverride?: string;
   generatedCandidateUrl?: string;
   generatedCountersignUrl?: string;
   generatedThirdPartyUrl?: string;

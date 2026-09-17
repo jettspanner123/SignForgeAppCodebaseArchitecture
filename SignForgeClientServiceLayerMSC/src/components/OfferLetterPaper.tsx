@@ -29,6 +29,43 @@ export const formatProbationDisplay = (probation: string | number | undefined): 
   return str;
 };
 
+const termsClauseHtml = (title: string, body: string): string =>
+  `<div class="flex items-start space-x-2"><span class="font-bold text-blue-900 shrink-0 mt-0.5">&#10148;</span><p><strong>${title}:</strong> ${body}</p></div>`;
+
+export const getDefaultTermsAndConditionsHtml = (companyName: string): string => {
+  const company = companyName || 'We.PLM Global Technologies (P) Ltd.';
+  return [
+    termsClauseHtml(
+      'Inventory & Asset Management',
+      `During your tenure at ${company} or client deputation offices, any electronic devices (including laptops, computer peripherals, headphones, hard disks, mobiles, etc.) must be handled with utmost care and returned in fully operational condition upon request or exit. The ownership of all devices, tools, and consumables remains solely with ${company}. In case of loss or damaged inventory, the company retains the right to recover total costs from the employee or withhold final settlements.`
+    ),
+    termsClauseHtml(
+      'FOREX & Expense Settlement',
+      'FOREX allowances provided or expense claims incurred during official international/onsite trips must be completely settled with receipts within 30 days of trip conclusion. Unused FOREX balance remains company property and must be refunded immediately.'
+    ),
+    termsClauseHtml(
+      'Joining Bonus Recovery',
+      'Any joining bonus or relocation assistance disbursed to you shall be fully recoverable by the company if you voluntarily resign or leave within 12 months of joining.'
+    ),
+    termsClauseHtml(
+      'Notice Period',
+      'The mandatory notice period after completion of probation is 3 months. Serving the full notice period is strictly required to ensure clean operational handover and formal release.'
+    ),
+    termsClauseHtml(
+      'Onsite Deputation & Obligations',
+      `Once deputed onsite or to client locations, you are expected to comply with all legal, statutory, and moral obligations while representing ${company} at the highest professional standards.`
+    ),
+    termsClauseHtml(
+      'Offshore Service Bond',
+      'Following an onsite assignment exceeding 6 months, you are required to serve a minimum of 6 months offshore to facilitate knowledge transfer. This commitment carries a liquidated damages bond value of 10,00,000 INR.'
+    ),
+    termsClauseHtml(
+      'Organizational Governance',
+      'You agree to operate strictly within the organizational framework, code of conduct, and business policies enforced by the Company from time to time.'
+    ),
+  ].join('');
+};
+
 interface OfferLetterPaperProps {
   document: OfferDocument;
   onOpenSignModal?: () => void;
@@ -431,57 +468,25 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
           <p className="font-semibold text-slate-700">Hereby agree to the following terms and conditions:</p>
         </div>
 
-        {/* Terms Bullet Points */}
-        <div className="space-y-3 text-xs text-slate-800 leading-relaxed text-justify">
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              <strong>Inventory & Asset Management:</strong> During your tenure at {currentCompanyName} or client deputation offices, any electronic devices (including laptops, computer peripherals, headphones, hard disks, mobiles, etc.) must be handled with utmost care and returned in fully operational condition upon request or exit. The ownership of all devices, tools, and consumables remains solely with {currentCompanyName}. In case of loss or damaged inventory, the company retains the right to recover total costs from the employee or withhold final settlements.
-            </p>
-          </div>
-
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              <strong>FOREX & Expense Settlement:</strong> FOREX allowances provided or expense claims incurred during official international/onsite trips must be completely settled with receipts within 30 days of trip conclusion. Unused FOREX balance remains company property and must be refunded immediately.
-            </p>
-          </div>
-
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              <strong>Joining Bonus Recovery:</strong> Any joining bonus or relocation assistance disbursed to you shall be fully recoverable by the company if you voluntarily resign or leave within 12 months of joining.
-            </p>
-          </div>
-
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              <strong>Notice Period:</strong> The mandatory notice period after completion of probation is 3 months. Serving the full notice period is strictly required to ensure clean operational handover and formal release.
-            </p>
-          </div>
-
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              <strong>Onsite Deputation & Obligations:</strong> Once deputed onsite or to client locations, you are expected to comply with all legal, statutory, and moral obligations while representing {currentCompanyName} at the highest professional standards.
-            </p>
-          </div>
-
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              <strong>Offshore Service Bond:</strong> Following an onsite assignment exceeding 6 months, you are required to serve a minimum of 6 months offshore to facilitate knowledge transfer. This commitment carries a liquidated damages bond value of 10,00,000 INR.
-            </p>
-          </div>
-
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              <strong>Organizational Governance:</strong> You agree to operate strictly within the organizational framework, code of conduct, and business policies enforced by the Company from time to time.
-            </p>
-          </div>
-        </div>
+        {/* Terms Bullet Points — editable in Interactive Form mode, read-only elsewhere */}
+        {isInteractiveForm && interactive ? (
+          <div
+            contentEditable
+            suppressContentEditableWarning
+            onInput={(e) => interactive.setTermsAndConditionsOverride(e.currentTarget.innerHTML)}
+            className="space-y-3 text-xs text-slate-800 leading-relaxed text-justify outline-none rounded-md -m-1 p-1 focus:ring-1 focus:ring-[#0C2086] cursor-text"
+            dangerouslySetInnerHTML={{
+              __html: interactive.termsAndConditionsOverride || getDefaultTermsAndConditionsHtml(currentCompanyName),
+            }}
+          />
+        ) : (
+          <div
+            className="space-y-3 text-xs text-slate-800 leading-relaxed text-justify"
+            dangerouslySetInnerHTML={{
+              __html: document.termsAndConditionsOverride || getDefaultTermsAndConditionsHtml(currentCompanyName),
+            }}
+          />
+        )}
         </div>
 
         {/* Page 2 Footer */}

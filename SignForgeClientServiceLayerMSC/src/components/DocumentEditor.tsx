@@ -146,6 +146,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   const [ctoEmail, setCtoEmail] = useState(
     initialDocument?.executives?.cto?.email || 'cto@theweplm.com'
   );
+  const [termsAndConditionsOverride, setTermsAndConditionsOverride] = useState(
+    initialDocument?.termsAndConditionsOverride || ''
+  );
 
   // Live Designations & Work Locations from AS_ConfigurationConstantTBL (1:1 with AssetSphere)
   const { data: designationsMap = {} } =
@@ -412,6 +415,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
     if (paperElement) {
       newDoc.offerLetterHtml = paperElement.innerHTML;
     }
+    newDoc.termsAndConditionsOverride = termsAndConditionsOverride;
 
     try {
       await onSaveAndSend(newDoc);
@@ -473,6 +477,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
     setCtoName,
     ctoEmail,
     setCtoEmail,
+    termsAndConditionsOverride,
+    setTermsAndConditionsOverride,
     errors,
   };
 
@@ -485,6 +491,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
     candidateEmail: candidateEmail || '',
     hrHeadEmail: hrHeadEmail || 'hr@theweplm.com',
     ctoEmail: ctoEmail || 'cto@theweplm.com',
+    termsAndConditionsOverride,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     status: 'OUT_FOR_CANDIDATE_SIGN',

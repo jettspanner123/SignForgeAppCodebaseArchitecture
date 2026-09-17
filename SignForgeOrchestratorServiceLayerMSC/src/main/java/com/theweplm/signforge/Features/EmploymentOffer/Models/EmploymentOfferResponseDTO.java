@@ -85,6 +85,7 @@ public class EmploymentOfferResponseDTO {
 
     // Document & Security
     private String offerLetterHtml;
+    private String termsAndConditionsOverride;
     private String generatedCandidateUrl;
     private String generatedCountersignUrl;
     private String generatedThirdPartyUrl;

@@ -28,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"candidateSignatureData", "counterSignatureData", "thirdPartySignatureData", "offerLetterHtml"})
+@ToString(exclude = {"candidateSignatureData", "counterSignatureData", "thirdPartySignatureData", "offerLetterHtml", "termsAndConditionsOverride"})
 public class EmploymentOfferEntityClass {
 
     @Id
@@ -202,6 +202,9 @@ public class EmploymentOfferEntityClass {
     // Document HTML, Generated URLs & Hashes
     @Column(name = "offer_letter_html", columnDefinition = "TEXT")
     private String offerLetterHtml;
+
+    @Column(name = "terms_and_conditions_override", columnDefinition = "TEXT")
+    private String termsAndConditionsOverride;
 
     @Column(name = "generated_candidate_url", columnDefinition = "TEXT")
     private String generatedCandidateUrl;

@@ -116,6 +116,8 @@ export interface BackendEmploymentOfferDTO {
 
   OfferLetterHtml?: string;
   offerLetterHtml?: string;
+  TermsAndConditionsOverride?: string;
+  termsAndConditionsOverride?: string;
   GeneratedCandidateUrl?: string;
   generatedCandidateUrl?: string;
   GeneratedCountersignUrl?: string;
@@ -212,6 +214,7 @@ export default class EmploymentOfferService {
       updatedAt: dto.UpdatedAt || dto.updatedAt || new Date().toISOString(),
       sha256Checksum: dto.DocumentHash || dto.documentHash || '',
       offerLetterHtml: dto.OfferLetterHtml || dto.offerLetterHtml || '',
+      termsAndConditionsOverride: dto.TermsAndConditionsOverride || dto.termsAndConditionsOverride || '',
       generatedCandidateUrl: dto.GeneratedCandidateUrl || dto.generatedCandidateUrl || '',
       generatedCountersignUrl: dto.GeneratedCountersignUrl || dto.generatedCountersignUrl || '',
       generatedThirdPartyUrl: dto.GeneratedThirdPartyUrl || dto.generatedThirdPartyUrl || '',
@@ -402,6 +405,7 @@ export default class EmploymentOfferService {
         fields: offer.fields,
         directorSignature: offer.directorSignature,
       }) : (offer.offerLetterHtml || ''),
+      TermsAndConditionsOverride: offer.termsAndConditionsOverride || '',
       GeneratedCandidateUrl: offer.generatedCandidateUrl || '',
       DocumentHash: offer.sha256Checksum || '',
       AuditTrailJson: JSON.stringify(offer.auditTrail || []),
