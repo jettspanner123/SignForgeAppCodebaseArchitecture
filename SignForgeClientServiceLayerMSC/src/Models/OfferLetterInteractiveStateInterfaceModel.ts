@@ -49,6 +49,8 @@ export interface OfferLetterInteractiveStateInterfaceModel {
   setCtoEmail: (val: string) => void;
   termsAndConditionsOverride: string;
   setTermsAndConditionsOverride: (val: string) => void;
+  terminationClausesOverride: string;
+  setTerminationClausesOverride: (val: string) => void;
   errors?: Record<string, string>;
 }
 

@@ -120,6 +120,8 @@ export interface BackendEmploymentOfferDTO {
   offerLetterHtml?: string;
   TermsAndConditionsOverride?: string;
   termsAndConditionsOverride?: string;
+  TerminationClausesOverride?: string;
+  terminationClausesOverride?: string;
   GeneratedCandidateUrl?: string;
   generatedCandidateUrl?: string;
   GeneratedCountersignUrl?: string;
@@ -217,6 +219,7 @@ export default class EmploymentOfferService {
       sha256Checksum: dto.DocumentHash || dto.documentHash || '',
       offerLetterHtml: dto.OfferLetterHtml || dto.offerLetterHtml || '',
       termsAndConditionsOverride: dto.TermsAndConditionsOverride || dto.termsAndConditionsOverride || '',
+      terminationClausesOverride: dto.TerminationClausesOverride || dto.terminationClausesOverride || '',
       generatedCandidateUrl: dto.GeneratedCandidateUrl || dto.generatedCandidateUrl || '',
       generatedCountersignUrl: dto.GeneratedCountersignUrl || dto.generatedCountersignUrl || '',
       generatedThirdPartyUrl: dto.GeneratedThirdPartyUrl || dto.generatedThirdPartyUrl || '',
@@ -410,6 +413,7 @@ export default class EmploymentOfferService {
         directorSignature: offer.directorSignature,
       }) : (offer.offerLetterHtml || ''),
       TermsAndConditionsOverride: offer.termsAndConditionsOverride || '',
+      TerminationClausesOverride: offer.terminationClausesOverride || '',
       GeneratedCandidateUrl: offer.generatedCandidateUrl || '',
       DocumentHash: offer.sha256Checksum || '',
       AuditTrailJson: JSON.stringify(offer.auditTrail || []),

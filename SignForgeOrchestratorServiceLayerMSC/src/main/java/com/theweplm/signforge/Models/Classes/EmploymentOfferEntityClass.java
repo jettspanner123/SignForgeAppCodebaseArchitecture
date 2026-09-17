@@ -28,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"candidateSignatureData", "counterSignatureData", "thirdPartySignatureData", "offerLetterHtml", "termsAndConditionsOverride"})
+@ToString(exclude = {"candidateSignatureData", "counterSignatureData", "thirdPartySignatureData", "offerLetterHtml", "termsAndConditionsOverride", "terminationClausesOverride"})
 public class EmploymentOfferEntityClass {
 
     @Id
@@ -208,6 +208,9 @@ public class EmploymentOfferEntityClass {
 
     @Column(name = "terms_and_conditions_override", columnDefinition = "TEXT")
     private String termsAndConditionsOverride;
+
+    @Column(name = "termination_clauses_override", columnDefinition = "TEXT")
+    private String terminationClausesOverride;
 
     @Column(name = "generated_candidate_url", columnDefinition = "TEXT")
     private String generatedCandidateUrl;

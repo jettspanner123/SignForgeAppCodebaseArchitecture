@@ -66,6 +66,22 @@ export const getDefaultTermsAndConditionsHtml = (companyName: string): string =>
   ].join('');
 };
 
+const terminationClauseHtml = (body: string, title?: string): string =>
+  `<div class="flex items-start space-x-2"><span class="font-bold text-blue-900 shrink-0 mt-0.5">&#10146;</span><p>${title ? `<strong>${title}:</strong> ` : ''}${body}</p></div>`;
+
+export const getDefaultTerminationClausesHtml = (companyName: string): string => {
+  const company = companyName || 'We.PLM Global Technologies (P) Ltd.';
+  return [
+    terminationClauseHtml(
+      'The Company shall be entitled to terminate your engagement immediately and without notice in cases of neglect of duties, breach of statutory policies, misappropriation of property, moral turpitude, fraudulent activity, or submission of forged documents.'
+    ),
+    terminationClauseHtml(
+      `You shall not disclose any proprietary or confidential information of ${company} to third parties. All intellectual property generated during your employment belongs exclusively to the Company.`,
+      'Confidentiality & Non-Disclosure'
+    ),
+  ].join('');
+};
+
 interface OfferLetterPaperProps {
   document: OfferDocument;
   onOpenSignModal?: () => void;
@@ -122,6 +138,18 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
     termsSeededForDocId.current = document.id;
     // Intentionally depends only on document.id: re-seeding on every keystroke would
     // reproduce the caret-reset bug this effect exists to avoid.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [document.id]);
+
+  const terminationEditableRef = useRef<HTMLDivElement>(null);
+  const terminationSeededForDocId = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!interactive || !terminationEditableRef.current) return;
+    if (terminationSeededForDocId.current === document.id) return;
+    terminationEditableRef.current.innerHTML =
+      interactive.terminationClausesOverride || getDefaultTerminationClausesHtml(currentCompanyName);
+    terminationSeededForDocId.current = document.id;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [document.id]);
 
@@ -541,23 +569,27 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
           </div>
         </div>
 
-        {/* Term and Termination Section */}
-        <div className="space-y-3 text-xs text-slate-800 leading-relaxed text-justify">
+        {/* Term and Termination Section — editable wherever `interactive` state is wired up
+            (both Offer Builder form modes); read-only in Candidate/HR portals. */}
+        <div className="space-y-3">
           <h3 className="font-bold text-slate-900 text-sm">Term and Termination:</h3>
-          
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              The Company shall be entitled to terminate your engagement immediately and without notice in cases of neglect of duties, breach of statutory policies, misappropriation of property, moral turpitude, fraudulent activity, or submission of forged documents.
-            </p>
-          </div>
 
-          <div className="flex items-start space-x-2">
-            <span className="font-bold text-blue-900 shrink-0 mt-0.5">➢</span>
-            <p>
-              <strong>Confidentiality & Non-Disclosure:</strong> You shall not disclose any proprietary or confidential information of {currentCompanyName} to third parties. All intellectual property generated during your employment belongs exclusively to the Company.
-            </p>
-          </div>
+          {interactive ? (
+            <div
+              ref={terminationEditableRef}
+              contentEditable
+              suppressContentEditableWarning
+              onInput={(e) => interactive.setTerminationClausesOverride(e.currentTarget.innerHTML)}
+              className="space-y-3 text-xs text-slate-800 leading-relaxed text-justify outline-none rounded-md -m-1 p-1 focus:ring-1 focus:ring-[#0C2086] cursor-text"
+            />
+          ) : (
+            <div
+              className="space-y-3 text-xs text-slate-800 leading-relaxed text-justify"
+              dangerouslySetInnerHTML={{
+                __html: document.terminationClausesOverride || getDefaultTerminationClausesHtml(currentCompanyName),
+              }}
+            />
+          )}
         </div>
 
         {/* Candidate Acceptance Header */}

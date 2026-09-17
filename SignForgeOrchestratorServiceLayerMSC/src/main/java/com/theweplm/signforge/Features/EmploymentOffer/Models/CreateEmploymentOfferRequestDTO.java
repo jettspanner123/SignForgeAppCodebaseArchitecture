@@ -54,6 +54,7 @@ public class CreateEmploymentOfferRequestDTO {
     // Document & Security
     private String offerLetterHtml;
     private String termsAndConditionsOverride;
+    private String terminationClausesOverride;
     private String generatedCandidateUrl;
     private String documentHash;
     private String auditTrailJson;
