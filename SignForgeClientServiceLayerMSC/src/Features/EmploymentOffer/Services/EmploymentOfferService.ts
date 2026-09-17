@@ -18,6 +18,8 @@ export interface BackendEmploymentOfferDTO {
   candidateEmail?: string;
   CandidatePhone?: string;
   candidatePhone?: string;
+  CandidateAddress?: string;
+  candidateAddress?: string;
 
   Designation?: string;
   designation?: string;
@@ -223,6 +225,7 @@ export default class EmploymentOfferService {
         candidateName,
         candidateEmail,
         candidatePhone: dto.CandidatePhone || dto.candidatePhone,
+        candidateAddress: dto.CandidateAddress || dto.candidateAddress || '',
         jobTitle: designation,
         roleTitle: designation,
         department,
@@ -376,6 +379,7 @@ export default class EmploymentOfferService {
       CandidateName: offer.offerDetails.candidateName?.trim() || 'Candidate',
       CandidateEmail: offer.offerDetails.candidateEmail?.trim() || '',
       CandidatePhone: offer.offerDetails.candidatePhone?.trim() || '',
+      CandidateAddress: offer.offerDetails.candidateAddress?.trim() || '',
       Designation: offer.offerDetails.jobTitle?.trim() || offer.offerDetails.roleTitle?.trim() || offer.title?.trim() || 'Professional',
       Department: offer.offerDetails.department?.trim() || 'Engineering',
       EmploymentType: 'Full-Time',

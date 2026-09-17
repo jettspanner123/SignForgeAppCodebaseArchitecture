@@ -57,6 +57,9 @@ public class EmploymentOfferEntityClass {
     @Column(name = "candidate_phone", length = 50)
     private String candidatePhone;
 
+    @Column(name = "candidate_address", columnDefinition = "TEXT")
+    private String candidateAddress;
+
     // Position & Role Details
     @Column(name = "designation", nullable = false, length = 200)
     private String designation;

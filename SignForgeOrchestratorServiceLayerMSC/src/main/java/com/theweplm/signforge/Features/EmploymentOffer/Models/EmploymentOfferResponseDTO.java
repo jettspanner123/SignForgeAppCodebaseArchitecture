@@ -24,6 +24,7 @@ public class EmploymentOfferResponseDTO {
     private String candidateName;
     private String candidateEmail;
     private String candidatePhone;
+    private String candidateAddress;
 
     // Position Details
     private String designation;
