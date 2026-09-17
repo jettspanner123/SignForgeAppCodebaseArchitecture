@@ -412,8 +412,8 @@ export default function DocumentInventoryScreenController({
         {/* Row 1: Search Input & Primary Actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search Box + Refresh Button */}
-          <div className="flex items-center gap-4 flex-1 min-w-0 sm:flex-initial sm:max-w-md">
-            <div className="relative flex-1 min-w-0">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="relative flex-1 min-w-0 sm:max-w-md">
               <Search className="w-4.5 h-4.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 pointer-events-none" />
               <input
                 type="text"
