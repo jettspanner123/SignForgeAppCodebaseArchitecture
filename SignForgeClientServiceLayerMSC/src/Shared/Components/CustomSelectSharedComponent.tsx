@@ -128,7 +128,7 @@ export default function CustomSelectSharedComponent({
   const isSearchActive = searchable || enableCustomValue;
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`relative self-start ${className}`} ref={dropdownRef}>
       {label && (
         <label className="text-xs font-medium text-slate-600 dark:text-zinc-400 mb-1 block">
           {label}
