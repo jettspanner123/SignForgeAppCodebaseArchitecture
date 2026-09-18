@@ -1,1 +1,6 @@
-export type UserRoleType = 'HR_ADMIN' | 'RECRUITER' | 'EXECUTIVE' | 'CANDIDATE' | 'AUDITOR';
+export enum UserRoleType {
+  HR_MANAGER = 'HR_MANAGER',
+  ADMIN = 'ADMIN',
+  EXECUTIVE_DIRECTOR = 'EXECUTIVE_DIRECTOR',
+  DEVELOPER = 'DEVELOPER',
+}

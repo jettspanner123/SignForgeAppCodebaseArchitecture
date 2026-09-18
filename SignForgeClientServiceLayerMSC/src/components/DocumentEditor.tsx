@@ -27,6 +27,9 @@ import PrimaryActionButtonSharedComponent from '../Shared/Components/PrimaryActi
 import InputSharedComponent from '../Shared/Components/InputSharedComponent';
 import CustomSelectSharedComponent, { SelectOption } from '../Shared/Components/CustomSelectSharedComponent';
 import TanstackQueryClientService from '../Services/TanstackQueryClientService';
+import ApplicationPermissionService from '../Services/ApplicationPermissionService';
+import ApplicationPermissionCON from '../Constants/ApplicationPermissionCON';
+import useAuthenticationStateStore from '../Store/AuthenticationStateStore';
 import CreateDepartmentModalController from './CreateDepartmentModalController';
 import CreateDesignationModalController from './CreateDesignationModalController';
 import CreateWorkLocationModalController from './CreateWorkLocationModalController';
@@ -165,6 +168,11 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   const [isCreateDepartmentOpen, setIsCreateDepartmentOpen] = useState(false);
   const [isCreateDesignationOpen, setIsCreateDesignationOpen] = useState(false);
   const [isCreateWorkLocationOpen, setIsCreateWorkLocationOpen] = useState(false);
+  // Subscribed (not just read via getState()) so this recomputes reactively if auth state changes
+  useAuthenticationStateStore((state) => state.user?.role);
+  const canCreateWorkLocation = ApplicationPermissionService.current.hasPermission(
+    ApplicationPermissionCON.CAN_CREATE_WORK_LOCATION
+  );
 
   const departmentOptions: SelectOption[] = React.useMemo(() => {
     const opts = departmentKeys.map((dept) => ({ value: dept, label: dept }));
@@ -1108,11 +1116,15 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
                         searchable={true}
                         searchPlaceholder="Search work locations..."
                         size="md"
-                        footerAction={{
-                          label: 'Create New Work Location',
-                          icon: <Plus className="w-3.5 h-3.5" />,
-                          onClick: () => setIsCreateWorkLocationOpen(true),
-                        }}
+                        footerAction={
+                          canCreateWorkLocation
+                            ? {
+                                label: 'Create New Work Location',
+                                icon: <Plus className="w-3.5 h-3.5" />,
+                                onClick: () => setIsCreateWorkLocationOpen(true),
+                              }
+                            : undefined
+                        }
                       />
 
                       <InputSharedComponent
