@@ -107,8 +107,8 @@ export default class ConfigurationConstantService {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
-        department: department.trim(),
-        designation: designation.trim(),
+        Department: department.trim(),
+        Designation: designation.trim(),
       }),
     });
 
@@ -141,7 +141,7 @@ export default class ConfigurationConstantService {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
-        department: department.trim(),
+        Department: department.trim(),
       }),
     });
 
@@ -174,7 +174,7 @@ export default class ConfigurationConstantService {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({
-        location: location.trim(),
+        Location: location.trim(),
       }),
     });
 

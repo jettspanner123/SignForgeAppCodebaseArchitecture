@@ -107,6 +107,7 @@ export default function CreateDesignationModalController({
       title="Create New Designation"
       subtitle="Register a new job role title mapped directly to an enterprise department"
       maxWidth="md"
+      minHeight="min-h-[65vh] sm:min-h-[420px]"
       zIndex={60}
       footer={
         <div className="flex items-center justify-end gap-2.5 w-full">
