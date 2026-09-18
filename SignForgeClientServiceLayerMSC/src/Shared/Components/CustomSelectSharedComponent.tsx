@@ -33,6 +33,7 @@ export interface CustomSelectSharedComponentProps {
   customValueLabel?: string;
   formatDisplayValue?: (val: string) => string;
   footerAction?: SelectFooterAction;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 export default function CustomSelectSharedComponent({
@@ -50,6 +51,7 @@ export default function CustomSelectSharedComponent({
   enableCustomValue = false,
   formatDisplayValue,
   footerAction,
+  onOpenChange,
 }: CustomSelectSharedComponentProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,6 +61,7 @@ export default function CustomSelectSharedComponent({
   const selectedOption = options.find((opt) => opt.value === value);
 
   useEffect(() => {
+    onOpenChange?.(isOpen);
     if (!isOpen) {
       setSearchTerm('');
       return;
