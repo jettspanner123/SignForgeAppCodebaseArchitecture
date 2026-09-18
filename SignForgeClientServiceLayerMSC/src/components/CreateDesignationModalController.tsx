@@ -32,7 +32,16 @@ export default function CreateDesignationModalController({
   const [designationName, setDesignationName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [exitDirection, setExitDirection] = useState<'down' | 'up'>('down');
-  const [isDepartmentDropdownOpen, setIsDepartmentDropdownOpen] = useState(false);
+  const [expandedBodyMinHeightPx, setExpandedBodyMinHeightPx] = useState(0);
+
+  const handleDepartmentDropdownOpenChange = (open: boolean) => {
+    if (open) {
+      const isMobileViewport = typeof window !== 'undefined' && window.innerWidth < 640;
+      setExpandedBodyMinHeightPx(isMobileViewport ? window.innerHeight * 0.65 : 420);
+    } else {
+      setExpandedBodyMinHeightPx(0);
+    }
+  };
   const inputRef = React.useRef<HTMLInputElement>(null);
   const isClosingRef = React.useRef(false);
 
@@ -108,7 +117,7 @@ export default function CreateDesignationModalController({
       title="Create New Designation"
       subtitle="Register a new job role title mapped directly to an enterprise department"
       maxWidth="md"
-      minHeight={isDepartmentDropdownOpen ? 'min-h-[65vh] sm:min-h-[420px]' : undefined}
+      minHeightPx={expandedBodyMinHeightPx}
       zIndex={60}
       footer={
         <div className="flex items-center justify-end gap-2.5 w-full">
@@ -152,7 +161,7 @@ export default function CreateDesignationModalController({
             searchable={true}
             searchPlaceholder="Search departments..."
             size="sm"
-            onOpenChange={setIsDepartmentDropdownOpen}
+            onOpenChange={handleDepartmentDropdownOpenChange}
           />
         </div>
 

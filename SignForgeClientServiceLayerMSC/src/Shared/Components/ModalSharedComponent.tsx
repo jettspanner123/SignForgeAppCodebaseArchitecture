@@ -11,7 +11,9 @@ export interface ModalSharedComponentProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
-  minHeight?: string;
+  /** Animated minimum body height in pixels. Driven via framer-motion's `animate` (not a CSS
+   * class) because CSS transitions cannot interpolate min-height to/from its default `auto`. */
+  minHeightPx?: number;
   scrollMode?: 'backdrop' | 'body';
   animationType?: 'scale' | 'slide-up';
   exitDirection?: 'down' | 'up';
@@ -27,7 +29,7 @@ export default function ModalSharedComponent({
   children,
   footer,
   maxWidth = '2xl',
-  minHeight,
+  minHeightPx,
   scrollMode = 'backdrop',
   animationType = 'slide-up',
   exitDirection: exitDirectionProp = 'down',
@@ -36,8 +38,47 @@ export default function ModalSharedComponent({
 }: ModalSharedComponentProps): React.JSX.Element | null {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const dialogCardRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const minHeightAnimFrameRef = useRef<number | null>(null);
   const [internalExitDirection, setInternalExitDirection] = useState<'down' | 'up'>(exitDirectionProp);
   const prevOpenRef = useRef(isOpen);
+
+  // Manually rAF-driven instead of a framer-motion `animate` prop: min-height did not reliably
+  // pick up animated numeric values through motion's style engine in testing, so this drives the
+  // inline style directly, which is guaranteed to work regardless of that.
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    const target = minHeightPx ?? 0;
+    const start = parseFloat(el.style.minHeight) || 0;
+    if (start === target) return;
+
+    if (minHeightAnimFrameRef.current !== null) {
+      cancelAnimationFrame(minHeightAnimFrameRef.current);
+    }
+
+    const duration = 350;
+    const startTime = performance.now();
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const tick = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const value = start + (target - start) * easeOutCubic(progress);
+      el.style.minHeight = `${value}px`;
+      if (progress < 1) {
+        minHeightAnimFrameRef.current = requestAnimationFrame(tick);
+      } else {
+        minHeightAnimFrameRef.current = null;
+      }
+    };
+
+    minHeightAnimFrameRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (minHeightAnimFrameRef.current !== null) {
+        cancelAnimationFrame(minHeightAnimFrameRef.current);
+      }
+    };
+  }, [minHeightPx]);
 
   useEffect(() => {
     setInternalExitDirection(exitDirectionProp);
@@ -191,12 +232,17 @@ export default function ModalSharedComponent({
               </div>
             )}
 
-            <div className={`p-5 sm:p-6 flex-1 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-none transition-[min-height] duration-300 ease-out ${scrollMode === 'body' ? 'overflow-y-auto' : ''} ${minHeight ? minHeight : ''}`}>
+            <div
+              ref={bodyRef}
+              className={`p-5 sm:p-6 flex-1 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-none ${scrollMode === 'body' ? 'overflow-y-auto' : ''}`}
+            >
               {children}
             </div>
 
             {footer && (
-              <div className="px-5 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#08080a] shrink-0 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pb-4">
+              <div
+                className="px-5 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-[#08080a] shrink-0 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pb-4"
+              >
                 {footer}
               </div>
             )}
