@@ -213,9 +213,7 @@ export default function ModalSharedComponent({
           key="modal-portal-container"
           ref={scrollContainerRef}
           style={{ zIndex }}
-          className={`fixed inset-0 flex ${
-            heightMode === 'full' ? 'items-start' : 'items-end sm:items-start'
-          } justify-center p-0 sm:p-6 overflow-y-auto overflow-x-hidden w-[100dvw] h-[100dvh]`}
+          className="fixed inset-0 flex items-end sm:items-start justify-center p-0 sm:p-6 overflow-y-auto overflow-x-hidden w-[100dvw] h-[100dvh]"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 1, transition: { duration: 0.55 } }}
@@ -238,8 +236,8 @@ export default function ModalSharedComponent({
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`relative w-[100dvw] sm:w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-t-2xl rounded-b-none sm:rounded-2xl shadow-2xl z-10 my-0 sm:my-8 flex flex-col shrink-0 ${
-              heightMode === 'full' ? '' : 'max-h-[92dvh] sm:max-h-[90vh]'
+            className={`relative w-[100dvw] sm:w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-t-2xl rounded-b-none sm:rounded-2xl shadow-2xl z-10 my-0 sm:my-8 flex flex-col shrink-0 max-h-[92dvh] ${
+              heightMode === 'full' ? 'sm:max-h-none' : 'sm:max-h-[90vh]'
             }`}
           >
             {(title || subtitle) && (
@@ -277,10 +275,8 @@ export default function ModalSharedComponent({
 
             <div
               ref={bodyRef}
-              className={`p-5 sm:p-6 flex-1 ${
-                heightMode === 'full'
-                  ? ''
-                  : `overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-none ${scrollMode === 'body' ? 'overflow-y-auto' : ''}`
+              className={`p-5 sm:p-6 flex-1 overflow-y-auto max-h-[calc(92dvh-130px)] ${
+                heightMode === 'full' ? 'sm:max-h-none sm:overflow-visible' : 'sm:max-h-none'
               }`}
             >
               {children}
