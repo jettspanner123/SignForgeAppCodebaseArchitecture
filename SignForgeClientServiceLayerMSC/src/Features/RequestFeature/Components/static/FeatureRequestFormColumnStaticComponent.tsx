@@ -1,21 +1,18 @@
 import React from 'react';
 import {
-  Lock,
   Send,
   Sparkles,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
-  Plus,
   FileText,
 } from 'lucide-react';
 import RequestFeatureCON from '../../Constants/RequestFeatureCON';
-import { UserSummaryModel, FeatureRequestResponseModel } from '../../Models/RequestFeatureModel';
+import { FeatureRequestResponseModel } from '../../Models/RequestFeatureModel';
 import CustomSelectSharedComponent, { SelectOption } from '../../../../Shared/Components/CustomSelectSharedComponent';
 import PrimaryActionButtonSharedComponent from '../../../../Shared/Components/PrimaryActionButtonSharedComponent';
 
 interface FeatureRequestFormColumnStaticComponentProps {
-  selectedUser: UserSummaryModel | null;
   title: string;
   featureType: string;
   description: string;
@@ -30,7 +27,6 @@ interface FeatureRequestFormColumnStaticComponentProps {
 }
 
 export default function FeatureRequestFormColumnStaticComponent({
-  selectedUser,
   title,
   featureType,
   description,
@@ -43,8 +39,6 @@ export default function FeatureRequestFormColumnStaticComponent({
   onSubmit,
   onReset,
 }: FeatureRequestFormColumnStaticComponentProps): React.JSX.Element {
-  const isLocked = !selectedUser;
-
   const featureTypeOptions: SelectOption[] = React.useMemo(() => {
     return RequestFeatureCON.FEATURE_TYPES.map((type) => ({
       value: type.value,
@@ -125,32 +119,10 @@ export default function FeatureRequestFormColumnStaticComponent({
           <span>Feature Specification & Scope</span>
         </h4>
 
-        {/* Form Container with Disabled Overlay */}
+        {/* Form Container */}
         <div className="relative">
-          {/* Disabled Lock Overlay */}
-          {isLocked && (
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-50/80 dark:bg-zinc-950/80 backdrop-blur-[2px] rounded-xl p-6 text-center space-y-3 animate-in fade-in duration-200">
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 shadow-sm">
-                <Lock className="w-6 h-6 text-[#0C2086] dark:text-blue-400" />
-              </div>
-              <div className="max-w-xs space-y-1">
-                <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-                  Account Selection Required
-                </h3>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-                  Select a user account in the left panel to begin your proposal.
-                </p>
-              </div>
-            </div>
-          )}
-
           {/* Actual Form Fields */}
-          <form
-            onSubmit={onSubmit}
-            className={`space-y-5 transition-all duration-200 ${
-              isLocked ? 'opacity-40 pointer-events-none select-none' : ''
-            }`}
-          >
+          <form onSubmit={onSubmit} className="space-y-5">
             {/* Title */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -168,7 +140,6 @@ export default function FeatureRequestFormColumnStaticComponent({
                 <input
                   id="feature-title-input"
                   type="text"
-                  disabled={isLocked}
                   maxLength={RequestFeatureCON.MAX_TITLE_LENGTH}
                   value={title}
                   onChange={(e) => onChangeTitle(e.target.value)}
@@ -235,7 +206,6 @@ export default function FeatureRequestFormColumnStaticComponent({
               <textarea
                 id="feature-description-input"
                 rows={5}
-                disabled={isLocked}
                 maxLength={RequestFeatureCON.MAX_DESCRIPTION_LENGTH}
                 value={description}
                 onChange={(e) => onChangeDescription(e.target.value)}
@@ -262,7 +232,7 @@ export default function FeatureRequestFormColumnStaticComponent({
 
               <PrimaryActionButtonSharedComponent
                 type="submit"
-                disabled={isLocked || isSubmitting}
+                disabled={isSubmitting}
                 isLoading={isSubmitting}
                 loadingText="Submitting Proposal..."
                 icon={<Send className="w-4 h-4 sm:w-3.5 sm:h-3.5 !text-white" />}

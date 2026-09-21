@@ -10,7 +10,6 @@ export interface UserSummaryModel {
 }
 
 export interface CreateFeatureRequestPayload {
-  targetUserId: string;
   title: string;
   featureType: string;
   description: string;

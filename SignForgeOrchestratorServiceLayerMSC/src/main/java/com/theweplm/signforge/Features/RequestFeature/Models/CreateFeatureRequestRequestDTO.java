@@ -1,7 +1,6 @@
 package com.theweplm.signforge.Features.RequestFeature.Models;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,9 +17,8 @@ import java.util.UUID;
 @ToString
 public class CreateFeatureRequestRequestDTO {
 
-    @NotNull(message = "Target user account ID is required")
-    @com.fasterxml.jackson.annotation.JsonAlias({"targetUserId", "target_user_id", "TargetUserId"})
-    private UUID targetUserId;
+    // Intentionally no targetUserId field: a feature request is always attributed to the
+    // authenticated caller (see FeatureRequestController/Service), never a client-supplied account.
 
     @NotBlank(message = "Feature title is required")
     @Size(min = 5, max = 255, message = "Feature title must be between 5 and 255 characters")

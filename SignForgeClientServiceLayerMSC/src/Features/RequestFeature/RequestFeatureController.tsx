@@ -1,17 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import RequestFeatureCON from './Constants/RequestFeatureCON';
-import {
-  UserSummaryModel,
-  FeatureRequestResponseModel,
-} from './Models/RequestFeatureModel';
+import { FeatureRequestResponseModel } from './Models/RequestFeatureModel';
 import RequestFeatureService from './Services/RequestFeatureService';
 import RequestFeatureStaticComponent from './Components/static/RequestFeatureStaticComponent';
 import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility';
+import useAuthenticationStateStore from '../../Store/AuthenticationStateStore';
 
 export default function RequestFeatureController(): React.JSX.Element {
-  const [users, setUsers] = useState<UserSummaryModel[]>([]);
-  const [selectedUser, setSelectedUser] = useState<UserSummaryModel | null>(null);
-  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
+  const currentUser = useAuthenticationStateStore((state) => state.user);
 
   const [title, setTitle] = useState<string>('');
   const [featureType, setFeatureType] = useState<string>('');
@@ -23,39 +19,6 @@ export default function RequestFeatureController(): React.JSX.Element {
     description?: string;
   }>({});
   const [submittedRequest, setSubmittedRequest] = useState<FeatureRequestResponseModel | null>(null);
-
-  // Load Active Users on Mount
-  useEffect(() => {
-    let isMounted = true;
-    const loadUsers = async () => {
-      try {
-        setIsLoadingUsers(true);
-        const fetchedUsers = await RequestFeatureService.current.fetchActiveUsers();
-        if (isMounted) {
-          setUsers(fetchedUsers);
-        }
-      } catch (error) {
-        console.error('Failed to load active users:', error);
-      } finally {
-        if (isMounted) {
-          setIsLoadingUsers(false);
-        }
-      }
-    };
-
-    loadUsers();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleSelectUser = useCallback((user: UserSummaryModel | null) => {
-    ApplicationHapticsUtility.current.triggerHapticFeedback(10);
-    setSelectedUser(user);
-    if (!user) {
-      setValidationErrors({});
-    }
-  }, []);
 
   const handleChangeTitle = useCallback((val: string) => {
     setTitle(val);
@@ -97,7 +60,6 @@ export default function RequestFeatureController(): React.JSX.Element {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedUser) return;
 
     if (!validateForm()) {
       ApplicationHapticsUtility.current.triggerHapticFeedback(20);
@@ -109,7 +71,6 @@ export default function RequestFeatureController(): React.JSX.Element {
       ApplicationHapticsUtility.current.triggerHapticFeedback(15);
 
       const response = await RequestFeatureService.current.submitFeatureRequest({
-        targetUserId: selectedUser.id,
         title: title.trim(),
         featureType: featureType.trim(),
         description: description.trim(),
@@ -132,21 +93,17 @@ export default function RequestFeatureController(): React.JSX.Element {
     setDescription('');
     setValidationErrors({});
     setSubmittedRequest(null);
-    setSelectedUser(null);
   }, []);
 
   return (
     <RequestFeatureStaticComponent
-      users={users}
-      selectedUser={selectedUser}
-      isLoadingUsers={isLoadingUsers}
+      currentUser={currentUser}
       title={title}
       featureType={featureType}
       description={description}
       isSubmitting={isSubmitting}
       validationErrors={validationErrors}
       submittedRequest={submittedRequest}
-      onSelectUser={handleSelectUser}
       onChangeTitle={handleChangeTitle}
       onChangeFeatureType={handleChangeFeatureType}
       onChangeDescription={handleChangeDescription}

@@ -1,21 +1,18 @@
 import React from 'react';
-import { Sparkles, MessageSquarePlus } from 'lucide-react';
+import { UserCheck } from 'lucide-react';
 import RequestFeatureCON from '../../Constants/RequestFeatureCON';
-import { UserSummaryModel, FeatureRequestResponseModel } from '../../Models/RequestFeatureModel';
-import UserSelectorColumnStaticComponent from './UserSelectorColumnStaticComponent';
+import { FeatureRequestResponseModel } from '../../Models/RequestFeatureModel';
+import { UserProfileType } from '../../../LoginScreen/Models/LoginScreenModel';
 import FeatureRequestFormColumnStaticComponent from './FeatureRequestFormColumnStaticComponent';
 
 interface RequestFeatureStaticComponentProps {
-  users: UserSummaryModel[];
-  selectedUser: UserSummaryModel | null;
-  isLoadingUsers: boolean;
+  currentUser: UserProfileType | null;
   title: string;
   featureType: string;
   description: string;
   isSubmitting: boolean;
   validationErrors: { title?: string; featureType?: string; description?: string };
   submittedRequest: FeatureRequestResponseModel | null;
-  onSelectUser: (user: UserSummaryModel | null) => void;
   onChangeTitle: (value: string) => void;
   onChangeFeatureType: (value: string) => void;
   onChangeDescription: (value: string) => void;
@@ -24,16 +21,13 @@ interface RequestFeatureStaticComponentProps {
 }
 
 export default function RequestFeatureStaticComponent({
-  users,
-  selectedUser,
-  isLoadingUsers,
+  currentUser,
   title,
   featureType,
   description,
   isSubmitting,
   validationErrors,
   submittedRequest,
-  onSelectUser,
   onChangeTitle,
   onChangeFeatureType,
   onChangeDescription,
@@ -41,7 +35,7 @@ export default function RequestFeatureStaticComponent({
   onReset,
 }: RequestFeatureStaticComponentProps): React.JSX.Element {
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
+    <div className="space-y-6 max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-150">
       {/* 1. Standard Page Header matching /documents & /create-offer */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800/80 pb-6">
         <div>
@@ -56,32 +50,38 @@ export default function RequestFeatureStaticComponent({
         </div>
       </div>
 
-      {/* 2. 2-Column Responsive Layout */}
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* Left Column: User Account Selector (~30% width) */}
-        <UserSelectorColumnStaticComponent
-          users={users}
-          selectedUser={selectedUser}
-          isLoadingUsers={isLoadingUsers}
-          onSelectUser={onSelectUser}
-        />
-
-        {/* Right Column: Feature Specification Form (~70% width) */}
-        <FeatureRequestFormColumnStaticComponent
-          selectedUser={selectedUser}
-          title={title}
-          featureType={featureType}
-          description={description}
-          isSubmitting={isSubmitting}
-          validationErrors={validationErrors}
-          submittedRequest={submittedRequest}
-          onChangeTitle={onChangeTitle}
-          onChangeFeatureType={onChangeFeatureType}
-          onChangeDescription={onChangeDescription}
-          onSubmit={onSubmit}
-          onReset={onReset}
-        />
+      {/* 2. Read-only submitter identity confirmation - always the authenticated account, never chosen */}
+      <div className="flex items-center gap-3 rounded-xl bg-white dark:bg-[#0a0a0c] border border-slate-200/80 dark:border-zinc-800/80 px-4 py-3 shadow-xs">
+        <div className="w-8 h-8 rounded-full bg-[#0C2086] dark:bg-blue-600 text-white flex items-center justify-center shrink-0">
+          <UserCheck className="w-4 h-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[11px] font-mono font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
+            Submitting As
+          </p>
+          <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-zinc-100 truncate">
+            {currentUser?.fullName || currentUser?.email || 'Current Account'}{' '}
+            <span className="font-normal text-slate-500 dark:text-zinc-400">
+              ({currentUser?.email})
+            </span>
+          </p>
+        </div>
       </div>
+
+      {/* 3. Feature Specification Form */}
+      <FeatureRequestFormColumnStaticComponent
+        title={title}
+        featureType={featureType}
+        description={description}
+        isSubmitting={isSubmitting}
+        validationErrors={validationErrors}
+        submittedRequest={submittedRequest}
+        onChangeTitle={onChangeTitle}
+        onChangeFeatureType={onChangeFeatureType}
+        onChangeDescription={onChangeDescription}
+        onSubmit={onSubmit}
+        onReset={onReset}
+      />
     </div>
   );
 }

@@ -32,10 +32,7 @@ public class FeatureRequestService implements IFeatureRequestService {
     @Override
     @Transactional
     public FeatureRequestDTO createFeatureRequest(CreateFeatureRequestRequestDTO request, UUID requesterUserId, String requesterEmail) {
-        log.info("Creating feature request for target user: {} by requester: {}", request.getTargetUserId(), requesterUserId);
-
-        UserEntityClass targetUser = userRepository.findById(request.getTargetUserId())
-                .orElseThrow(() -> new ValidationCException("Target user account not found with ID: " + request.getTargetUserId()));
+        log.info("Creating feature request by requester: {}", requesterUserId);
 
         UserEntityClass requesterUser = userRepository.findById(requesterUserId)
                 .orElseThrow(() -> new ValidationCException("Requester user account not found with ID: " + requesterUserId));
@@ -44,9 +41,12 @@ public class FeatureRequestService implements IFeatureRequestService {
                 ? requesterEmail.trim().toUpperCase(Locale.ROOT)
                 : (requesterUser.getEmail() != null ? requesterUser.getEmail().toUpperCase(Locale.ROOT) : "USER");
 
+        // A feature request is always attributed to the authenticated caller - targetUserId is
+        // intentionally forced to requesterUserId here rather than accepted from the client, so
+        // no request payload can ever attribute a request to a different account.
         FeatureRequestEntityClass entity = FeatureRequestEntityClass.builder()
                 .requesterUserId(requesterUserId)
-                .targetUserId(request.getTargetUserId())
+                .targetUserId(requesterUserId)
                 .title(request.getTitle().trim())
                 .featureType(request.getFeatureType().trim())
                 .description(request.getDescription().trim())
@@ -59,7 +59,7 @@ public class FeatureRequestService implements IFeatureRequestService {
         FeatureRequestEntityClass savedEntity = featureRequestRepository.save(entity);
         log.info("Feature request created successfully with ID: {}", savedEntity.getId());
 
-        return mapToDTO(savedEntity, requesterUser, targetUser);
+        return mapToDTO(savedEntity, requesterUser, requesterUser);
     }
 
     @Override
