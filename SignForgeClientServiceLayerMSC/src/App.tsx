@@ -24,6 +24,7 @@ import { VercelHostingGuide } from './components/VercelHostingGuide';
 import { AuditTrailModal } from './components/AuditTrailModal';
 import { ExecutiveDispatchModal } from './components/ExecutiveDispatchModal';
 import { SendEmailModal } from './components/SendEmailModal';
+import { OfferLetterPreviewModal } from './components/OfferLetterPreviewModal';
 
 import LoginScreenController from './Features/LoginScreen/LoginScreenController';
 import useAuthenticationStateStore from './Store/AuthenticationStateStore';
@@ -59,6 +60,7 @@ export default function App() {
   const [showAuditModal, setShowAuditModal] = useState<boolean>(false);
   const [showDispatchModal, setShowDispatchModal] = useState<boolean>(false);
   const [showEmailModalDoc, setShowEmailModalDoc] = useState<OfferDocument | null>(null);
+  const [previewOfferDoc, setPreviewOfferDoc] = useState<OfferDocument | null>(null);
 
   // HTML5 History API URL Router Sync with Route Protection & Redirection
   useEffect(() => {
@@ -228,6 +230,7 @@ export default function App() {
           <DocumentInventoryScreenController
             onOpenAuditModalForDoc={handleOpenAuditModalForDoc}
             onOpenSendEmailModal={(doc) => setShowEmailModalDoc(doc)}
+            onOpenPreviewModal={(doc) => setPreviewOfferDoc(doc)}
           />
         )}
 
@@ -321,6 +324,13 @@ export default function App() {
         <SendEmailModal
           document={showEmailModalDoc}
           onClose={() => setShowEmailModalDoc(null)}
+        />
+      )}
+
+      {previewOfferDoc && (
+        <OfferLetterPreviewModal
+          document={previewOfferDoc}
+          onClose={() => setPreviewOfferDoc(null)}
         />
       )}
     </NavigationController>

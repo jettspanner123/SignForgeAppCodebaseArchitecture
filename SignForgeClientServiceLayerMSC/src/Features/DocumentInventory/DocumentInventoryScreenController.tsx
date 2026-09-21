@@ -48,11 +48,13 @@ import ToastSharedComponent from '../../Shared/Components/ToastSharedComponent';
 export interface DocumentInventoryScreenControllerProps {
   onOpenAuditModalForDoc: (doc: OfferDocument) => void;
   onOpenSendEmailModal: (doc: OfferDocument) => void;
+  onOpenPreviewModal: (doc: OfferDocument) => void;
 }
 
 export default function DocumentInventoryScreenController({
   onOpenAuditModalForDoc,
   onOpenSendEmailModal,
+  onOpenPreviewModal,
 }: DocumentInventoryScreenControllerProps): React.JSX.Element {
   const {
     documents,
@@ -822,6 +824,7 @@ export default function DocumentInventoryScreenController({
                 <CardSharedComponent
                   key={doc.id}
                   hoverable
+                  onClick={() => onOpenPreviewModal(doc)}
                   className="p-5 flex flex-col justify-between space-y-4 group"
                 >
                   {/* Top: Document # & Status */}
@@ -865,8 +868,11 @@ export default function DocumentInventoryScreenController({
                     </div>
                   </div>
 
-                  {/* Bottom Actions Cluster */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2.5 border-t border-slate-200 dark:border-zinc-800/80">
+                  {/* Bottom Actions Cluster - stops propagation so its buttons don't also open the preview modal */}
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2.5 border-t border-slate-200 dark:border-zinc-800/80"
+                  >
                     {/* Row 1: 4-Column Equal Icon Actions Grid on Mobile */}
                     <div className="grid grid-cols-4 gap-2 w-full sm:flex sm:items-center sm:gap-1 sm:w-auto">
                       <button
