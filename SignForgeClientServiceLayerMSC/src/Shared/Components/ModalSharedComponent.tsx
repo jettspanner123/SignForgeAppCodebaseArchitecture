@@ -8,8 +8,13 @@ export interface ModalSharedComponentProps {
   onClose: () => void;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
-  /** Extra controls rendered in the header row, just to the left of the close (X) button. */
+  /** Extra controls rendered in the header row, just to the left of the close (X) button.
+   * Hidden below the `sm` breakpoint when `headerActionsMobileRow` is also provided. */
   headerActions?: React.ReactNode;
+  /** Mobile-only (hidden at `sm` and up) full-width row rendered directly below the title/close
+   * row - e.g. a page-switcher segmented control that needs more room than the header can spare
+   * next to the title on a narrow screen. */
+  headerActionsMobileRow?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
@@ -34,6 +39,7 @@ export default function ModalSharedComponent({
   title,
   subtitle,
   headerActions,
+  headerActionsMobileRow,
   children,
   footer,
   maxWidth = '2xl',
@@ -207,7 +213,9 @@ export default function ModalSharedComponent({
           key="modal-portal-container"
           ref={scrollContainerRef}
           style={{ zIndex }}
-          className="fixed inset-0 flex items-end sm:items-start justify-center p-0 sm:p-6 overflow-y-auto overflow-x-hidden w-[100dvw] h-[100dvh]"
+          className={`fixed inset-0 flex ${
+            heightMode === 'full' ? 'items-start' : 'items-end sm:items-start'
+          } justify-center p-0 sm:p-6 overflow-y-auto overflow-x-hidden w-[100dvw] h-[100dvh]`}
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 1, transition: { duration: 0.55 } }}
@@ -235,28 +243,35 @@ export default function ModalSharedComponent({
             }`}
           >
             {(title || subtitle) && (
-              <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between shrink-0">
-                <div>
-                  {title && (
-                    <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-zinc-100 font-serif-headline">
-                      {title}
-                    </h2>
-                  )}
-                  {subtitle && (
-                    <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                      {subtitle}
-                    </p>
-                  )}
+              <div className="border-b border-slate-200 dark:border-zinc-800/80 shrink-0">
+                <div className="px-5 sm:px-6 py-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    {title && (
+                      <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-zinc-100 font-serif-headline">
+                        {title}
+                      </h2>
+                    )}
+                    {subtitle && (
+                      <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                        {subtitle}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {headerActions && (
+                      <div className={headerActionsMobileRow ? 'hidden sm:flex' : 'flex'}>{headerActions}</div>
+                    )}
+                    <button
+                      onClick={handleHeaderClose}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {headerActions}
-                  <button
-                    onClick={handleHeaderClose}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+                {headerActionsMobileRow && (
+                  <div className="px-5 pb-3 -mt-1 sm:hidden">{headerActionsMobileRow}</div>
+                )}
               </div>
             )}
 
