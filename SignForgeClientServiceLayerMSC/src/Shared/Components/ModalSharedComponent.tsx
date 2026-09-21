@@ -15,6 +15,11 @@ export interface ModalSharedComponentProps {
    * class) because CSS transitions cannot interpolate min-height to/from its default `auto`. */
   minHeightPx?: number;
   scrollMode?: 'backdrop' | 'body';
+  /** 'capped' (default) keeps the existing ~90dvh dialog cap with an internally-scrolling body.
+   * 'full' removes that cap entirely so the dialog grows to whatever height its content needs,
+   * relying on the outer portal container's own scroll instead - a true "classic", backdrop-
+   * scrollable modal. Opt-in only: existing modals are unaffected unless they pass this. */
+  heightMode?: 'capped' | 'full';
   animationType?: 'scale' | 'slide-up';
   exitDirection?: 'down' | 'up';
   headerCloseDirection?: 'down' | 'up';
@@ -31,6 +36,7 @@ export default function ModalSharedComponent({
   maxWidth = '2xl',
   minHeightPx,
   scrollMode = 'backdrop',
+  heightMode = 'capped',
   animationType = 'slide-up',
   exitDirection: exitDirectionProp = 'down',
   headerCloseDirection = 'down',
@@ -207,7 +213,9 @@ export default function ModalSharedComponent({
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`relative w-[100dvw] sm:w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-t-2xl rounded-b-none sm:rounded-2xl shadow-2xl z-10 my-0 sm:my-8 max-h-[92dvh] sm:max-h-[90vh] flex flex-col shrink-0`}
+            className={`relative w-[100dvw] sm:w-full ${widthClass} bg-white dark:bg-[#0a0a0c] hairline-border-strong rounded-t-2xl rounded-b-none sm:rounded-2xl shadow-2xl z-10 my-0 sm:my-8 flex flex-col shrink-0 ${
+              heightMode === 'full' ? '' : 'max-h-[92dvh] sm:max-h-[90vh]'
+            }`}
           >
             {(title || subtitle) && (
               <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between shrink-0">
@@ -234,7 +242,11 @@ export default function ModalSharedComponent({
 
             <div
               ref={bodyRef}
-              className={`p-5 sm:p-6 flex-1 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-none ${scrollMode === 'body' ? 'overflow-y-auto' : ''}`}
+              className={`p-5 sm:p-6 flex-1 ${
+                heightMode === 'full'
+                  ? ''
+                  : `overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-none ${scrollMode === 'body' ? 'overflow-y-auto' : ''}`
+              }`}
             >
               {children}
             </div>

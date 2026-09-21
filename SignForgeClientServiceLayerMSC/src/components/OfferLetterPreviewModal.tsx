@@ -49,6 +49,7 @@ export const OfferLetterPreviewModal: React.FC<OfferLetterPreviewModalProps> = (
       subtitle={`Document #${document.documentNumber} • ${document.offerDetails?.candidateName || 'Candidate'}`}
       maxWidth="5xl"
       scrollMode="body"
+      heightMode="full"
       footer={
         <div className="flex items-center justify-end gap-2.5 w-full">
           <ButtonSharedComponent
