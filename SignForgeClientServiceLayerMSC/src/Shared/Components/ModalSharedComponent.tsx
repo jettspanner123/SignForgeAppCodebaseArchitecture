@@ -8,6 +8,8 @@ export interface ModalSharedComponentProps {
   onClose: () => void;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
+  /** Extra controls rendered in the header row, just to the left of the close (X) button. */
+  headerActions?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
@@ -31,6 +33,7 @@ export default function ModalSharedComponent({
   onClose,
   title,
   subtitle,
+  headerActions,
   children,
   footer,
   maxWidth = '2xl',
@@ -245,12 +248,15 @@ export default function ModalSharedComponent({
                     </p>
                   )}
                 </div>
-                <button
-                  onClick={handleHeaderClose}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  {headerActions}
+                  <button
+                    onClick={handleHeaderClose}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             )}
 

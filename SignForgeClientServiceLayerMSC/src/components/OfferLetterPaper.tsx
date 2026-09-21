@@ -91,6 +91,10 @@ interface OfferLetterPaperProps {
   isInteractiveForm?: boolean;
   interactive?: OfferLetterInteractiveStateInterfaceModel;
   layoutMode?: 'grid' | 'stack';
+  /** When set, only this page number is visible (the other two stay mounted - hidden via CSS,
+   * not unmounted - so DOM-id-based consumers like the PDF screenshot generator keep working)
+   * and the wrapper collapses to a single column so the visible page renders at full width. */
+  visiblePage?: 1 | 2 | 3;
 }
 
 export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
@@ -102,6 +106,7 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
   isInteractiveForm = false,
   interactive,
   layoutMode = 'grid',
+  visiblePage,
 }) => {
   const isCandidateSigned = !!document.candidateSignature;
   const isHRSigned = !!document.hrSignature;
@@ -154,12 +159,14 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
   }, [document.id]);
 
   return (
-    <div className={`${layoutMode === 'stack' ? 'flex flex-col gap-8' : 'grid grid-cols-1 lg:grid-cols-2 gap-8'} w-full font-sans text-slate-900`}>
-      
+    <div className={`${visiblePage ? 'relative block' : layoutMode === 'stack' ? 'flex flex-col gap-8' : 'grid grid-cols-1 lg:grid-cols-2 gap-8'} w-full font-sans text-slate-900`}>
+
       {/* PAGE 1: APPOINTMENT & OFFER DETAILS */}
-      <div 
+      <div
         id="offer-letter-page-1"
-        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between transition-all ${layoutMode === 'grid' ? 'h-full' : ''}`}
+        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 overflow-hidden flex flex-col justify-between transition-all ${layoutMode === 'grid' && !visiblePage ? 'h-full' : ''} ${
+          visiblePage && visiblePage !== 1 ? 'absolute left-[-9999px] top-0 w-full' : 'relative'
+        }`}
       >
         <div className="space-y-6 flex-1">
           {/* Header: We.PLM Logo & Title */}
@@ -484,7 +491,9 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
       {/* PAGE 2: TERMS AND CONDITIONS */}
       <div 
         id="offer-letter-page-2"
-        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between transition-all ${layoutMode === 'grid' ? 'h-full' : ''}`}
+        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 overflow-hidden flex flex-col justify-between transition-all ${layoutMode === 'grid' && !visiblePage ? 'h-full' : ''} ${
+          visiblePage && visiblePage !== 2 ? 'absolute left-[-9999px] top-0 w-full' : 'relative'
+        }`}
       >
         <div className="space-y-6 flex-1">
           {/* Header */}
@@ -545,7 +554,9 @@ export const OfferLetterPaper: React.FC<OfferLetterPaperProps> = ({
       {/* PAGE 3: TERM, TERMINATION & SIGNATURE EXECUTION */}
       <div 
         id="offer-letter-page-3"
-        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 relative overflow-hidden space-y-6 transition-all ${layoutMode === 'grid' ? 'lg:col-span-1' : ''}`}
+        className={`bg-white rounded-lg shadow-xl p-6 sm:p-10 md:p-12 border border-slate-200 overflow-hidden space-y-6 transition-all ${layoutMode === 'grid' && !visiblePage ? 'lg:col-span-1' : ''} ${
+          visiblePage && visiblePage !== 3 ? 'absolute left-[-9999px] top-0 w-full' : 'relative'
+        }`}
       >
         {/* Header */}
         <div className="relative flex items-center justify-between pb-4 sm:pb-5 border-b-2 border-slate-900 min-h-[54px] sm:min-h-[60px]">
