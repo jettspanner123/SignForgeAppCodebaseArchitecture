@@ -423,11 +423,11 @@ export const SignatureCanvasModal: React.FC<SignatureCanvasProps> = ({
                     onClick={() => setSelectedFont(font.name)}
                     className={`p-3 rounded-xl border text-left flex flex-col justify-center min-h-[70px] transition-all cursor-pointer ${
                       selectedFont === font.name
-                        ? 'bg-blue-500/10 border-[#0C2086] dark:border-blue-500 ring-1 ring-[#0C2086] dark:ring-blue-500 text-slate-900 dark:text-zinc-100'
-                        : 'bg-slate-50 dark:bg-zinc-900/50 border-slate-200/80 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:border-slate-300 dark:hover:border-zinc-700'
+                        ? 'bg-blue-50 border-[#0C2086] ring-1 ring-[#0C2086] text-slate-900'
+                        : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono font-bold uppercase tracking-wider mb-1">
+                    <span className="text-[10px] text-slate-500 font-mono font-bold uppercase tracking-wider mb-1">
                       {font.name}
                     </span>
                     <span className={font.className} style={{ color: selectedInk }}>
