@@ -10,7 +10,7 @@ export interface ModalSharedComponentProps {
   subtitle?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
   /** Animated minimum body height in pixels. Driven via framer-motion's `animate` (not a CSS
    * class) because CSS transitions cannot interpolate min-height to/from its default `auto`. */
   minHeightPx?: number;
@@ -135,6 +135,18 @@ export default function ModalSharedComponent({
     }
   }, [isOpen]);
 
+  // Prevent background page scroll while the modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   let widthClass = 'max-w-2xl';
   if (maxWidth === 'sm') widthClass = 'max-w-sm';
   if (maxWidth === 'md') widthClass = 'max-w-md';
@@ -144,6 +156,8 @@ export default function ModalSharedComponent({
   if (maxWidth === '3xl') widthClass = 'max-w-3xl';
   if (maxWidth === '4xl') widthClass = 'max-w-4xl';
   if (maxWidth === '5xl') widthClass = 'max-w-5xl';
+  if (maxWidth === '6xl') widthClass = 'max-w-6xl';
+  if (maxWidth === '7xl') widthClass = 'max-w-7xl';
 
   const isSlideUp = animationType === 'slide-up';
   const activeExitDirection: 'down' | 'up' =
