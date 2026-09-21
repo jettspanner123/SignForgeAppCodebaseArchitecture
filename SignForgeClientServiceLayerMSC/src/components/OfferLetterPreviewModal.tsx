@@ -13,10 +13,10 @@ interface OfferLetterPreviewModalProps {
   onClose: () => void;
 }
 
-const PAGE_TABS: { page: 1 | 2 | 3; label: string; fullName: string }[] = [
-  { page: 1, label: '1', fullName: 'Offer Letter' },
-  { page: 2, label: '2', fullName: 'Terms & Conditions' },
-  { page: 3, label: '3', fullName: 'Execution & Acceptance' },
+const PAGE_TABS: { page: 1 | 2 | 3; label: string; mobileLabel: string; fullName: string }[] = [
+  { page: 1, label: '1', mobileLabel: 'Page 1', fullName: 'Offer Letter' },
+  { page: 2, label: '2', mobileLabel: 'Page 2', fullName: 'Terms & Conditions' },
+  { page: 3, label: '3', mobileLabel: 'Page 3', fullName: 'Execution & Acceptance' },
 ];
 
 export const OfferLetterPreviewModal: React.FC<OfferLetterPreviewModalProps> = ({ document, onClose }) => {
@@ -82,7 +82,7 @@ export const OfferLetterPreviewModal: React.FC<OfferLetterPreviewModalProps> = (
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            {variant === 'full' ? tab.fullName : tab.label}
+            {variant === 'full' ? tab.mobileLabel : tab.label}
           </span>
         </button>
       ))}
