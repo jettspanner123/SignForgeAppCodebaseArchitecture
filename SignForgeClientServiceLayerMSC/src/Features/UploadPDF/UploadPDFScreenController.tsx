@@ -27,6 +27,9 @@ import ApplicationHapticsUtility from '../../Utilities/ApplicationHapticsUtility
 import ApplicationCryptoUtility from '../../Utilities/ApplicationCryptoUtility';
 import ConfigurationConstantCON from '../../Constants/ConfigurationConstantCON';
 import { useOfferDocumentStore } from '../../Store/OfferDocumentStore';
+import ApplicationPermissionService from '../../Services/ApplicationPermissionService';
+import ApplicationPermissionCON from '../../Constants/ApplicationPermissionCON';
+import useAuthenticationStateStore from '../../Store/AuthenticationStateStore';
 
 export interface UploadPDFScreenControllerProps {
   onSaveAndSend: (doc: OfferDocument) => void;
@@ -41,6 +44,11 @@ export default function UploadPDFScreenController({
 }: UploadPDFScreenControllerProps): React.JSX.Element {
   const isFeatureEnabled = useOfferDocumentStore((s) => s.isFeatureEnabled);
   const isBackendFeatureWorking = isFeatureEnabled(ConfigurationConstantCON.KEY_PDF_UPLOAD_FEATURE_WORKING);
+  // Subscribed (not just read via getState()) so this recomputes reactively if auth state changes
+  useAuthenticationStateStore((state) => state.user?.role);
+  const canCreateWorkLocation = ApplicationPermissionService.current.hasPermission(
+    ApplicationPermissionCON.CAN_CREATE_WORK_LOCATION
+  );
 
   const [documentType, setDocumentType] = useState<'OFFER_LETTER' | 'JOINING_LETTER'>('JOINING_LETTER');
   const [signatureCount, setSignatureCount] = useState<2 | 3>(3);
@@ -891,11 +899,15 @@ export default function UploadPDFScreenController({
                   searchable={true}
                   searchPlaceholder="Search work locations..."
                   size="md"
-                  footerAction={{
-                    label: 'Create New Work Location',
-                    icon: <Plus className="w-3.5 h-3.5" />,
-                    onClick: () => setIsCreateWorkLocationOpen(true),
-                  }}
+                  footerAction={
+                    canCreateWorkLocation
+                      ? {
+                          label: 'Create New Work Location',
+                          icon: <Plus className="w-3.5 h-3.5" />,
+                          onClick: () => setIsCreateWorkLocationOpen(true),
+                        }
+                      : undefined
+                  }
                 />
 
                 <InputSharedComponent
