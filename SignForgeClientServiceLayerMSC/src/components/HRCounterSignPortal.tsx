@@ -39,7 +39,11 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
   document: propDocument,
   onUpdateDocument
 }) => {
-  const docId = propDocument?.id || documentId;
+  // `documentId` (from the URL route) is authoritative; `propDocument` can be a stale/wrong
+  // fallback (e.g. the local store's last-selected or first document) when the real document
+  // for this route hasn't been resolved into that store yet - trusting its `.id` over the
+  // route's own id would fetch and countersign an entirely different document.
+  const docId = documentId || propDocument?.id;
   // Always fetch the authoritative record for this exact offer, even if a possibly-stale
   // copy is already sitting in the shared document store (populated by unrelated dashboard/
   // list queries). Force a fresh network check on every mount so the candidate's true latest
@@ -193,7 +197,14 @@ export const HRCounterSignPortal: React.FC<HRCounterSignPortalProps> = ({
         onUpdateDocument(persisted);
       }
     } catch (err) {
-      console.warn('Backend HR countersign sync warning:', err);
+      // The optimistic update above already showed "countersigned" - if the backend actually
+      // rejected the signature, that optimistic state is a lie and must be rolled back, or the
+      // user is left believing the offer is executed when a refresh will show it is not.
+      console.warn('Backend HR countersign sync failed, rolling back optimistic state:', err);
+      setLocalSignedDoc(null);
+      setShowDispatchModal(false);
+      const message = err instanceof Error ? err.message : 'The countersignature could not be saved.';
+      alert(`Counter-signature failed: ${message}\n\nPlease try again.`);
     }
   };
 

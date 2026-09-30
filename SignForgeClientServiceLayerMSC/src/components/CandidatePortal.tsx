@@ -48,7 +48,11 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
   onUpdateDocument,
   onSwitchToHRView
 }) => {
-  const docId = propDocument?.id || documentId;
+  // `documentId` (from the URL route) is authoritative; `propDocument` can be a stale/wrong
+  // fallback (e.g. the local store's last-selected or first document) when the real document
+  // for this route hasn't been resolved into that store yet - trusting its `.id` over the
+  // route's own id would fetch and act on an entirely different document.
+  const docId = documentId || propDocument?.id;
   // Always fetch the authoritative record for this exact offer, even if a possibly-stale
   // copy is already sitting in the shared document store (populated by unrelated dashboard/
   // list queries). Force a fresh network check on every mount so the signed status shown
@@ -186,7 +190,13 @@ export const CandidatePortal: React.FC<CandidatePortalProps> = ({
         onUpdateDocument(persisted);
       }
     } catch (err) {
-      console.warn('Backend candidate sign sync warning:', err);
+      // The optimistic update above already showed the signature as applied - if the backend
+      // actually rejected it, that optimistic state is a lie and must be rolled back, or the
+      // candidate is left believing they signed when a refresh will show they have not.
+      console.warn('Backend candidate sign sync failed, rolling back optimistic state:', err);
+      setLocalSignedDoc(null);
+      const message = err instanceof Error ? err.message : 'Your signature could not be saved.';
+      alert(`Signature failed: ${message}\n\nPlease try again.`);
     }
   };
 
