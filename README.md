@@ -96,7 +96,7 @@ Both the client and orchestrator follow a shared **MSC (Model-Service-Controller
 | Layer | Platform | URL |
 |---|---|---|
 | 💻 Client | ▲ Vercel | `signforge-weplm.vercel.app` |
-| ⚙️ Orchestrator | 🎨 Render | `signforgeappcodebasearchitecture.onrender.com` |
+| ⚙️ Orchestrator | 🎨 Render | `signforgeappcodebasearchitecture-prod.onrender.com` |
 | 🐘 Database | Supabase | PostgreSQL 17 |
 
 ---

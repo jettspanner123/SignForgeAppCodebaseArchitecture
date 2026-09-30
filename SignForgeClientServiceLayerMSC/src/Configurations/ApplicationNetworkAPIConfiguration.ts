@@ -93,7 +93,7 @@ export default class ApplicationNetworkAPIConfiguration {
             process.env.VITE_API_BASE_URL) as string | undefined)
         : undefined;
 
-    const configuredValue = (rawEnvUrl || rawProcessEnvUrl || 'https://signforgeappcodebasearchitecture.onrender.com').trim();
+    const configuredValue = (rawEnvUrl || rawProcessEnvUrl || 'https://signforgeappcodebasearchitecture-prod.onrender.com').trim();
 
     // Check if accessed from a remote device/mobile on LAN (e.g. 192.168.x.x) and configured for local dev
     let hostValue = configuredValue;

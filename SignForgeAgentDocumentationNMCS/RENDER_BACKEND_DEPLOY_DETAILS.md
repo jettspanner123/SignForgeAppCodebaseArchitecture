@@ -6,17 +6,19 @@ This document provides complete, exhaustive architectural and operational docume
 
 ## 1. Executive Summary & Architecture Overview
 
+> **Note (2026-09-30):** This service was re-hosted into a different Render account (per management directive) and, separately, its Supabase database project was re-created in a different Supabase organization (the original database project was no longer reachable from the new account). The table below reflects the **current** live deployment. The original values (superseded) were: Service ID `srv-daf6vnpt0dsc73crbk0g`, URL `signforgeappcodebasearchitecture.onrender.com`, Render Workspace `tea-d7p6f8bbc2fs73c18d8g`, region Oregon, and a Supabase database at `aws-0-ap-southeast-1.pooler.supabase.com` (project ref `apzfodnvbvvpxalsxltv`) — none of that data carried over, since it lived in an inaccessible account/project.
+
 | Parameter | Specification |
 | :--- | :--- |
-| **Service Name** | `SignForgeAppCodebaseArchitecture` |
-| **Service ID** | `srv-daf6vnpt0dsc73crbk0g` |
-| **Service URL** | [https://signforgeappcodebasearchitecture.onrender.com](https://signforgeappcodebasearchitecture.onrender.com) |
-| **Dashboard URL** | [https://dashboard.render.com/web/srv-daf6vnpt0dsc73crbk0g](https://dashboard.render.com/web/srv-daf6vnpt0dsc73crbk0g) |
-| **Render Workspace** | `tea-d7p6f8bbc2fs73c18d8g` (`My Workspace`) |
+| **Service Name** | `SignForgeAppCodebaseArchitecture-Prod` |
+| **Service ID** | `srv-dau94etg1s2s73bvjdeg` |
+| **Service URL** | [https://signforgeappcodebasearchitecture-prod.onrender.com](https://signforgeappcodebasearchitecture-prod.onrender.com) |
+| **Dashboard URL** | [https://dashboard.render.com/web/srv-dau94etg1s2s73bvjdeg](https://dashboard.render.com/web/srv-dau94etg1s2s73bvjdeg) |
+| **Render Workspace** | `tea-dau8mjlg1s2s73btqqng` (`My Workspace`) |
 | **Runtime Environment** | Docker (`eclipse-temurin:21-jre-alpine`) |
 | **Application Framework** | Spring Boot `3.4.3` / Java `21` |
-| **Database Engine** | PostgreSQL 17 (Hosted on Supabase with Connection Pooling) |
-| **Region** | Oregon (US-West) |
+| **Database Engine** | PostgreSQL 17 (Hosted on Supabase project `SignForgeAppDatabase`, ref `ahqenzqkgbhboecxoehl`, region `ap-south-1`/Mumbai, with Connection Pooling) |
+| **Region** | Oregon (US-West) — chosen because the backend build/runtime is proven here; the database intentionally lives in Mumbai for data-residency reasons even though this adds cross-region DB latency (~450ms observed) |
 | **Instance Type / Plan** | Free Tier (`0.5 CPU, 512 MB RAM`) |
 | **Auto-Deploy** | Enabled (`yes` on commits to branch `main`) |
 | **Health Check Path** | `/Api/V1/HealthCheck/Ping` & `/Api/V1/HealthCheck` |
@@ -24,12 +26,12 @@ This document provides complete, exhaustive architectural and operational docume
 ```
                                   +-------------------------------------------------------------+
                                   |                     Render Cloud Service                    |
-                                  |             (SignForgeAppCodebaseArchitecture)              |
+                                  |           (SignForgeAppCodebaseArchitecture-Prod)           |
                                   |                                                             |
 +---------------------+           |   +-------------------+          +----------------------+   |           +-------------------------+
 |  SignForge Client   |  HTTPS    |   |   Reverse Proxy   |  :8080   | Spring Boot 3.4 /    |   |  JDBC     | Supabase PostgreSQL 17  |
 |  (Web / Desktop)    +---------->+   |   & SSL Gateway   +--------->+ Java 21 Container    +---+---------->+ Connection Pooler       |
-|                     |           |   |                   |          | (Tomcat Web Server)  |   | (SSL Req) | (AWS ap-southeast-1)    |
+|                     |           |   |                   |          | (Tomcat Web Server)  |   | (SSL Req) | (AWS ap-south-1)        |
 +---------------------+           |   +-------------------+          +----------------------+   |           +-------------------------+
                                   +-------------------------------------------------------------+
 ```
@@ -110,8 +112,8 @@ The following environment variables are securely provisioned on Render:
 | Variable Name | Value / Description | Purpose |
 | :--- | :--- | :--- |
 | `PORT` | `8080` | Render HTTP ingress port binding |
-| `SIGNFORGE_DATABASE_URL` | `jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require` | Supabase pooled PostgreSQL JDBC connection |
-| `SIGNFORGE_DB_USERNAME` | `signforge_app.apzfodnvbvvpxalsxltv` | Database authentication username |
+| `SIGNFORGE_DATABASE_URL` | `jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require` | Supabase pooled PostgreSQL JDBC connection (project `SignForgeAppDatabase`, ref `ahqenzqkgbhboecxoehl`) |
+| `SIGNFORGE_DB_USERNAME` | `signforge_app.ahqenzqkgbhboecxoehl` | Database authentication username — a dedicated non-superuser role (`signforge_app`) created for the app, granted full privileges on the `public` schema |
 | `SIGNFORGE_DB_PASSWORD` | `[SECURE]` | Database authentication password |
 | `SIGNFORGE_JWT_SECRET` | `SignForgeSuperEnterpriseSecretKey2026SecureLongJwtTokenSigningKey!` | HS256 / HS512 JWT cryptographic signing key |
 | `SIGNFORGE_JWT_ISSUER` | `SignForgeOrchestrator` | JWT Issuer assertion (`iss`) |
@@ -140,13 +142,13 @@ server:
 ### 5.1 Liveness Probe (`/Api/V1/HealthCheck/Ping`)
 
 - **HTTP Method**: `GET`
-- **URL**: `https://signforgeappcodebasearchitecture.onrender.com/Api/V1/HealthCheck/Ping`
+- **URL**: `https://signforgeappcodebasearchitecture-prod.onrender.com/Api/V1/HealthCheck/Ping`
 - **Response**:
 ```json
 {
   "Data": {
     "status": "PONG",
-    "timestamp": "2026-09-07T08:07:39.080893905Z"
+    "timestamp": "2026-09-30T04:56:12.958593609Z"
   },
   "Success": true,
   "Message": "Liveness probe succeeded.",
@@ -157,24 +159,24 @@ server:
 ### 5.2 Deep System Health Check (`/Api/V1/HealthCheck`)
 
 - **HTTP Method**: `GET`
-- **URL**: `https://signforgeappcodebasearchitecture.onrender.com/Api/V1/HealthCheck`
+- **URL**: `https://signforgeappcodebasearchitecture-prod.onrender.com/Api/V1/HealthCheck`
 - **Response**:
 ```json
 {
   "Data": {
     "OverallStatus": "Healthy",
-    "TotalDurationMs": 353,
+    "TotalDurationMs": 468,
     "Database": {
       "ComponentName": "PostgreSQL Supabase Database",
       "Status": "Healthy",
-      "LatencyMs": 351,
-      "Details": "Connected successfully. Latency: 351ms",
-      "CheckedAt": "2026-09-07T08:07:41.449389702Z"
+      "LatencyMs": 465,
+      "Details": "Connected successfully. Latency: 465ms",
+      "CheckedAt": "2026-09-30T04:56:25.282892597Z"
     },
     "Runtime": {
       "EnvironmentName": "Development",
-      "Uptime": "0d 0h 0m 39s",
-      "MemoryAllocatedMB": 46.93,
+      "Uptime": "0d 0h 1m 3s",
+      "MemoryAllocatedMB": 33.64,
       "ThreadCount": 24,
       "RuntimeVersion": "21.0.12+8-LTS"
     },
